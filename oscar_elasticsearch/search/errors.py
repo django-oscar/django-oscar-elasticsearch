@@ -1,0 +1,2 @@
+class QueryTooLarge(Exception):
+    pass
