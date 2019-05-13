@@ -27,9 +27,10 @@ setup(
     install_requires=[
         'setuptools',
         'django-oscar',
-        'waftail',
+        'wagtail',
         "purl",
         "elasticsearch",
+        "uwsgidecorators-fallback",,
     ],
     # mark test target to require extras.
     extras_require = {
