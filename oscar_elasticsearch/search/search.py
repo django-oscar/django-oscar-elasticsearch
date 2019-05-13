@@ -18,7 +18,7 @@ from .errors import QueryTooLarge
 
 ORDERING_RE = re.compile(r"(?P<sign>[\-\+]?)(?P<order_by>(.*))")
 SPIT_THAT_BITCH_RE = re.compile(r"(?P<field_name>[^\.]+)(?:\.(?P<addition>.*))?")
-PAGE_SIZE = getattr(settings, "OSCAR_ELASTICSEARCH_QUERY_PAGE_SIZE")
+PAGE_SIZE = getattr(settings, "OSCAR_ELASTICSEARCH_QUERY_PAGE_SIZE", 100)
 
 
 def range_pairs(range_definition):
