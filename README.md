@@ -16,7 +16,7 @@ The following apps need to be added to ``INSTALLED_APPS``
 Settings required to replace the search app
 
 ```
-OSCAR_ELASTICSEARCH_QUERY_PAGE_SIZE = 20
+OSCAR_ELASTICSEARCH_QUERY_PAGE_SIZE = 100
 OSCAR_PRODUCT_SEARCH_HANDLER = "oscar_elasticsearch.search.search_handlers.ProductSearchHandler",
 OSCAR_SEARCH = {
     "DEFAULT_ITEMS_PER_PAGE": 20,
