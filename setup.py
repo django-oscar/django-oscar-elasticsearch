@@ -29,7 +29,7 @@ setup(
         'django-oscar',
         'wagtail',
         "purl",
-        "elasticsearch",
+        "elasticsearch>=6.0.0,<7.0.0",
         "uwsgidecorators-fallback",,
     ],
     # mark test target to require extras.
