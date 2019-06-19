@@ -108,7 +108,6 @@ if is_model_registered("catalogue", "Product"):
                     index.FilterField("price_currency"),
                     index.SearchField("partner_sku"),
                     index.SearchField("price_excl_tax"),
-                    index.SearchField("price_incl_tax"),
                     index.FilterField("partner"),
                     index.FilterField("num_in_stock"),
                 ],
