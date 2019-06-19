@@ -1,7 +1,6 @@
 {% load staticfiles %}
 <script src="{% static "oscar/js/search/bootstrap3-typeahead.js" %}"></script>
 <script>
-
 $('#id_q').typeahead({
     source: function(query, process) {
         return $.get('{% url "search:autocomplete" %}?q=' + query, function(data) {
