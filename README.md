@@ -111,7 +111,7 @@ Finally, add your own base.html, and make sure this is in.
 {% endblock %}
 ```
 
-Optionally, for a more beautiful results templates; modify your ``TEMPLATES`` to include the main Oscar Elasticsearch ``OSCAR_ES_MAIN_TEMPLATE_DIR``.
+Optionally, for a more beautiful results templates; modify your ``TEMPLATES`` to include the main Oscar Elasticsearch template dir ``OSCAR_ES_MAIN_TEMPLATE_DIR``.
 
 ```Python
 
