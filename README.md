@@ -7,10 +7,15 @@ Setup
 The following apps need to be added to ``INSTALLED_APPS``
 
 ```
-"oscar_elasticsearch.search", # replace standard oscar app
-"wagtail.contrib.search_promotions", # allow search result display and such
-"wagtail.search", # maybe you need this I'm not sure, maybe more is needed
-
+INSTALLED_APPS = [
+    ...
+    "wagtail.core",
+    "wagtail.contrib.search_promotions", # allow search result display and such
+] + get_core_apps([
+    "oscar_elasticsearch.search", # replace standard oscar app
+]) + [
+    "wagtail.search", # At last, append wagtail search
+]
 ```
 
 Settings required to replace the search app
