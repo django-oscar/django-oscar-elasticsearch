@@ -59,6 +59,12 @@ class BaseSearchForm(forms.Form):
         label=_("Sort by"), choices=[], widget=forms.Select(), required=False
     )
 
+    class Media:
+        js = (
+            "oscar/js/search/bootstrap3-typeahead.js",
+            "oscar/js/search/autocomplete.js",
+        )
+
     def __init__(self, *args, **kwargs):
         self.selected_facets = kwargs.pop("selected_facets", [])
         super().__init__(*args, **kwargs)
@@ -96,7 +102,6 @@ class BaseSearchForm(forms.Form):
 
 
 class AutoCompleteForm(forms.Form):
-
     q = forms.CharField(
         widget=SearchInput(
             attrs={
@@ -107,6 +112,12 @@ class AutoCompleteForm(forms.Form):
             }
         )
     )
+
+    class Media:
+        js = (
+            "oscar/js/search/bootstrap3-typeahead.js",
+            "oscar/js/search/autocomplete.js",
+        )
 
 
 class CatalogueSearchForm(BaseSearchForm):

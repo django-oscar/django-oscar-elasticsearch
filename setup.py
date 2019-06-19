@@ -26,7 +26,7 @@ setup(
     # specify dependencies
     install_requires=[
         'setuptools',
-        'django-oscar',
+        'django-oscar<2.0',
         'wagtail',
         "purl",
         "elasticsearch>=6.0.0,<7.0.0",

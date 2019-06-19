@@ -1,2 +1,3 @@
 django_oscar_elasticsearch.egg-info/
 __pycache__/
+*.DS_Store

@@ -4,23 +4,23 @@ Search app for oscar using elasticsearch
 Setup
 -----
 
-The following apps need to be added to ``INSTALLED_APPS``
+The following apps need to be added to ``INSTALLED_APPS``.
 
-```
+```Python
 INSTALLED_APPS = [
     ...
-    "wagtail.core",
-    "wagtail.contrib.search_promotions", # allow search result display and such
 ] + get_core_apps([
     "oscar_elasticsearch.search", # replace standard oscar app
 ]) + [
-    "wagtail.search", # At last, append wagtail search
+    "wagtail.core",
+    "wagtail.contrib.search_promotions", # allow search result display and such
+    "wagtail.search",
 ]
 ```
 
-Settings required to replace the search app
+Settings required to replace the search app.
 
-```
+```Python
 OSCAR_ELASTICSEARCH_QUERY_PAGE_SIZE = 100
 OSCAR_PRODUCT_SEARCH_HANDLER = "oscar_elasticsearch.search.search_handlers.ProductSearchHandler",
 OSCAR_SEARCH = {
@@ -95,4 +95,39 @@ WAGTAILSEARCH_BACKENDS = {
         "AUTO_UPDATE": True,
     }
 }
+```
+
+Finally, add your own base.html, and make sure this is in.
+
+```
+{% extends "oscar/base.html" %}
+
+{% block scripts %}
+{{ block.super }}
+{{ search_form.media }}
+<script>
+    $('#id_q').autocomplete('{% url "search:autocomplete" %}');
+</script>
+{% endblock %}
+```
+
+Optionally, for a more beautiful results templates; modify your ``TEMPLATES`` to include the main Oscar Elasticsearch template dir ``OSCAR_ES_MAIN_TEMPLATE_DIR``.
+
+```Python
+
+from oscar import OSCAR_MAIN_TEMPLATE_DIR
+from oscar_elasticsearch import OSCAR_ES_MAIN_TEMPLATE_DIR
+
+
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [
+            os.path.join(BASE_DIR, 'templates'),
+            OSCAR_ES_MAIN_TEMPLATE_DIR, # Optional, but make sure this is above Oscar's templates dir
+            OSCAR_MAIN_TEMPLATE_DIR
+        ],
+        ...
+    }
+]
 ```
