@@ -19,7 +19,7 @@ from .errors import QueryTooLarge
 ORDERING_RE = re.compile(r"(?P<sign>[\-\+]?)(?P<order_by>(.*))")
 SPIT_THAT_BITCH_RE = re.compile(r"(?P<field_name>[^\.]+)(?:\.(?P<addition>.*))?")
 PAGE_SIZE = getattr(settings, "OSCAR_ELASTICSEARCH_QUERY_PAGE_SIZE", 100)
-
+FACET_BUCKET_SIZE = getattr(settings, "OSCAR_ELASTICSEARCH_FACET_BUCKET_SIZE", 10)
 
 def range_pairs(range_definition):
     last_result = None
@@ -71,7 +71,13 @@ class SearchResults(Elasticsearch6SearchResults):
         full_column_name = self.query_compiler.get_field_name_for_path(facet_name)
 
         if facet_type == self.query_compiler.FACET_TYPE_TERM:
-            return {"terms": {"field": full_column_name, "order": {"_key": "asc"}}}
+            return {
+                "terms": {
+                    "field": full_column_name,
+                    "size": FACET_BUCKET_SIZE,
+                    "order": {"_key": "asc"},
+                }
+            }
 
         elif facet_type == self.query_compiler.FACET_TYPE_RANGE:
             ranges = range_pairs(facet["ranges"])
