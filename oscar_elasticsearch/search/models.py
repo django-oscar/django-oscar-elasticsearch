@@ -8,7 +8,11 @@ from oscar.core.loading import is_model_registered, get_model, get_class
 from wagtail.search import index
 
 from .abstract_models import AbstractSynonym
-from .utils import es_type_for_product_attribute, product_attributes_es_config, merge_dicts
+from .utils import (
+    es_type_for_product_attribute,
+    product_attributes_es_config,
+    merge_dicts,
+)
 
 process_product_fields = get_class("search.extra", "process_product_fields")
 

@@ -1,5 +1,7 @@
 import re
 from copy import deepcopy
+from unittest import mock
+
 from django.db.models.query import QuerySet
 from django.utils.functional import cached_property
 from django.conf import settings
@@ -35,6 +37,16 @@ def range_pairs(range_definition):
 
 
 class SearchMapping(Elasticsearch6Mapping):
+    default_fields = (
+        Elasticsearch6Mapping.all_field_name,
+        Elasticsearch6Mapping.edgengrams_field_name,
+    )
+
+    def get_field_column_name(self, field):
+        if field in self.default_fields:
+            return field
+        return super(SearchMapping, self).get_field_column_name(field)
+
     def get_autocomplete_column_name(self, field):
         return self.get_field_column_name(field).replace(
             "_edgengrams", "_auto_complete"
@@ -280,6 +292,12 @@ class SearchQueryCompiler(Elasticsearch6SearchQueryCompiler):
             order_by_relevance=not bool(es_ordering) and order_by_relevance,
             partial_match=partial_match,
         )
+
+    def check(self):
+        with mock.patch.object(
+            self, "fields", set(self.fields) - set(self.mapping.default_fields)
+        ):  # remove default_fields before checking, they are not allowed!
+            super(SearchQueryCompiler, self).check()
 
     def clone(self, es_filters=None, es_ordering=None):
         es_filters_new = deepcopy(self.es_filters)
