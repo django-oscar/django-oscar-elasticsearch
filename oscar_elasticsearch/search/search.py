@@ -294,9 +294,12 @@ class SearchQueryCompiler(Elasticsearch6SearchQueryCompiler):
         )
 
     def check(self):
-        with mock.patch.object(
-            self, "fields", set(self.fields) - set(self.mapping.default_fields)
-        ):  # remove default_fields before checking, they are not allowed!
+        if self.fields:
+            with mock.patch.object(
+                self, "fields", set(self.fields) - set(self.mapping.default_fields)
+            ):  # remove default_fields before checking, they are not allowed!
+                super(SearchQueryCompiler, self).check()
+        else:  # perform the default checks if no fields are defined.
             super(SearchQueryCompiler, self).check()
 
     def clone(self, es_filters=None, es_ordering=None):
