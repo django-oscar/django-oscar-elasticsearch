@@ -22,7 +22,7 @@ Settings required to replace the search app.
 
 ```Python
 OSCAR_ELASTICSEARCH_QUERY_PAGE_SIZE = 100
-OSCAR_PRODUCT_SEARCH_HANDLER = "oscar_elasticsearch.search.search_handlers.ProductSearchHandler",
+OSCAR_PRODUCT_SEARCH_HANDLER = "oscar_elasticsearch.search.search_handlers.ProductSearchHandler"
 OSCAR_SEARCH = {
     "DEFAULT_ITEMS_PER_PAGE": 20,
     "MONTHS_TO_RUN_ANALYTICS": 3,
