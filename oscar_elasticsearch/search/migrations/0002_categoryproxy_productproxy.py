@@ -29,6 +29,8 @@ class Migration(migrations.Migration):
             options={
                 'proxy': True,
                 'indexes': [],
+                'verbose_name': 'Product',
+                'verbose_name_plural': 'Products'
             },
             bases=(wagtail.search.index.Indexed, 'catalogue.product'),
         ),

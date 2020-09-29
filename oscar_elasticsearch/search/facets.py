@@ -1,9 +1,8 @@
-from django.conf import settings
 from django.utils.module_loading import import_string
 
-from purl import URL
+from . import settings
 
-FACETS = [{"name": "attrs.size", "label": "Size", "type": "term"}]
+from purl import URL
 
 
 def bucket_key(bucket):
@@ -27,7 +26,7 @@ def process_facets(request_full_path, form, facets):
     unfiltered_facets, filtered_facets = facets
     selected_multi_facets = form.selected_multi_facets
     processed_facets = []
-    facet_definitions = settings.OSCAR_SEARCH.get("FACETS")
+    facet_definitions = settings.FACETS
 
     for facet_definition in facet_definitions:
         facet_name = facet_definition["name"]
@@ -39,7 +38,14 @@ def process_facets(request_full_path, form, facets):
 
         unfiltered_buckets = unfiltered_facet.get("buckets", [])
         filtered_buckets = filtered_facet.get("buckets", [])
-        if unfiltered_buckets:
+        if len(unfiltered_buckets) >= settings.MIN_NUM_BUCKETS:
+            # range facet buckets are always filled so we need to check if the
+            # doc_counts are non-zero to know if they are useful.
+            if facet_definition.get("type") == "range" and not any(
+                (bucket.get("doc_count", 0) > 0 for bucket in unfiltered_buckets)
+            ):
+                continue
+
             facet = Facet(
                 facet_definition,
                 unfiltered_buckets,
@@ -69,8 +75,9 @@ class Facet(object):
         self.request_url = request_url
         self.selected_facets = set(selected_facets)
         self.formatter = None
-        if "formatter" in facet_definition:
-            self.formatter = import_string(facet_definition["formatter"])
+        formatter = (facet_definition.get("formatter") or "").strip()
+        if formatter:
+            self.formatter = import_string(formatter)
 
     def name(self):
         return self.label
@@ -120,9 +127,8 @@ class FacetBucketItem(object):
 
     def __str__(self):
         if self.formatter is not None:
-            return "%s" % self.formatter(self.key)
-
-        return "%s" % self.key
+            return f"{self.formatter(self.key)!s}"
+        return f"{self.key!s}"
 
     def select_url(self):
         url = self.request_url.append_query_param(

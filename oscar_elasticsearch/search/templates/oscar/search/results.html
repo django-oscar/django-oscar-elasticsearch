@@ -6,7 +6,7 @@
 {% block content %}
     <form method="get" class="form-horizontal">
         {# Render other search params as hidden inputs #}
-        {% for value in selected_facets %}
+        {% for value in search_form.selected_facets %}
             <input type="hidden" name="selected_facets" value="{{ value }}" />
         {% endfor %}
         <input type="hidden" name="q" value="{{ search_form.q.value }}" />

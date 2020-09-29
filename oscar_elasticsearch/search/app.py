@@ -1,20 +1,21 @@
-from django.conf.urls import url
+from django.urls import path
 
 from oscar.core.application import Application as BaseApplication
 from oscar.core.loading import get_class
+from .constants import APP_LABEL
 
 CatalogueSearchView = get_class("search.views", "CatalogueSearchView")
 CatalogueAutoCompleteView = get_class("search.views", "CatalogueAutoCompleteView")
 
 
 class Application(BaseApplication):
-    name = "search"
+    name = APP_LABEL
 
     def get_urls(self):
         urls = [
-            url(r"^$", CatalogueSearchView.as_view(), name="search"),
-            url(
-                r"^autocomplete/$",
+            path("", CatalogueSearchView.as_view(), name="search"),
+            path(
+                "autocomplete/",
                 CatalogueAutoCompleteView.as_view(),
                 name="autocomplete",
             ),

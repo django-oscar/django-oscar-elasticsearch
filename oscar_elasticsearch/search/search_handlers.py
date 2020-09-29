@@ -1,16 +1,14 @@
 import logging
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
-from django.conf import settings
 from django.utils.translation import gettext
-
-from oscar.core.loading import get_model, get_class
+from oscar.core.loading import get_model, get_class, get_classes
 
 from wagtail.search.backends import get_search_backend
 from wagtail.search.utils import separate_filters_from_query
 from wagtail.search.query import MatchAll
 from wagtail.search.models import Query
 
-from .utils import unique_everseen
+from . import settings
 
 SearchBackend = get_search_backend()
 
@@ -19,7 +17,7 @@ logger = logging.getLogger(__name__)
 BaseSearchForm = get_class("search.forms", "BaseSearchForm")
 CatalogueSearchForm = get_class("search.forms", "CatalogueSearchForm")
 process_facets = get_class("search.facets", "process_facets")
-get_facet_names = get_class("search.utils", "get_facet_names")
+get_facet_names, unique_everseen = get_classes("search.utils", ["get_facet_names", "unique_everseen"])
 select_suggestion = get_class("search.suggestions", "select_suggestion")
 
 
@@ -32,8 +30,9 @@ class LegacyOscarFacetList(list):
 class SearchHandler(object):
     model = None
     form_class = BaseSearchForm
+    suggestion_field_name = "title"
 
-    def __init__(self, request_data, full_path, facets=None):
+    def __init__(self, request_data, full_path, facets=None, order_by_relevance=True):
         self.full_path = full_path
         self.request_data = request_data
         self.form = self.build_form()
@@ -41,7 +40,7 @@ class SearchHandler(object):
 
         # Triggers the search. All exceptions (404, Invalid Page) must be raised
         # at init time from inside one of these methods.
-        self.results = self.get_results()
+        self.results = self.get_results(order_by_relevance)
         self.context = self.prepare_context(self.results)
 
     def get_search_context_data(self, context_object_name=None):
@@ -77,19 +76,24 @@ class SearchHandler(object):
     def get_queryset(self):
         return self.model._default_manager.all()  # pylint: disable=protected-access
 
-    def get_results(self):
+    def get_results(self, order_by_relevance):
         """
         Fetches the results via the form.
         """
         if not self.form.is_valid():
-            logger.info("Invalid form")
-            return self.get_queryset().none()
+            logger.error("Invalid form %s", self.form.errors)
+            return SearchBackend.search(  # queryset.none() can not be handled by the elasticsearch querycompiler
+                MatchAll(),
+                self.get_queryset().filter(pk__isnull=True),
+                order_by_relevance=order_by_relevance,
+            )
 
         filters, query = self.get_query()
         filters.update(self.form.selected_multi_facets)
-
         return (
-            SearchBackend.search(query, self.get_queryset())
+            SearchBackend.search(
+                query, self.get_queryset(), order_by_relevance=order_by_relevance
+            )
             .es_filter(**filters)
             .es_order_by(self.get_ordering())
         )
@@ -97,7 +101,10 @@ class SearchHandler(object):
     def paginate(self, search_results):
         page = self.request_data.get("page", 1)
         paginator = Paginator(
-            search_results, settings.OSCAR_SEARCH["DEFAULT_ITEMS_PER_PAGE"]
+            search_results,
+            self.form.cleaned_data.get(
+                "items_per_page", settings.DEFAULT_ITEMS_PER_PAGE
+            ),
         )
 
         try:
@@ -118,8 +125,8 @@ class SearchHandler(object):
             page_obj, paginator = self.paginate(self.get_queryset().none())
             facets = search_results.facets(*self.facets)
             processed_facets = process_facets(self.full_path, self.form, facets)
-            suggestions = search_results.suggestions("title")
-            suggestion = select_suggestion("title", suggestions)
+            suggestions = search_results.suggestions(self.suggestion_field_name)
+            suggestion = select_suggestion(self.suggestion_field_name, suggestions)
 
         return {
             "paginator": paginator,
@@ -135,6 +142,7 @@ class SearchHandler(object):
 
 class AutocompleteHandler(object):
     model = get_model("search", "ProductProxy")
+    search_fields = ["title", "upc", "category_name"]
 
     def get_queryset(self):
         return self.model._default_manager.all()  # pylint: disable=protected-access
@@ -143,26 +151,46 @@ class AutocompleteHandler(object):
         self.query = query
 
     def _search_suggestions(self):
-        results = SearchBackend.search_suggestions(
-            self.query, self.get_queryset(), ["title", "upc", "category_name"]
+        return SearchBackend.search_suggestions(
+            self.query, self.get_queryset(), self.search_fields
         )
 
+    def _get_suggestions(self):
+        results = self._search_suggestions()
         for _, suggestions in results.items():
             for suggestion in suggestions:
                 for opt in suggestion["options"]:
                     yield opt["text"]
 
     def get_suggestions(self):
-        return list(unique_everseen(self._search_suggestions()))
+        return list(unique_everseen(self._get_suggestions()))
 
 
 class ProductSearchHandler(SearchHandler):
     model = get_model("search", "ProductProxy")
     form_class = CatalogueSearchForm
 
-    def __init__(self, request_data, full_path, categories=None, facets=None):
+    def __init__(
+        self,
+        request_data,
+        full_path,
+        categories=None,
+        facets=None,
+        order_by_relevance=True,
+    ):
         self.categories = categories
-        super().__init__(request_data, full_path, facets=facets)
+        super().__init__(
+            request_data,
+            full_path,
+            facets=facets,
+            order_by_relevance=order_by_relevance,
+        )
+
+    def get_query(self):
+        filters, query = super().get_query()
+        if settings.FILTER_AVAILABLE:
+            filters["is_available"] = True
+        return filters, query
 
     def get_queryset(self):
         qs = self.model.browsable.all()
@@ -173,4 +201,10 @@ class ProductSearchHandler(SearchHandler):
 
 
 class ProductAutocompleteHandler(AutocompleteHandler):
-    pass
+    def _search_suggestions(self):
+        return SearchBackend.search_suggestions(
+            self.query,
+            self.get_queryset(),
+            self.search_fields,
+            status=settings.SUGGESTION_STATUS_FILTER,
+        )

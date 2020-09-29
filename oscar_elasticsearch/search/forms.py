@@ -6,6 +6,8 @@ from django.forms.widgets import Input
 from django.utils.translation import gettext_lazy as _
 from oscar.core.loading import feature_hidden
 
+from . import settings
+
 
 class SearchInput(Input):
     """
@@ -36,9 +38,10 @@ class BaseSearchForm(forms.Form):
 
     items_per_page = forms.TypedChoiceField(
         required=False,
-        choices=[(10, 10), (20, 20), (30, 30)],
+        choices=[(x, x) for x in settings.ITEMS_PER_PAGE_CHOICES],
         coerce=int,
-        empty_value=settings.OSCAR_SEARCH["DEFAULT_ITEMS_PER_PAGE"],
+        empty_value=settings.DEFAULT_ITEMS_PER_PAGE,
+        widget=forms.HiddenInput(),
     )
 
     # Search
@@ -70,6 +73,12 @@ class BaseSearchForm(forms.Form):
         super().__init__(*args, **kwargs)
 
         self.fields["sort_by"].choices = self.get_sort_choices()
+
+    def has_items_per_page_choices(self):
+        return len(self.get_items_per_page_choices()) > 1
+
+    def get_items_per_page_choices(self):
+        return self.fields["items_per_page"].choices
 
     def get_sort_params(self, clean_data):
         """

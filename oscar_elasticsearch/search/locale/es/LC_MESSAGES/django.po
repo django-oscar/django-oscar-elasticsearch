@@ -1,0 +1,59 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Wagtail ES\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2019-07-24 09:02+0000\n"
+"PO-Revision-Date: 2020-06-19 13:54+0200\n"
+"Language: es_ES\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Last-Translator: \n"
+"Language-Team: hans@keykeg.com\n"
+"X-Generator: Poedit 2.3.1\n"
+
+#: format.py:11
+#, python-format
+msgid "%(first)s - %(second)s"
+msgstr "%(first)s - %(second)s"
+
+#: format.py:12
+#, python-format
+msgid "%(first)s or more"
+msgstr "%(first)s o más"
+
+#: format.py:13
+#, python-format
+msgid "Up to %(second)s"
+msgstr "Hasta %(second)s"
+
+#: templates/oscar/search/results.html:31
+msgid "Found <strong>0</strong> results."
+msgstr "Se encontró <strong>0</strong> resultados."
+
+#: templates/oscar/search/results.html:34
+#, python-format
+msgid ""
+"\n"
+"                        Did you mean <a href=\"%(search_url)s?q="
+"%(suggestion)s\">\"%(suggestion)s\"</a>?\n"
+"                    "
+msgstr ""
+"\n"
+"                        ¿Quiso decir <a href=\"%(search_url)s?q="
+"%(suggestion)s\">\"%(suggestion)s\"</a>?\n"
+"                    "
+
+# forms.py:51
+msgid "Most popular"
+msgstr "Más popular"
+
+#: dashboard/catalogue/forms.py:6
+msgid "All fields"
+msgstr "Todos los campos"

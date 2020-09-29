@@ -68,14 +68,21 @@ class BaseAutoCompleteView(View):
         kwargs = {"query": form.cleaned_data["q"]}
         return kwargs
 
-    def get(self, request, *args, **kwargs):
+    def search(self):
         form = self.form_class(self.request.GET)
         if form.is_valid():
             s = self.get_query(form)
             results = s.get_suggestions()
+            return results
+        else:
+            return []
+
+    def get(self, request, *args, **kwargs):
+        results = self.search()
+        if results:
             return JsonResponse(results, safe=False)
         else:
-            return JsonResponse([], safe=False, status=400)
+            return JsonResponse(results, safe=False, status=400)
 
 
 class CatalogueSearchView(BaseSearchView):

@@ -1,10 +1,10 @@
 from itertools import filterfalse
 
 from django.db import models
-from django.conf import settings
 from django.utils.functional import lazy
 
 from oscar.core.loading import get_model
+from . import settings
 
 ProductAttribute = get_model("catalogue", "ProductAttribute")
 
@@ -56,22 +56,32 @@ def es_type_for_product_attribute(attribute):
         return "text"
 
 
-def get_facet_table():
-    return {facet["name"]: facet for facet in settings.OSCAR_SEARCH.get("FACETS")}
-
-
 def get_facet_names():
-    return [facet["name"] for facet in settings.OSCAR_SEARCH.get("FACETS")]
+    return [facet["name"] for facet in settings.FACETS]
 
 
-def to_float(num):
-    try:
-        return float(num)
-    except ValueError:
-        return 0
+def chunked(qs, size, startindex=0):
+    """
+    Divide an interable into chunks of ``size``
+
+    >>> list(chunked("hahahaha", 2))
+    ['ha', 'ha', 'ha', 'ha']
+    >>> list(chunked([1,2,3,4,5,6,7], 3))
+    [[1, 2, 3], [4, 5, 6], [7]]
+    """
+    while True:
+        chunk = qs[startindex : startindex + size]
+        chunklen = len(chunk)
+        if chunklen:
+            yield chunk
+        if chunklen < size:
+            break
+        startindex += size
 
 
-def merge_dicts(target, updates, overwrite=False, multivalue=False):
+def merge_dicts(
+    target, updates, overwrite=False, multivalue=False, deduplicate_iterables=False
+):
     """
     Merge two dicts
 
@@ -79,12 +89,25 @@ def merge_dicts(target, updates, overwrite=False, multivalue=False):
     >>> second = {'a': 3, 'b': 'hanny', 'c': {'d': 9, 'e': [7], 'f': [99]}, 'g': 8}
     >>> merge_dicts(first, second)
     {'a': 1, 'b': [1, 'hanny'], 'c': {'d': 1, 'e': [2, 7], 'f': [99]}, 'g': 8}
+
     >>> first = {'a': 1, 'b': [1], 'c': {'d': 1, 'e': [2]}}
     >>> merge_dicts(first, second, multivalue=True)
     {'a': [1, 3], 'b': [1, 'hanny'], 'c': {'d': 1, 'e': [2, 7], 'f': [99]}, 'g': 8}
+
     >>> first = {'a': 1, 'b': [1], 'c': {'d': 1, 'e': [2]}}
     >>> merge_dicts(first, second, overwrite=True)
     {'a': 3, 'b': [1, 'hanny'], 'c': {'d': 9, 'e': [2, 7], 'f': [99]}, 'g': 8}
+
+    >>> first = {'a': 1, 'b': [1]}
+    >>> second = {'b': [1]}
+    >>> merge_dicts(first, second)
+    {'a': 1, 'b': [1, 1]}
+
+    >>> first = {'a': 1, 'b': [1]}
+    >>> second = {'b': [1]}
+    >>> merge_dicts(first, second, deduplicate_iterables=True)
+    {'a': 1, 'b': [1]}
+
     """
     for key, value in updates.items():
         if key in target:
@@ -100,9 +123,12 @@ def merge_dicts(target, updates, overwrite=False, multivalue=False):
                 if isinstance(value, str):
                     item.append(value)
                 elif isinstance(value, Iterable):
-                    item += list(value)
+                    item = item + list(value)
+                    if deduplicate_iterables:
+                        item = list(unique_everseen(item))
                 else:
                     item.append(value)
+                target[key] = item
             elif multivalue and value != item:  # gather multiple values into list
                 target[key] = [item, value]
             elif overwrite:

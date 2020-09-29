@@ -1,49 +1,82 @@
 # pylint: disable=unused-argument
 from oscar.core.loading import get_model, get_class
-from django.db.models.signals import post_delete, post_save
+
+from django.core.signals import request_finished
+from django.db.models.signals import post_delete, post_save, m2m_changed
+
 from wagtail.search.signal_handlers import post_delete_signal_handler
+
+from . import settings
 
 Product = get_model("catalogue", "Product")
 Category = get_model("catalogue", "Category")
 ProductProxy = get_model("search", "ProductProxy")
-update_index = get_class("search.spooler", "update_index")
+StockRecord = get_model("partner", "StockRecord")
+UpdateIndex = get_class("search.update", "UpdateIndex")
+
+update_index = UpdateIndex()
 
 
-def product_post_save_signal_handler(instance, update_fields=None, **kwargs):
-    update_index.spool(product_id=str(instance.pk))
+def product_post_save_signal_handler(sender, instance, raw, **kwargs):
+    if not raw:  # raw is when fixture is loaded
+        update_index.push_product(str(instance.pk))
 
 
-def post_product_category_save_signal_handler(instance, update_fields=None, **kwargs):
-    update_index.spool(product_id=str(instance.product.pk))
-
-
-def product_post_delete_signal_handler(instance, **kwargs):
+def product_post_delete_signal_handler(sender, instance, **kwargs):
     return post_delete_signal_handler(ProductProxy(pk=instance.pk), **kwargs)
 
 
-def category_change_handler(instance, **kwargs):
-    update_index.spool(category_id=str(instance.pk))
+def product_category_m2m_changed_signal_handler(
+    sender, instance, action, reverse, **kwargs
+):
+    if action.startswith("post"):
+        if reverse:
+            update_index.push_category(str(instance.pk))
+        else:
+            update_index.push_product(str(instance.pk))
+
+
+def category_change_handler(sender, instance, raw=False, **kwargs):
+    if not raw:  # raw is when fixture is loaded
+        update_index.push_category(str(instance.pk))
+
+
+def stockrecord_change_handler(sender, instance, raw=False, **kwargs):
+    if not raw:  # raw is when fixture is loaded
+        update_index.push_product(str(instance.product.pk))
+
+
+def stockrecord_post_delete_handler(sender, instance, **kwargs):
+    update_index.push_product(str(instance.product.pk))
 
 
 def register_signal_handlers():
     # we must pass the save signal from the regular model through to the proxy
     # model, because the wagtail listener is attached to the proxy model, not
     # the regular model.
-    post_save.connect(
-        post_product_category_save_signal_handler, sender=Product.categories.through
+    m2m_changed.connect(
+        product_category_m2m_changed_signal_handler, sender=Product.categories.through
     )
     post_save.connect(product_post_save_signal_handler, sender=Product)
     post_delete.connect(product_post_delete_signal_handler, sender=Product)
     post_save.connect(category_change_handler, sender=Category)
     post_delete.connect(category_change_handler, sender=Category)
+    if settings.HANDLE_STOCKRECORD_CHANGES:
+        post_save.connect(stockrecord_change_handler, sender=StockRecord)
+        post_delete.connect(stockrecord_post_delete_handler, sender=StockRecord)
+    request_finished.connect(update_index.synchronize_searchindex)
 
 
 def deregister_signal_handlers():
     # Disconnects the signal handlers for easy access in importers
-    post_save.disconnect(
-        post_product_category_save_signal_handler, sender=Product.categories.through
+    m2m_changed.disconnect(
+        product_category_m2m_changed_signal_handler, sender=Product.categories.through
     )
     post_save.disconnect(product_post_save_signal_handler, sender=Product)
     post_delete.disconnect(product_post_delete_signal_handler, sender=Product)
     post_save.disconnect(category_change_handler, sender=Category)
     post_delete.disconnect(category_change_handler, sender=Category)
+    if settings.HANDLE_STOCKRECORD_CHANGES:
+        post_save.disconnect(stockrecord_change_handler, sender=StockRecord)
+        post_delete.disconnect(stockrecord_post_delete_handler, sender=StockRecord)
+    request_finished.disconnect(update_index.synchronize_searchindex)

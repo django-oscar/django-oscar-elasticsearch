@@ -1,0 +1,27 @@
+# pylint: disable=wildcard-import,unused-wildcard-import
+from django.conf import settings
+from extendedsearch.settings import *
+from .constants import ES_CTX_AVAILABLE, ES_CTX_PUBLIC
+
+HANDLE_STOCKRECORD_CHANGES = getattr(
+    settings, "OSCAR_ELASTICSEARCH_HANDLE_STOCKRECORD_CHANGES", True
+)
+MIN_NUM_BUCKETS = getattr(settings, "OSCAR_ELASTICSEARCH_MIN_NUM_BUCKETS", 2)
+FILTER_AVAILABLE = getattr(settings, "OSCAR_ELASTICSEARCH_FILTER_AVAILABLE", False)
+DEFAULT_ITEMS_PER_PAGE = getattr(
+    settings,
+    "OSCAR_ELASTICSEARCH_DEFAULT_ITEMS_PER_PAGE",
+    settings.OSCAR_PRODUCTS_PER_PAGE,
+)
+ITEMS_PER_PAGE_CHOICES = getattr(
+    settings, "OSCAR_ELASTICSEARCH_ITEMS_PER_PAGE_CHOICES", [DEFAULT_ITEMS_PER_PAGE]
+)
+MONTHS_TO_RUN_ANALYTICS = getattr(
+    settings, "OSCAR_ELASTICSEARCH_MONTHS_TO_RUN_ANALYTICS", 3
+)
+SUGGESTION_STATUS_FILTER = getattr(
+    settings,
+    "OSCAR_ELASTICSEARCH_SUGGESTION_STATUS_FILTER",
+    ES_CTX_AVAILABLE if FILTER_AVAILABLE else ES_CTX_PUBLIC,
+)
+FACETS = getattr(settings, "OSCAR_ELASTICSEARCH_FACETS", [])
