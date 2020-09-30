@@ -203,10 +203,4 @@ class ProductSearchHandler(SearchHandler):
 
 
 class ProductAutocompleteHandler(AutocompleteHandler):
-    def _search_suggestions(self):
-        return SearchBackend.search_suggestions(
-            self.query,
-            self.get_queryset(),
-            self.search_fields,
-            status=settings.SUGGESTION_STATUS_FILTER,
-        )
+    pass
