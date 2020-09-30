@@ -3,10 +3,10 @@ from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from django.utils.translation import gettext
 from oscar.core.loading import get_model, get_class, get_classes
 
-from wagtail.search.backends import get_search_backend
-from wagtail.search.utils import separate_filters_from_query
-from wagtail.search.query import MatchAll
-from wagtail.search.models import Query
+from extendedsearch.backends import get_search_backend
+from extendedsearch.utils import separate_filters_from_query
+from extendedsearch.query import MatchAll
+from extendedsearch.models import Query
 
 from . import settings
 

@@ -7,7 +7,7 @@ from dateutil.relativedelta import relativedelta
 
 from oscar.core.loading import is_model_registered, get_model, get_class, get_classes
 
-from wagtail.search import index
+from extendedsearch import index
 
 from .constants import ES_CTX_PUBLIC, ES_CTX_AVAILABLE, ES_CTX_BROWSABLE
 from . import settings
@@ -158,7 +158,6 @@ if is_model_registered("catalogue", "Product"):
             index.SearchField("upc", es_extra={"analyzer": "keyword"}),
             index.SearchField("child_upc", es_extra={"analyzer": "keyword"}),
             index.AutocompleteField("child_upc", es_extra={"analyzer": "keyword"}),
-            index.FilterField("priority"),
             index.FilterField("is_public"),
             index.SearchField("description", partial_match=True),
             index.FilterField("popularity"),
@@ -203,6 +202,7 @@ if is_model_registered("catalogue", "Product"):
             verbose_name = _("Product")
             verbose_name_plural = _("Products")
             managed = False
+            app_label = "search"
 
     __all__.append("ProductProxy")
 
@@ -223,5 +223,6 @@ if is_model_registered("catalogue", "Category"):
         class Meta:
             proxy = True
             managed = False
+            app_label = "search"
 
     __all__.append("CategoryProxy")

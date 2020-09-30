@@ -2,8 +2,8 @@ from django.db import transaction
 
 from oscar.core.loading import get_model, get_class
 
-from wagtail.search import index
-from wagtail.search.backends import get_search_backend
+from extendedsearch import index
+from extendedsearch.backends import get_search_backend
 
 chunked = get_class("search.utils", "chunked")
 ProductProxy = get_model("search", "ProductProxy")

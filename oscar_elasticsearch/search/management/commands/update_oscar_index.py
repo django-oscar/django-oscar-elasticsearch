@@ -1,5 +1,5 @@
 # pylint: disable=unused-import
-from wagtail.search.management.commands.update_index import Command as WagtailCommand
+from extendedsearch.commands import WagtailUpdateIndexCommand
 
 DEFAULT_CHUNK_SIZE = 100
 

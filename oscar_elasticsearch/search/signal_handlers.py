@@ -4,7 +4,7 @@ from oscar.core.loading import get_model, get_class
 from django.core.signals import request_finished
 from django.db.models.signals import post_delete, post_save, m2m_changed
 
-from wagtail.search.signal_handlers import post_delete_signal_handler
+from extendedsearch.signal_handlers import post_delete_signal_handler
 
 from . import settings
 

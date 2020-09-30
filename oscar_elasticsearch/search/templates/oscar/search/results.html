@@ -1,6 +1,5 @@
 {% extends 'oscar/search/results.html' %}
 {% load i18n %}
-{% load wagtailcore_tags wagtailsearchpromotions_tags %}
 {% load currency_filters thumbnail product_tags %}
 
 {% block content %}
@@ -38,19 +37,7 @@
             </p>
         {% endif %}
     </form>
-    {% get_search_promotions search_form.q.value as search_promotions %}
-    
-    {% if search_promotions %}
-        <h2 class="promotion_header">Voorgestelde pagina(s)</h2>
-        <ul class="list-group" id="search_promotions">
-            {% for search_promotion in search_promotions %}
-                <a href="{% pageurl search_promotion.page %}" class="list-group-item list-group-item-action flex-column align-items-start">
-                            <aside><h5 class="mb-1">{{ search_promotion.page.title }}</h5></aside>
-                            <section><p>{{ search_promotion.description }}</p></section>
-                </a>
-            {% endfor %}
-        </ul>
-    {% endif %}
+    {% block searchheading %}{% endblock %}
 
     {% if page_obj.object_list %}
         <section>
