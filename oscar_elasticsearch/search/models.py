@@ -1,7 +1,6 @@
 from django.utils import timezone
 from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
-from django.utils.module_loading import import_string
 
 from dateutil.relativedelta import relativedelta
 
@@ -18,7 +17,6 @@ merge_dicts, es_type_for_product_attribute, product_attributes_es_config = get_c
 )
 process_product_fields = get_class("search.extra", "process_product_fields")
 ProductProxyMixin = get_class("search.mixins", "ProductProxyMixin")
-
 
 
 __all__ = []
@@ -158,7 +156,6 @@ if is_model_registered("catalogue", "Product"):
             index.SearchField("upc", es_extra={"analyzer": "keyword"}),
             index.SearchField("child_upc", es_extra={"analyzer": "keyword"}),
             index.AutocompleteField("child_upc", es_extra={"analyzer": "keyword"}),
-            index.FilterField("is_public"),
             index.SearchField("description", partial_match=True),
             index.FilterField("popularity"),
             index.FilterField("price", es_extra={"type": "double"}),
@@ -194,7 +191,6 @@ if is_model_registered("catalogue", "Product"):
             index.FilterField("date_updated"),
             index.SearchField("string_attrs"),
             index.FilterField("attrs", es_extra=product_attributes_es_config()),
-            index.FilterField("status"),
         ] + ProductProxyMixin.search_fields
 
         class Meta:

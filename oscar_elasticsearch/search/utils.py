@@ -4,6 +4,10 @@ from django.db import models
 from django.utils.functional import lazy
 
 from oscar.core.loading import get_model
+
+# pylint: disable=unused-import
+from extendedsearch.utils import merge_dicts
+
 from . import settings
 
 ProductAttribute = get_model("catalogue", "ProductAttribute")
@@ -77,66 +81,6 @@ def chunked(qs, size, startindex=0):
         if chunklen < size:
             break
         startindex += size
-
-
-def merge_dicts(
-    target, updates, overwrite=False, multivalue=False, deduplicate_iterables=False
-):
-    """
-    Merge two dicts
-
-    >>> first = {'a': 1, 'b': [1], 'c': {'d': 1, 'e': [2]}}
-    >>> second = {'a': 3, 'b': 'hanny', 'c': {'d': 9, 'e': [7], 'f': [99]}, 'g': 8}
-    >>> merge_dicts(first, second)
-    {'a': 1, 'b': [1, 'hanny'], 'c': {'d': 1, 'e': [2, 7], 'f': [99]}, 'g': 8}
-
-    >>> first = {'a': 1, 'b': [1], 'c': {'d': 1, 'e': [2]}}
-    >>> merge_dicts(first, second, multivalue=True)
-    {'a': [1, 3], 'b': [1, 'hanny'], 'c': {'d': 1, 'e': [2, 7], 'f': [99]}, 'g': 8}
-
-    >>> first = {'a': 1, 'b': [1], 'c': {'d': 1, 'e': [2]}}
-    >>> merge_dicts(first, second, overwrite=True)
-    {'a': 3, 'b': [1, 'hanny'], 'c': {'d': 9, 'e': [2, 7], 'f': [99]}, 'g': 8}
-
-    >>> first = {'a': 1, 'b': [1]}
-    >>> second = {'b': [1]}
-    >>> merge_dicts(first, second)
-    {'a': 1, 'b': [1, 1]}
-
-    >>> first = {'a': 1, 'b': [1]}
-    >>> second = {'b': [1]}
-    >>> merge_dicts(first, second, deduplicate_iterables=True)
-    {'a': 1, 'b': [1]}
-
-    """
-    for key, value in updates.items():
-        if key in target:
-            item = target[key]
-            if isinstance(item, dict):
-                if isinstance(value, Mapping):
-                    target[key] = merge_dicts(item, value, overwrite)
-                elif overwrite:
-                    target[key] = value
-                else:
-                    raise Exception("can not merge nub")
-            elif isinstance(item, list):
-                if isinstance(value, str):
-                    item.append(value)
-                elif isinstance(value, Iterable):
-                    item = item + list(value)
-                    if deduplicate_iterables:
-                        item = list(unique_everseen(item))
-                else:
-                    item.append(value)
-                target[key] = item
-            elif multivalue and value != item:  # gather multiple values into list
-                target[key] = [item, value]
-            elif overwrite:
-                target[key] = value
-        else:
-            target[key] = value
-
-    return target
 
 
 def unique_everseen(iterable, key=None):

@@ -17,7 +17,9 @@ logger = logging.getLogger(__name__)
 BaseSearchForm = get_class("search.forms", "BaseSearchForm")
 CatalogueSearchForm = get_class("search.forms", "CatalogueSearchForm")
 process_facets = get_class("search.facets", "process_facets")
-get_facet_names, unique_everseen = get_classes("search.utils", ["get_facet_names", "unique_everseen"])
+get_facet_names, unique_everseen = get_classes(
+    "search.utils", ["get_facet_names", "unique_everseen"]
+)
 select_suggestion = get_class("search.suggestions", "select_suggestion")
 
 

@@ -4,7 +4,7 @@ from extendedsearch.commands import WagtailUpdateIndexCommand
 DEFAULT_CHUNK_SIZE = 100
 
 
-class Command(WagtailCommand):
+class Command(WagtailUpdateIndexCommand):
     def add_arguments(self, parser):
         parser.add_argument(
             "--backend",

@@ -12,8 +12,8 @@ INSTALLED_APPS = [
 ] + get_core_apps([
     "oscar_elasticsearch.search", # replace standard oscar app
 ]) + [
+    "widget_tweaks",
     "wagtail.core",
-    "wagtail.contrib.search_promotions", # allow search result display and such
     "wagtail.search",
 ]
 ```
@@ -21,68 +21,64 @@ INSTALLED_APPS = [
 Settings required to replace the search app.
 
 ```Python
-OSCAR_ELASTICSEARCH_QUERY_PAGE_SIZE = 100
 OSCAR_PRODUCT_SEARCH_HANDLER = "oscar_elasticsearch.search.search_handlers.ProductSearchHandler"
-OSCAR_SEARCH = {
-    "DEFAULT_ITEMS_PER_PAGE": 20,
-    "MONTHS_TO_RUN_ANALYTICS": 3,
-    "FACETS": [
-        {
-            "name": "price",
-            "label": "Price",
-            "type": "range",
-            "formatter": "oscar_elasticsearch.search.format.currency",
-            "ranges": [
-                25,
-                100,
-                500,
-                1000
-            ]
-        },
-        {
-            "name": "attrs.gewicht",
-            "label": "Gewicht",
-            "type": "term",
-            "ranges": []
-        },
-        {
-            "name": "attrs.googleshopping",
-            "label": "Google product",
-            "type": "term",
-            "ranges": []
-        },
-        {
-            "name": "attrs.size",
-            "label": "Maat",
-            "type": "term",
-            "ranges": []
-        },
-        {
-            "name": "attrs.height",
-            "label": "Hoogte",
-            "type": "term",
-            "ranges": []
-        },
-        {
-            "name": "attrs.zult",
-            "label": "Datum",
-            "type": "term",
-            "ranges": []
-        },
-        {
-            "name": "attrs.stroomverbruik",
-            "label": "Stroomverbruik",
-            "type": "term",
-            "ranges": []
-        },
-        {
-            "name": "attrs.bijzonderheden",
-            "label": "Bijzonderheden",
-            "type": "term",
-            "ranges": []
-        }
-    ]
-}
+OSCAR_ELASTICSEARCH_FACETS = [
+    {
+        "name": "price",
+        "label": "Price",
+        "type": "range",
+        "formatter": "oscar_elasticsearch.search.format.currency",
+        "ranges": [
+            25,
+            100,
+            500,
+            1000
+        ]
+    },
+    {
+        "name": "attrs.gewicht",
+        "label": "Gewicht",
+        "type": "term",
+        "ranges": []
+    },
+    {
+        "name": "attrs.googleshopping",
+        "label": "Google product",
+        "type": "term",
+        "ranges": []
+    },
+    {
+        "name": "attrs.size",
+        "label": "Maat",
+        "type": "term",
+        "ranges": []
+    },
+    {
+        "name": "attrs.height",
+        "label": "Hoogte",
+        "type": "term",
+        "ranges": []
+    },
+    {
+        "name": "attrs.zult",
+        "label": "Datum",
+        "type": "term",
+        "ranges": []
+    },
+    {
+        "name": "attrs.stroomverbruik",
+        "label": "Stroomverbruik",
+        "type": "term",
+        "ranges": []
+    },
+    {
+        "name": "attrs.bijzonderheden",
+        "label": "Bijzonderheden",
+        "type": "term",
+        "ranges": []
+    }
+]
+
 WAGTAILSEARCH_BACKENDS = {
     "default": {
         "BACKEND": "oscar_elasticsearch.search.search",
@@ -95,6 +91,8 @@ WAGTAILSEARCH_BACKENDS = {
         "AUTO_UPDATE": True,
     }
 }
+
+HAYSTACK_CONNECTIONS = {"default": {}}
 ```
 
 Finally, add your own base.html, and make sure this is in.
