@@ -81,7 +81,7 @@ OSCAR_ELASTICSEARCH_FACETS = [
 
 WAGTAILSEARCH_BACKENDS = {
     "default": {
-        "BACKEND": "oscar_elasticsearch.search.search",
+        "BACKEND": "oscar_elasticsearch.search.backend",
         "URLS": ["http://127.0.0.1:9200"],
         "INDEX": "my-index-name",
         "TIMEOUT": 120,
