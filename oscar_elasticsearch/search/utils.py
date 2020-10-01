@@ -1,5 +1,3 @@
-from itertools import filterfalse
-
 from django.db import models
 from django.utils.functional import lazy
 

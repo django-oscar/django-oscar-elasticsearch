@@ -131,13 +131,7 @@ if is_model_registered("catalogue", "Product"):
 
         @classmethod
         def get_autocomplete_contexts(cls):
-            return [
-                {
-                    "name": "status",
-                    "type": "category",
-                    "path": "search_productproxy__status_filter",
-                }
-            ]
+            return settings.AUTOCOMPLETE_CONTEXTS
 
         @classmethod
         def get_facets(cls):
