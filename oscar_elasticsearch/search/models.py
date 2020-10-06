@@ -144,6 +144,7 @@ if is_model_registered("catalogue", "Product"):
             index.FilterField("product_class__name"),
             index.FilterField("title"),
             index.SearchField("title", partial_match=True),
+            index.FilterField("is_public"),
             index.AutocompleteField("title"),
             index.AutocompleteField("upc", es_extra={"analyzer": "keyword"}),
             index.FilterField("upc"),
