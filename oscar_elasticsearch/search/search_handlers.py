@@ -195,7 +195,7 @@ class ProductSearchHandler(SearchHandler):
         return filters, query
 
     def get_queryset(self):
-        qs = self.model.browsable.all()
+        qs = self.model.objects.browsable()
         if self.categories:
             # no need to add distinct here as is being done in the base class.
             qs = qs.filter(categories__in=self.categories)
