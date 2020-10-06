@@ -46,11 +46,11 @@ def currency(key):
     Formatter for facet keys as currency
 
     >>> currency("*-25.0")
-    'Tot €\xa025,00'
+    'Up to €25.00'
     >>> currency("25.0-*")
-    '€\xa025,00 of meer'
+    '€25.00 or more'
     >>> currency("25.0-23")
-    '€\xa025,00 - €\xa023,00'
+    '€25.00 - €23.00'
 
     """
     return currency_filter(key)
