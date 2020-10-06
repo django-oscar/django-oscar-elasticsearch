@@ -69,7 +69,7 @@ INSTALLED_APPS = [
     'wagtail.core',
     'wagtail.search',
 
-    'oscar_elasticsearch.search',
+    'oscar_elasticsearch.search.apps.OscarElasticSearchConfig',
 ]
 
 MIDDLEWARE = [
