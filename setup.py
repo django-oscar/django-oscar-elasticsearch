@@ -25,6 +25,7 @@ setup(
     zip_safe=False,
     # specify dependencies
     install_requires=[
+        "django>=1.11,<3.1",
         "setuptools",
         "django-oscar>=2.0",
         "wagtail>=2",
