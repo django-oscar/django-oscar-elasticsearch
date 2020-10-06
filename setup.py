@@ -27,7 +27,7 @@ setup(
     install_requires=[
         "django>=1.11,<3.1",
         "setuptools",
-        "django-oscar>=2.0",
+        "django-oscar>=1.6",
         "wagtail>=2",
         "purl",
         "elasticsearch>=6.0.0,<7.0.0",
