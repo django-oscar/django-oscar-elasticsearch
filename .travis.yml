@@ -4,6 +4,3 @@ python: 3.7
 
 install:
   - python setup.py develop
-
-script:
-  - make test
