@@ -27,7 +27,7 @@ setup(
     install_requires=[
         "setuptools",
         "django-oscar>=2.0",
-        "wagtail",
+        "wagtail>=2",
         "purl",
         "elasticsearch>=6.0.0,<7.0.0",
         "uwsgidecorators-fallback",
