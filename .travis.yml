@@ -3,4 +3,7 @@ dist: xenial
 python: 3.7
 
 install:
-  - python setup.py develop
+  - pip install -e .[dev]
+
+script:
+  - python sandbox/manage.py test
