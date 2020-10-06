@@ -282,6 +282,8 @@ OSCAR_ELASTICSEARCH_FACETS = [
     }
 ]
 
+OSCAR_DEFAULT_CURRENCY = 'EUR'
+
 WAGTAILSEARCH_BACKENDS = {
     "default": {
         "BACKEND": "oscar_elasticsearch.search.backend",
