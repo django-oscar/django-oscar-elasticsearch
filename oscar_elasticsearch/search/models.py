@@ -108,7 +108,7 @@ if is_model_registered("catalogue", "Product"):
             return self.process_attributes(result)
 
         def object(self):
-            "Mimic a haystack search result"
+            """Mimic a haystack search result"""
             return self
 
         def product_class__name(self):
