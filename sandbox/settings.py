@@ -66,9 +66,6 @@ INSTALLED_APPS = [
     'treebeard',
     'sorl.thumbnail',
     'django_tables2',
-    'wagtail.core',
-    'wagtail.search',
-
     'oscar_elasticsearch.search.apps.OscarElasticSearchConfig',
 ]
 
