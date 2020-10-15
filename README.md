@@ -15,8 +15,6 @@ INSTALLED_APPS = [
     "oscar_elasticsearch.search", # replace standard oscar app
 ]) + [
     "widget_tweaks",
-    "wagtail.core",
-    "wagtail.search",
 ]
 ```
 
@@ -27,8 +25,6 @@ INSTALLED_APPS = [
     ...
     "oscar_elasticsearch.search.apps.OscarElasticSearchConfig",
     "widget_tweaks",
-    "wagtail.core",
-    "wagtail.search",
 ]
 ```
 

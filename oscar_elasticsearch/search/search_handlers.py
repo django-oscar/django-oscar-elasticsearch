@@ -6,7 +6,6 @@ from oscar.core.loading import get_model, get_class, get_classes
 from extendedsearch.backends import get_search_backend
 from extendedsearch.utils import separate_filters_from_query
 from extendedsearch.query import MatchAll
-from extendedsearch.models import Query
 
 from . import settings
 
@@ -21,6 +20,7 @@ get_facet_names, unique_everseen = get_classes(
     "search.utils", ["get_facet_names", "unique_everseen"]
 )
 select_suggestion = get_class("search.suggestions", "select_suggestion")
+query_hit = get_class("search.signals", "query_hit")
 
 
 class LegacyOscarFacetList(list):
@@ -61,9 +61,10 @@ class SearchHandler(object):
         if not query_string or query_string == "*":
             return filters, MatchAll()
         else:
-            query_recorder = Query.get(query_string)
-            query_recorder.add_hit()
-
+            query_hit.send(
+                sender=self,
+                querystring=query_string,
+            )
         return filters, query_string
 
     def is_valid(self):
