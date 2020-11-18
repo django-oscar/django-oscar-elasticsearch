@@ -61,10 +61,7 @@ class SearchHandler(object):
         if not query_string or query_string == "*":
             return filters, MatchAll()
         else:
-            query_hit.send(
-                sender=self,
-                querystring=query_string,
-            )
+            query_hit.send(sender=self, querystring=query_string)
         return filters, query_string
 
     def is_valid(self):
