@@ -9,8 +9,8 @@ from .constants import APP_LABEL
 
 class OscarElasticSearchConfig(OscarConfig):
     label = APP_LABEL
-    name = 'oscar_elasticsearch.search'
-    verbose_name = _('Elasticsearch')
+    name = "oscar_elasticsearch.search"
+    verbose_name = _("Elasticsearch")
 
     def ready(self):
         self.search_view = get_class("search.views", "CatalogueSearchView")
@@ -24,6 +24,8 @@ class OscarElasticSearchConfig(OscarConfig):
         urls = super().get_urls()
         urls += [
             path("", self.search_view.as_view(), name="search"),
-            path("autocomplete/", self.autocomplete_view.as_view(), name="autocomplete"),
+            path(
+                "autocomplete/", self.autocomplete_view.as_view(), name="autocomplete"
+            ),
         ]
         return self.post_process_urls(urls)

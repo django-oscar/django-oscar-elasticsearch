@@ -17,9 +17,16 @@ UpdateIndex = get_class("search.update", "UpdateIndex")
 update_index = UpdateIndex()
 
 
+def push_product_update(instance):
+    # if the child was changed, also update the parent
+    update_index.push_product(str(instance.pk))
+    if instance.is_child:
+        update_index.push_product(str(instance.parent_id))
+
+
 def product_post_save_signal_handler(sender, instance, raw, **kwargs):
     if not raw:  # raw is when fixture is loaded
-        update_index.push_product(str(instance.pk))
+        push_product_update(instance)
 
 
 def product_post_delete_signal_handler(sender, instance, **kwargs):
@@ -33,7 +40,7 @@ def product_category_m2m_changed_signal_handler(
         if reverse:
             update_index.push_category(str(instance.pk))
         else:
-            update_index.push_product(str(instance.pk))
+            push_product_update(instance)
 
 
 def category_change_handler(sender, instance, raw=False, **kwargs):
@@ -43,11 +50,11 @@ def category_change_handler(sender, instance, raw=False, **kwargs):
 
 def stockrecord_change_handler(sender, instance, raw=False, **kwargs):
     if not raw:  # raw is when fixture is loaded
-        update_index.push_product(str(instance.product.pk))
+        push_product_update(instance.product)
 
 
 def stockrecord_post_delete_handler(sender, instance, **kwargs):
-    update_index.push_product(str(instance.product.pk))
+    push_product_update(instance.product)
 
 
 def register_signal_handlers():
