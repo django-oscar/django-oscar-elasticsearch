@@ -93,13 +93,18 @@ if is_model_registered("catalogue", "Product"):
             values = self.attribute_values.all().select_related("attribute")
             result = {}
             for value in values:
-                at = value.attribute
-                if at.type == at.OPTION:
-                    result[value.attribute.code] = value.value.option
-                elif at.type == at.MULTI_OPTION:
-                    result[value.attribute.code] = [a.option for a in value.value]
-                elif es_type_for_product_attribute(at) != "text":
-                    result[value.attribute.code] = value.value
+                try:
+                    at = value.attribute
+                    if at.type == at.OPTION:
+                        result[value.attribute.code] = value.value.option
+                    elif at.type == at.MULTI_OPTION:
+                        result[value.attribute.code] = [a.option for a in value.value]
+                    elif (
+                        es_type_for_product_attribute(at) != "text"
+                    ):  # text can not be indexed properly.
+                        result[value.attribute.code] = value.value
+                except AttributeError:  # an option was empty
+                    pass
 
             if self.is_parent:
                 for child in ProductProxy.objects.filter(parent=self):
