@@ -1,0 +1,3 @@
+graft oscar_elasticsearch
+global-exclude *.py[co]
+global-exclude __pycache__
