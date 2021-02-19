@@ -10,7 +10,7 @@ setup(
     # extract version from module.
     version=__version__,
     description="Search app for oscar using elasticsearch",
-    long_description="Blablabla ... nothing ... Search app for oscar using elasticsearch",
+    long_description="Search app for oscar using elasticsearch",
     classifiers=[],
     keywords="",
     author="Lars van de Kerkhof",
