@@ -90,7 +90,7 @@ if is_model_registered("catalogue", "Product"):
             return upcs
 
         def attrs(self):
-            values = self.attribute_values.all().select_related("attribute")
+            values = self.get_attribute_values().select_related("attribute")
             result = {}
             for value in values:
                 try:
@@ -120,10 +120,10 @@ if is_model_registered("catalogue", "Product"):
             return self.get_product_class().name
 
         def category_id(self):
-            return self.categories.values_list("id", flat=True)
+            return self.get_categories().values_list("id", flat=True)
 
         def category_name(self):
-            return list(self.categories.values_list("name", flat=True))
+            return list(self.get_categories().values_list("name", flat=True))
 
         @classmethod
         def get_indexed_objects(cls):
