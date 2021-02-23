@@ -62,6 +62,7 @@ class SearchHandler(object):
             return filters, MatchAll()
         else:
             query_hit.send(sender=self, querystring=query_string)
+
         return filters, query_string
 
     def is_valid(self):
@@ -76,22 +77,29 @@ class SearchHandler(object):
     def get_queryset(self):
         return self.model._default_manager.all()  # pylint: disable=protected-access
 
+    def get_base_search_results(self, query, queryset, order_by_relevance):
+        return SearchBackend.search(
+            query, queryset, order_by_relevance=order_by_relevance
+        )
+
     def get_results(self, order_by_relevance):
         """
         Fetches the results via the form.
         """
         if not self.form.is_valid():
             logger.error("Invalid form %s", self.form.errors)
-            return SearchBackend.search(  # queryset.none() can not be handled by the elasticsearch querycompiler
+            return self.get_base_search_results(
                 MatchAll(),
-                self.get_queryset().filter(pk__isnull=True),
+                self.get_queryset().filter(
+                    pk__isnull=True
+                ),  # queryset.none() can not be handled by the elasticsearch querycompiler
                 order_by_relevance=order_by_relevance,
             )
 
         filters, query = self.get_query()
         filters.update(self.form.selected_multi_facets)
         return (
-            SearchBackend.search(
+            self.get_base_search_results(
                 query, self.get_queryset(), order_by_relevance=order_by_relevance
             )
             .es_filter(**filters)
@@ -186,11 +194,15 @@ class ProductSearchHandler(SearchHandler):
             order_by_relevance=order_by_relevance,
         )
 
-    def get_query(self):
-        filters, query = super().get_query()
+    def get_base_search_results(self, query, queryset, order_by_relevance):
+        base_search_results = super().get_base_search_results(
+            query, queryset, order_by_relevance=order_by_relevance
+        )
+
         if settings.FILTER_AVAILABLE:
-            filters["is_available"] = True
-        return filters, query
+            return base_search_results.es_filter(is_available=True)
+
+        return base_search_results
 
     def get_queryset(self):
         qs = self.model.objects.browsable()
