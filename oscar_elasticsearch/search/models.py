@@ -4,6 +4,7 @@ from django.utils.translation import gettext_lazy as _
 
 from dateutil.relativedelta import relativedelta
 
+from oscar import VERSION as OSCAR_VERSION
 from oscar.core.loading import is_model_registered, get_model, get_class, get_classes
 
 from extendedsearch import index
@@ -20,6 +21,15 @@ ProductProxyMixin = get_class("search.mixins", "ProductProxyMixin")
 
 
 __all__ = []
+
+
+def get_price_field_name():
+    """Price field renamed in Oscar 3"""
+
+    if OSCAR_VERSION[0] < 3:
+        return "price_excl_tax"
+
+    return "price"
 
 
 if is_model_registered("catalogue", "Product"):
@@ -177,7 +187,7 @@ if is_model_registered("catalogue", "Product"):
                 [
                     index.FilterField("price_currency"),
                     index.SearchField("partner_sku"),
-                    index.SearchField("price_excl_tax"),
+                    index.SearchField(get_price_field_name()),
                     index.FilterField("partner"),
                     index.FilterField("num_in_stock"),
                 ],
