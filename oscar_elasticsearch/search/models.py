@@ -108,7 +108,7 @@ if is_model_registered("catalogue", "Product"):
 
             if self.is_parent:
                 for child in ProductProxy.objects.filter(parent=self):
-                    result = merge_dicts(result, child.attrs())
+                    result = merge_dicts(result, child.attrs(), multivalue=True, deduplicate_iterables=True)
 
             return self.process_attributes(result)
 
