@@ -2,6 +2,7 @@ import logging
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from django.utils.translation import gettext
 from oscar.core.loading import get_model, get_class, get_classes
+from elasticsearch.exceptions import RequestError
 
 from extendedsearch.backends import get_search_backend
 from extendedsearch.utils import separate_filters_from_query
@@ -124,17 +125,24 @@ class SearchHandler(object):
         return page_obj, paginator
 
     def prepare_context(self, search_results):
-        if search_results.count():  # there are actual search results
-            page_obj, paginator = self.paginate(search_results)
-            facets = page_obj.object_list.facets(*self.facets)
-            processed_facets = process_facets(self.full_path, self.form, facets)
-            suggestion = None
-        else:  # no results, fetch suggestions
+        try:
+            if search_results.count():  # there are actual search results
+                page_obj, paginator = self.paginate(search_results)
+                facets = page_obj.object_list.facets(*self.facets)
+                processed_facets = process_facets(self.full_path, self.form, facets)
+                suggestion = None
+            else:  # no results, fetch suggestions
+                page_obj, paginator = self.paginate(self.get_queryset().none())
+                facets = search_results.facets(*self.facets)
+                processed_facets = process_facets(self.full_path, self.form, facets)
+                suggestions = search_results.suggestions(self.suggestion_field_name)
+                suggestion = select_suggestion(self.suggestion_field_name, suggestions)
+        except RequestError as e:
+            logger.exception(e)
             page_obj, paginator = self.paginate(self.get_queryset().none())
-            facets = search_results.facets(*self.facets)
-            processed_facets = process_facets(self.full_path, self.form, facets)
-            suggestions = search_results.suggestions(self.suggestion_field_name)
-            suggestion = select_suggestion(self.suggestion_field_name, suggestions)
+            facets = []
+            processed_facets = []
+            suggestion = None
 
         return {
             "paginator": paginator,
