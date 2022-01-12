@@ -7,7 +7,7 @@
             {% if item.selected %}
                 <input class="facet_checkbox" type="checkbox" name="{{ item.key }}" checked />
                 <input class="facet_url" type="hidden" name="url_for_{{ item.key }}" value="{{ item.deselect_url }}" />
-                <a href="{{ item.deselect_url }}"><strong>{{ item }}</strong></a>
+                <a href="{{ item.deselect_url }}" rel="nofollow"><strong>{{ item }}</strong></a>
             {% else %}
                 {% if item.disabled %}
                     <input type="checkbox" name="{{ item.key }}" disabled />
@@ -15,7 +15,7 @@
                 {% else %}
                     <input class="facet_checkbox" type="checkbox" name="{{ item.key }}" />
                     <input class="facet_url" type="hidden" name="url_for_{{ item.key }}" value="{{ item.select_url }}" />
-                    <a href="{{ item.select_url }}">{{ item }}</a>
+                    <a href="{{ item.select_url }}" rel="nofollow">{{ item }}</a>
                 {% endif %}
             {% endif %}
             {% if item.show_count %}
