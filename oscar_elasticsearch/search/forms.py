@@ -4,12 +4,10 @@ from django import forms
 from django.conf import settings
 from django.forms.widgets import Input
 from django.utils.translation import gettext_lazy as _
-from oscar.core.loading import feature_hidden, get_class
+from oscar.core.loading import feature_hidden
 
 from . import settings
 
-
-is_solr_supported = get_class('search.features', 'is_solr_supported')
 
 class SearchInput(Input):
     """
@@ -159,14 +157,9 @@ class CatalogueSearchForm(BaseSearchForm):
         POPULARITY: "-popularity",
         PRICE_HIGH_TO_LOW: "-price",
         PRICE_LOW_TO_HIGH: "price",
-        TITLE_A_TO_Z: 'title',
-        TITLE_Z_TO_A: '-title',
+        TITLE_A_TO_Z: "title",
+        TITLE_Z_TO_A: "-title",
     }
-
-    # Non Solr backends don't support dynamic fields so we just sort on title
-    if not is_solr_supported():
-        SORT_BY_MAP[TITLE_A_TO_Z] = 'title_exact'
-        SORT_BY_MAP[TITLE_Z_TO_A] = '-title_exact'
 
     category = forms.IntegerField(
         required=False, label=_("Category"), widget=forms.HiddenInput()
