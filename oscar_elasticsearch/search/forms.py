@@ -4,10 +4,12 @@ from django import forms
 from django.conf import settings
 from django.forms.widgets import Input
 from django.utils.translation import gettext_lazy as _
-from oscar.core.loading import feature_hidden
+from oscar.core.loading import feature_hidden, get_class
 
 from . import settings
 
+
+is_solr_supported = get_class('search.features', 'is_solr_supported')
 
 class SearchInput(Input):
     """
@@ -136,6 +138,8 @@ class CatalogueSearchForm(BaseSearchForm):
     NEWEST = "newest"
     PRICE_HIGH_TO_LOW = "price-desc"
     PRICE_LOW_TO_HIGH = "price-asc"
+    TITLE_A_TO_Z = "title-asc"
+    TITLE_Z_TO_A = "title-desc"
     POPULARITY = "popularity"
 
     SORT_BY_CHOICES = [
@@ -145,6 +149,8 @@ class CatalogueSearchForm(BaseSearchForm):
         (NEWEST, _("Newest")),
         (PRICE_HIGH_TO_LOW, _("Price high to low")),
         (PRICE_LOW_TO_HIGH, _("Price low to high")),
+        (TITLE_A_TO_Z, _("Title A to Z")),
+        (TITLE_Z_TO_A, _("Title Z to A")),
     ]
 
     SORT_BY_MAP = {
@@ -153,7 +159,14 @@ class CatalogueSearchForm(BaseSearchForm):
         POPULARITY: "-popularity",
         PRICE_HIGH_TO_LOW: "-price",
         PRICE_LOW_TO_HIGH: "price",
+        TITLE_A_TO_Z: 'title',
+        TITLE_Z_TO_A: '-title',
     }
+
+    # Non Solr backends don't support dynamic fields so we just sort on title
+    if not is_solr_supported():
+        SORT_BY_MAP[TITLE_A_TO_Z] = 'title_exact'
+        SORT_BY_MAP[TITLE_Z_TO_A] = '-title_exact'
 
     category = forms.IntegerField(
         required=False, label=_("Category"), widget=forms.HiddenInput()
