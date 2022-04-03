@@ -12,6 +12,8 @@ class OscarElasticSearchConfig(OscarConfig):
     name = "oscar_elasticsearch.search"
     verbose_name = _("Elasticsearch")
 
+    namespace = 'search'
+
     def ready(self):
         self.search_view = get_class("search.views", "CatalogueSearchView")
         self.autocomplete_view = get_class("search.views", "CatalogueAutoCompleteView")
