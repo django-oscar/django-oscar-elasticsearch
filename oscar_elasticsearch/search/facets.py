@@ -1,4 +1,5 @@
 from django.utils.module_loading import import_string
+from django.utils.translation import gettext
 
 from . import settings
 
@@ -80,7 +81,7 @@ class Facet(object):
             self.formatter = import_string(formatter)
 
     def name(self):
-        return self.label
+        return gettext(str(self.label or ""))
 
     def has_selection(self):
         return bool(self.selected_facets)
