@@ -136,6 +136,8 @@ class CatalogueSearchForm(BaseSearchForm):
     NEWEST = "newest"
     PRICE_HIGH_TO_LOW = "price-desc"
     PRICE_LOW_TO_HIGH = "price-asc"
+    TITLE_A_TO_Z = "title-asc"
+    TITLE_Z_TO_A = "title-desc"
     POPULARITY = "popularity"
 
     SORT_BY_CHOICES = [
@@ -145,6 +147,8 @@ class CatalogueSearchForm(BaseSearchForm):
         (NEWEST, _("Newest")),
         (PRICE_HIGH_TO_LOW, _("Price high to low")),
         (PRICE_LOW_TO_HIGH, _("Price low to high")),
+        (TITLE_A_TO_Z, _("Title A to Z")),
+        (TITLE_Z_TO_A, _("Title Z to A")),
     ]
 
     SORT_BY_MAP = {
@@ -153,6 +157,8 @@ class CatalogueSearchForm(BaseSearchForm):
         POPULARITY: "-popularity",
         PRICE_HIGH_TO_LOW: "-price",
         PRICE_LOW_TO_HIGH: "price",
+        TITLE_A_TO_Z: "title",
+        TITLE_Z_TO_A: "-title",
     }
 
     category = forms.IntegerField(

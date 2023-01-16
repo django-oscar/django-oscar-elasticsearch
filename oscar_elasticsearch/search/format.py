@@ -12,8 +12,7 @@ def ranged(
     format_first=_("%(first)s or more"),
     format_second=_("Up to %(second)s"),
 ):
-    """Decorator for formatter functions to handle ranged data
-    """
+    """Decorator for formatter functions to handle ranged data"""
 
     if callable(format_full):
         raise RuntimeError('Factory-only decorator. Use "@ranged()".')

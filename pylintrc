@@ -1,5 +1,5 @@
 [MASTER]
-jobs=4
+jobs=1
 load-plugins=pylint_django
 score=n
 

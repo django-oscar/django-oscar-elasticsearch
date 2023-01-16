@@ -4,7 +4,7 @@ from .constants import APP_LABEL
 
 class ProductProxyMixinMeta:
     """
-    This is so we can extend the search app and add 
+    This is so we can extend the search app and add
     methods to the ProductProxy without replacing the entire app.
     If the ProductProxyMixin has no _meta attribute the field name can not
     be determined by wagtail.
