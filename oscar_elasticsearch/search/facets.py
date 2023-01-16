@@ -81,7 +81,9 @@ class Facet(object):
             self.formatter = import_string(formatter)
 
     def name(self):
-        return gettext(self.label)
+        if isinstance(self.label, str):
+            return gettext(self.label)
+        return ""
 
     def has_selection(self):
         return bool(self.selected_facets)
