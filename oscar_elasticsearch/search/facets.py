@@ -1,5 +1,5 @@
 from django.utils.module_loading import import_string
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext
 
 from . import settings
 
@@ -81,7 +81,7 @@ class Facet(object):
             self.formatter = import_string(formatter)
 
     def name(self):
-        return _(self.label)
+        return gettext(self.label)
 
     def has_selection(self):
         return bool(self.selected_facets)
