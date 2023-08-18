@@ -162,7 +162,7 @@ if is_model_registered("catalogue", "Product"):
             index.SearchField("child_upc", es_extra={"analyzer": "keyword"}),
             index.AutocompleteField("child_upc", es_extra={"analyzer": "keyword"}),
             index.SearchField("description", partial_match=True),
-            index.FilterField("popularity"),
+            index.FilterField("popularity", es_extra={"type": "long"}),
             index.FilterField("price", es_extra={"type": "double"}),
             index.FilterField("is_available", es_extra={"type": "boolean"}),
             index.FilterField("category_id"),
