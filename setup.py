@@ -28,11 +28,9 @@ setup(
         "django>=1.11",
         "setuptools",
         "django-oscar>=1.6",
-        "wagtail>=2",
-        "purl",
         "elasticsearch>=6.0.0,<7.0.0",
         "uwsgidecorators-fallback",
-        "wagtail-extendedsearch",
+        "django-oscar-odin",
     ],
     # mark test target to require extras.
     extras_require={"test": ["mock"]},

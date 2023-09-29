@@ -12,22 +12,4 @@ class OscarElasticSearchConfig(OscarConfig):
     name = "oscar_elasticsearch.search"
     verbose_name = _("Elasticsearch")
 
-    namespace = 'search'
-
-    def ready(self):
-        self.search_view = get_class("search.views", "CatalogueSearchView")
-        self.autocomplete_view = get_class("search.views", "CatalogueAutoCompleteView")
-
-        from .signal_handlers import register_signal_handlers
-
-        register_signal_handlers()
-
-    def get_urls(self):
-        urls = super().get_urls()
-        urls += [
-            path("", self.search_view.as_view(), name="search"),
-            path(
-                "autocomplete/", self.autocomplete_view.as_view(), name="autocomplete"
-            ),
-        ]
-        return self.post_process_urls(urls)
+    namespace = "search"

@@ -11,16 +11,5 @@ CatalogueAutoCompleteView = get_class("search.views", "CatalogueAutoCompleteView
 class Application(BaseApplication):
     name = APP_LABEL
 
-    def get_urls(self):
-        urls = [
-            path("", CatalogueSearchView.as_view(), name="search"),
-            path(
-                "autocomplete/",
-                CatalogueAutoCompleteView.as_view(),
-                name="autocomplete",
-            ),
-        ]
-        return self.post_process_urls(urls)
-
 
 application = Application()
