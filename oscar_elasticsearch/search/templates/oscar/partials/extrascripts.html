@@ -1,8 +1,8 @@
-{% load staticfiles %}
+{% load static %}
 <script src="{% static "oscar/js/search/bootstrap3-typeahead.js" %}"></script>
 <script>
 
-$('#id_q')
+$('form input[name="q"]')
     .on('keydown', function onEnter(e) {
         if (e.which == 13) e.target.closest("form").submit()
     })

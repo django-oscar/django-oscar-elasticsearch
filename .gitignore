@@ -1,3 +1,8 @@
 django_oscar_elasticsearch.egg-info/
 __pycache__/
 *.DS_Store
+db.sqlite3
+
+
+sandbox/media/
+sandbox/static/

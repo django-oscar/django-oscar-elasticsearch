@@ -62,7 +62,7 @@
         <div class="side_categories">
             {% for field, data in facet_data.items %}
                 {% if data.results %}
-                    {% include 'search/partials/facet.html' with name=data.name items=data.results %}
+                    {% include 'oscar/search/partials/facet.html' with name=data.name items=data.results %}
                 {% endif %}
             {% endfor %}
         </div>

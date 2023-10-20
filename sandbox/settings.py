@@ -86,7 +86,7 @@ TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
-            os.path.join(BASE_DIR, 'oscar_elasticsearch/search/templates/oscar'),
+            os.path.join(BASE_DIR, 'oscar_elasticsearch/search/templates'),
         ],
         'APP_DIRS': True,
         'OPTIONS': {
@@ -209,6 +209,8 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 MEDIA_URL = '/media/'
+
+STATIC_ROOT = os.path.join(BASE_DIR, 'sandbox', 'static')
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'sandbox', 'media')
 
