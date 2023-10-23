@@ -1,60 +1,5 @@
-OSCAR_INDEX_SETTINGS = {
-    "analysis": {
-        "analyzer": {
-            "upc_analyzer": {
-                "type": "custom",
-                "tokenizer": "upc_tokenizer",
-                "filter": ["lowercase"],
-            },
-            "edgengram_analyzer": {
-                "type": "custom",
-                "tokenizer": "standard",
-                "filter": [
-                    "asciifolding",
-                    "edgengram",
-                    "lowercase",
-                    "asciifolding",
-                    "edgengram",
-                ],
-                "char_filter": ["non_ascii_character_filter_mapping"],
-            },
-            "reversed_edgengram_analyzer": {
-                "type": "custom",
-                "tokenizer": "standard",
-                "filter": ["lowercase", "asciifolding", "reversed_edgengram"],
-                "char_filter": ["non_ascii_character_filter_mapping"],
-            },
-            "standard": {
-                "tokenizer": "standard",
-                "filter": ["lowercase", "asciifolding"],
-                "char_filter": ["non_ascii_character_filter_mapping"],
-            },
-            "lowercasewhitespace": {
-                "tokenizer": "whitespace",
-                "filter": ["lowercase"],
-            },
-        },
-        "tokenizer": {
-            "upc_tokenizer": {"type": "edge_ngram", "min_gram": 2, "max_gram": 15}
-        },
-        "filter": {
-            "edgengram": {"type": "edge_ngram", "min_gram": 1, "max_gram": 15},
-            "reversed_edgengram": {
-                "type": "edge_ngram",
-                "min_gram": 3,
-                "max_gram": 15,
-                "side": "back",
-            },
-        },
-        "char_filter": {
-            "non_ascii_character_filter_mapping": {
-                "type": "mapping",
-                "mappings": ["’ => '"],
-            }
-        },
-    },
-    "index": {"number_of_shards": 1},
-}
+from ocyan.core.fender import config
+from ocyan.core.utils import merge_dicts
 
 
 OSCAR_INDEX_SETTINGS = {
@@ -187,6 +132,7 @@ OSCAR_INDEX_SETTINGS = {
 #     }
 # }
 
+
 OSCAR_INDEX_MAPPING = {
     "doc": {
         "properties": {
@@ -206,16 +152,69 @@ OSCAR_INDEX_MAPPING = {
                 "copy_to": "_all_text",
             },
             "is_public": {"type": "boolean"},
-            "upc": {"type": "text", "analyzer": "keyword", "copy_to": "_all_text"},
+            "code": {"type": "text", "analyzer": "keyword", "copy_to": "_all_text"},
+            "slug": {"type": "text", "copy_to": "_all_text"},
             "description": {
                 "type": "text",
                 "analyzer": "edgengram_analyzer",
                 "search_analyzer": "standard",
                 "copy_to": "_all_text",
             },
+            "absolute_url": {"type": "text"},
+            "slug": {"type": "text", "copy_to": "_all_text"},
             "_all_text": {"type": "text"},
         }
     }
 }
 
-OSCAR_INDEX_NAME = "django-oscar-elasticsearch-products"
+OSCAR_PRODUCTS_INDEX_MAPPING = merge_dicts(
+    OSCAR_INDEX_MAPPING,
+    {
+        "doc": {
+            "properties": {
+                "parent_id": {"type": "integer"},
+                "structure": {"type": "text", "copy_to": "_all_text"},
+                "rating": {"type": "float"},
+                "priority": {"type": "integer"},
+                "price": {"type": "double"},
+                "num_available": {"type": "integer"},
+                "currency": {"type": "text", "copy_to": "_all_text"},
+                "date_created": {"type": "date"},
+                "date_updated": {"type": "date"},
+                "string_attrs": {"type": "text", "copy_to": "_all_text"},
+                "facets": {"type": "nested"},
+                "categories": {
+                    "type": "nested",
+                    "properties": {
+                        "id": {"type": "integer"},
+                        "description": {
+                            "type": "text",
+                            "copy_to": "_all_text",
+                        },
+                        "full_name": {
+                            "type": "text",
+                            "copy_to": "_all_text",
+                        },
+                    },
+                },
+            }
+        }
+    },
+    overwrite=True,
+)
+
+
+OSCAR_CATEGORIES_INDEX_MAPPING = merge_dicts(
+    OSCAR_INDEX_MAPPING,
+    {
+        "doc": {
+            "properties": {"full_name": {"type": "text"}, "full_slug": {"type": "text"}}
+        }
+    },
+    overwrite=True,
+)
+
+
+project_name = config.get("django", "name").lower()
+OSCAR_PRODUCTS_INDEX_NAME = "%s__catalogue_product" % project_name
+OSCAR_CATEGORIES_INDEX_NAME = "%s__catalogue_category" % project_name
