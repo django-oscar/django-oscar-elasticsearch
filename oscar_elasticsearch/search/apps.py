@@ -1,5 +1,5 @@
 from django.urls import path
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from oscar.core.application import OscarConfig
 from oscar.core.loading import get_class
@@ -12,7 +12,7 @@ class OscarElasticSearchConfig(OscarConfig):
     name = "oscar_elasticsearch.search"
     verbose_name = _("Elasticsearch")
 
-    namespace = 'search'
+    namespace = "search"
 
     def ready(self):
         self.search_view = get_class("search.views", "CatalogueSearchView")
