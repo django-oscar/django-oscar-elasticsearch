@@ -7,34 +7,45 @@ from extendedsearch.backends import get_search_backend
 
 chunked = get_class("search.utils", "chunked")
 ProductProxy = get_model("search", "ProductProxy")
+CategoryProxy = get_model("search", "CategoryProxy")
 
 
-def add_bulk(products):
+def add_bulk(instances, model):
     backend = get_search_backend()
-    for chunk in chunked(products, 100):
-        backend.add_bulk(ProductProxy, chunk)
+    for chunk in chunked(instances, 100):
+        backend.add_bulk(model, chunk)
 
 
 def update_index_category(category_id):
     with transaction.atomic():
         # make sure all transactions involving this category have finished before
         # updating the index.
+        categories = CategoryProxy.objects.filter(pk=category_id).select_for_update()
+        try:
+            category = categories.get()
+            index.insert_or_update_object(category)
+        except CategoryProxy.DoesNotExist:
+            pass  # if the category has been deleted, weel so be it
+
         products = list(
             ProductProxy.objects.filter(categories__id=category_id).select_for_update()
         )
-        add_bulk(products)
+        add_bulk(products, ProductProxy)
 
 
 def update_index_categories(category_ids):
     with transaction.atomic():
         # make sure all transactions involving this category have finished before
         # updating the index.
-        products = list(
-            ProductProxy.objects.filter(
-                categories__id__in=category_ids
-            ).select_for_update()
+        categories = list(CategoryProxy.objects.filter(pk__in=category_ids))
+        add_bulk(categories, CategoryProxy)
+
+        product_ids = list(
+            ProductProxy.objects.filter(categories__id__in=category_ids).values_list(
+                "pk", flat=True
+            )
         )
-        add_bulk(products)
+        update_index_products(product_ids)
 
 
 def update_index_product(product_id):
@@ -59,4 +70,4 @@ def update_index_products(product_ids):
                 .filter(pk__in=chunk)
                 .select_for_update()
             )
-            add_bulk(products)
+            add_bulk(products, ProductProxy)

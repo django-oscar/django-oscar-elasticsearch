@@ -190,5 +190,4 @@ class CatalogueSearchForm(BaseSearchForm):
 
 
 class SearchForm(AutoCompleteForm):
-
     category = forms.IntegerField(required=False)

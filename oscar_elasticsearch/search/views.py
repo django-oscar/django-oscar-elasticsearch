@@ -57,7 +57,6 @@ class BaseSearchView(TemplateView):
 
 
 class BaseAutoCompleteView(View):
-
     form_class = None
     query_class = None
 
