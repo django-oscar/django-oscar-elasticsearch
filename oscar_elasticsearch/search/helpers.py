@@ -27,10 +27,12 @@ def update_index_category(category_id):
         except CategoryProxy.DoesNotExist:
             pass  # if the category has been deleted, weel so be it
 
-        products = list(
-            ProductProxy.objects.filter(categories__id=category_id).select_for_update()
+        product_ids = list(
+            ProductProxy.objects.filter(categories__id=category_id).values_list(
+                "pk", flat=True
+            )
         )
-        add_bulk(products, ProductProxy)
+        update_index_products(product_ids)
 
 
 def update_index_categories(category_ids):
