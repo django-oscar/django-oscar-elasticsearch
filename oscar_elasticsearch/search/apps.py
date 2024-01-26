@@ -17,7 +17,7 @@ class OscarElasticSearchConfig(SearchConfig):
 
     # pylint: disable=W0201
     def ready(self):
-        self.search_view = get_class("search.views", "FacetedSearchView")
+        super().ready()
         self.autocomplete_view = get_class(
             "search.views.search", "CatalogueAutoCompleteView"
         )

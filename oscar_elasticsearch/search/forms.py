@@ -197,5 +197,5 @@ class BrowseSearchForm(CatalogueSearchForm):
     pass
 
 
-class SearchForm(AutoCompleteForm):
+class SearchForm(BaseSearchForm):
     category = forms.IntegerField(required=False)
