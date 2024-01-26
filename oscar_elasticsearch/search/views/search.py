@@ -17,7 +17,7 @@ unique_everseen = get_class("search.utils", "unique_everseen")
 
 class CatalogueAutoCompleteView(View):
     model = ProductProxy
-    search_fields = ["title", "upc", "categogry_name"]
+    search_fields = ["title", "upc", "category_name"]
 
     def get_queryset(self):
         return self.model.objects.browsable()
