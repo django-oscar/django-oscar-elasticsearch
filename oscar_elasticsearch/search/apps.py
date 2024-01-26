@@ -2,7 +2,6 @@
 from django.urls import path
 from django.utils.translation import gettext_lazy as _
 
-from oscar.core.application import OscarConfig
 from oscar.apps.search.apps import SearchConfig
 from oscar.core.loading import get_class
 
@@ -16,9 +15,12 @@ class OscarElasticSearchConfig(SearchConfig):
 
     namespace = "search"
 
+    # pylint: disable=W0201
     def ready(self):
         self.search_view = get_class("search.views", "FacetedSearchView")
-        self.autocomplete_view = get_class("search.views", "CatalogueAutoCompleteView")
+        self.autocomplete_view = get_class(
+            "search.views.search", "CatalogueAutoCompleteView"
+        )
 
         from .signal_handlers import register_signal_handlers
 
