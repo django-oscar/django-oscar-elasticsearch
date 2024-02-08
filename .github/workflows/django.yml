@@ -26,13 +26,14 @@ jobs:
         python -m pip install --upgrade pip
         pip install -e .[test]
         pip install -e .[dev]
-    - name: Run Elasticsearch
-      uses: JonasGe/elasticsearch-with-plugins-action@0.1.4
-      with:
-        # The version of the Elastic Stack you want to run
-        stack-version: '6.8.2'
-        proxy_http_host: 127.0.0.1
-        proxy_http_port: 9200
+    - uses: getong/elasticsearch-action@v1.2
+        with:
+          elasticsearch version: 6.8.2
+          host port: 9200
+          container port: 9200
+          host node port: 9300
+          node port: 9300
+          discovery type: 'single-node'
     - name: Run linters
       run: make lint
     - name: Run Tests
