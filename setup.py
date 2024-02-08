@@ -38,13 +38,5 @@ setup(
     extras_require={
         "test": ["mock", "coverage>=5.4,<5.5", "sorl-thumbnail>=12.9,<12.10"],
         "dev": ["pylint>=2.17.4", "pylint-django>=2.5.3", "black>=23.3.0"],
-        "test": [
-            "mock",
-            "sorl-thumbnail==12.9.0",
-            "pycountry",
-            "black",
-            "pylint",
-            "pylint-django",
-        ]
     },
 )
