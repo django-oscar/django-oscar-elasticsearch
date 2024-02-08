@@ -28,12 +28,15 @@ setup(
         "django>=1.11",
         "setuptools",
         "django-oscar>=1.6",
-        "wagtail>=2",
+        "wagtail>=2,<3",
         "purl",
         "elasticsearch>=6.0.0,<7.0.0",
         "uwsgidecorators-fallback",
         "wagtail-extendedsearch",
     ],
     # mark test target to require extras.
-    extras_require={"test": ["mock", "sorl-thumbnail>=12.9,<12.10"]},
+    extras_require={
+        "test": ["mock", "coverage>=5.4,<5.5", "sorl-thumbnail>=12.9,<12.10"],
+        "dev": ["pylint>=2.17.4", "pylint-django>=2.5.3", "black>=23.3.0"],
+    },
 )

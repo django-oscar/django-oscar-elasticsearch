@@ -30,6 +30,7 @@ jobs:
       with:
         # The version of the Elastic Stack you want to run
         stack-version: '6.8.2'
+    - name: Run linters
+      run: make lint
     - name: Run Tests
-      run: |
-        python sandbox/manage.py test
+      run: make test

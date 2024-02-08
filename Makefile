@@ -11,26 +11,21 @@ endif
 
 
 install: fail-if-no-virtualenv
-	pip install --pre --editable .[test] --upgrade --upgrade-strategy=eager
+	pip install --pre --editable .[dev] --upgrade --upgrade-strategy=eager
 
 migrate:
-	manage.py migrate --no-input
-
-loaddata:
-	# manage.py loaddata
+	sandbox/manage.py migrate --no-input
 
 collectstatic:
-	manage.py collectstatic --no-input
+	sandbox/manage.py collectstatic --no-input
 
 lint: fail-if-no-virtualenv
+	pip install -e .[dev]
 	black --check --exclude "migrations/*" setup.py oscar_elasticsearch
 	pylint setup.py oscar_elasticsearch/
 
 test: fail-if-no-virtualenv
-	@coverage run --source='oscar_elasticsearch' `which manage.py` test
-	@coverage report
-	@coverage xml
-	@coverage html
+	sandbox/manage.py test
 
 black:
-	@black --exclude "migrations/*" setup.py oscar_elasticsearch
+	black --exclude "migrations/*" setup.py oscar_elasticsearch

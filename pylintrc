@@ -2,6 +2,7 @@
 jobs=1
 load-plugins=pylint_django
 score=n
+django-settings-module = sandbox.settings
 
 [MESSAGES CONTROL]
 disable=R,C
