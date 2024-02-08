@@ -34,4 +34,4 @@ jobs:
         stack-version: '6.8.2'
     - name: Run Tests
       run: |
-        python manage.py test
+        python sandbox/manage.py test
