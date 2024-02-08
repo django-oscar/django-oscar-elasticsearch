@@ -35,5 +35,5 @@ setup(
         "wagtail-extendedsearch",
     ],
     # mark test target to require extras.
-    extras_require={"test": ["mock"]},
+    extras_require={"test": ["mock", "sorl-thumbnail>=12.9,<12.10"]},
 )

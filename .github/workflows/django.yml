@@ -26,8 +26,6 @@ jobs:
         python -m pip install --upgrade pip
         pip install .[test]
     - name: Run Elasticsearch
-    # You may pin to the exact commit or the version.
-    # uses: JonasGe/elasticsearch-with-plugins-action@9499e5e1943fe7869b7e6be9a45505afe5d387ea
       uses: JonasGe/elasticsearch-with-plugins-action@0.1.4
       with:
         # The version of the Elastic Stack you want to run
