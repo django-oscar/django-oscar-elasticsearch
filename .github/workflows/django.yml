@@ -26,14 +26,15 @@ jobs:
         python -m pip install --upgrade pip
         pip install -e .[test]
         pip install -e .[dev]
-    - uses: getong/elasticsearch-action@v1.2
-        with:
-          elasticsearch version: 6.8.2
-          host port: 9200
-          container port: 9200
-          host node port: 9300
-          node port: 9300
-          discovery type: 'single-node'
+    - name: Install Elasticsearch
+      uses: getong/elasticsearch-action@v1.2
+      with:
+        elasticsearch version: 6.8.2
+        host port: 9200
+        container port: 9200
+        host node port: 9300
+        node port: 9300
+        discovery type: 'single-node'
     - name: Run linters
       run: make lint
     - name: Run Tests
