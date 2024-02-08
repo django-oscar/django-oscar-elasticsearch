@@ -28,7 +28,7 @@ jobs:
     - name: Setup ElasticSearch
       uses: getong/elasticsearch-action@v1.2
       with:
-        elasticsearch version: 6
+        elasticsearch version: '6.8.2'
     - name: Run Tests
       run: |
         python manage.py test
