@@ -25,10 +25,13 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install .[test]
-    - name: Setup ElasticSearch
-      uses: getong/elasticsearch-action@v1.2
+    - name: Run Elasticsearch
+    # You may pin to the exact commit or the version.
+    # uses: JonasGe/elasticsearch-with-plugins-action@9499e5e1943fe7869b7e6be9a45505afe5d387ea
+      uses: JonasGe/elasticsearch-with-plugins-action@0.1.4
       with:
-        elasticsearch version: '6.8.2'
+        # The version of the Elastic Stack you want to run
+        stack-version: '6.8.2'
     - name: Run Tests
       run: |
         python manage.py test
