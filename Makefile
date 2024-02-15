@@ -17,6 +17,7 @@ lint:
 	pylint setup.py oscar_elasticsearch/
 
 test:
+	pip install --pre --editable .[test] --upgrade --upgrade-strategy=eager
 	sandbox/manage.py test
 
 black:
