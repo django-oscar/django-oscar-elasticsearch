@@ -14,7 +14,7 @@ collectstatic:
 
 lint:
 	black --check --exclude "migrations/*" setup.py oscar_elasticsearch
-	@pylint setup.py oscar_elasticsearch/
+	pylint setup.py oscar_elasticsearch/
 
 test:
 	sandbox/manage.py test
