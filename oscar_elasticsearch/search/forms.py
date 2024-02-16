@@ -189,5 +189,13 @@ class CatalogueSearchForm(BaseSearchForm):
             raise forms.ValidationError("Minimum price must exceed maximum price.")
 
 
-class SearchForm(AutoCompleteForm):
+class BrowseCategoryForm(CatalogueSearchForm):
+    pass
+
+
+class CategoryForm(CatalogueSearchForm):
+    pass
+
+
+class SearchForm(BaseSearchForm):
     category = forms.IntegerField(required=False)

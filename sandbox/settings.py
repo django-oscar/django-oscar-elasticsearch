@@ -86,7 +86,7 @@ TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
-            os.path.join(BASE_DIR, 'oscar_elasticsearch/search/templates/oscar'),
+            os.path.join(BASE_DIR, 'oscar_elasticsearch/search/templates'),
         ],
         'APP_DIRS': True,
         'OPTIONS': {
@@ -210,6 +210,8 @@ STATIC_URL = '/static/'
 
 MEDIA_URL = '/media/'
 
+STATIC_ROOT = os.path.join(BASE_DIR, 'sandbox', 'static')
+
 MEDIA_ROOT = os.path.join(BASE_DIR, 'sandbox', 'media')
 
 AUTHENTICATION_BACKENDS = (
@@ -221,7 +223,6 @@ SITE_ID = 1
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
-OSCAR_PRODUCT_SEARCH_HANDLER = "oscar_elasticsearch.search.search_handlers.ProductSearchHandler"
 OSCAR_ELASTICSEARCH_FACETS = [
     {
         "name": "price",
