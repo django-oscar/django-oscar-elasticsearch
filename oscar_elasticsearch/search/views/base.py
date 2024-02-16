@@ -36,8 +36,16 @@ class BaseSearchView(ListView):
     facets = get_facet_names()
     suggestion_field_name = "title"
 
+    form_class = None
+
     def build_form(self, **kwargs):
+        if not self.form_class:
+            raise NotImplementedError(
+                "Please include a form_class when using this view"
+            )
+
         kwargs["selected_facets"] = self.request.GET.getlist("selected_facets")
+        # pylint: disable=not-callable
         return self.form_class(self.request.GET, **kwargs)
 
     def get_base_search_results(self, query, queryset, order_by_relevance):
@@ -114,7 +122,7 @@ class BaseSearchView(ListView):
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
 
-        self.form = self.build_form()
+        self.form = self.build_form()  # pylint: disable=attribute-defined-outside-init
 
         search_results = self.get_results(order_by_relevance=self.order_by_relevance)
 

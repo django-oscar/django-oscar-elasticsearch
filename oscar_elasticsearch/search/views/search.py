@@ -1,5 +1,4 @@
 from django.utils.translation import gettext_lazy as _
-from django.views.generic.list import ListView
 from django.views import View
 from django.http import JsonResponse
 
