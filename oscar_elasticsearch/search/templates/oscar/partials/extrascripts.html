@@ -2,7 +2,7 @@
 <script src="{% static "oscar/js/search/bootstrap3-typeahead.js" %}"></script>
 <script>
 
-$('form input[name="q"]')
+$('#id_q')
     .on('keydown', function onEnter(e) {
         if (e.which == 13) e.target.closest("form").submit()
     })
