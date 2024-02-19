@@ -3,9 +3,6 @@ from django.utils.functional import lazy
 
 from oscar.core.loading import get_model
 
-# pylint: disable=unused-import
-from extendedsearch.utils import merge_dicts, unique_everseen
-
 from . import settings
 
 ProductAttribute = get_model("catalogue", "ProductAttribute")

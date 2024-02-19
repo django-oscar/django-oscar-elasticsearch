@@ -1,161 +1,81 @@
-import logging
+import operator
 
-from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
-from django.utils.translation import gettext
 from django.views.generic.list import ListView
+from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 
-from oscar.core.loading import get_model, get_class
+from oscar.core.loading import get_class, get_model
 
-from extendedsearch.backends import get_search_backend
-from extendedsearch.utils import separate_filters_from_query
-from extendedsearch.query import MatchAll
+DEFAULT_ITEMS_PER_PAGE = get_class("search.settings", "DEFAULT_ITEMS_PER_PAGE")
+OSCAR_PRODUCTS_INDEX_NAME = get_class("search.settings", "OSCAR_PRODUCTS_INDEX_NAME")
+es = get_class("search.backend", "es")
 
-from elasticsearch.exceptions import RequestError
+Product = get_model("catalogue", "Product")
 
-from oscar_elasticsearch.search import settings
-from oscar_elasticsearch.search.utils import LegacyOscarFacetList
 
-logger = logging.getLogger(__name__)
+class ElasticSearchPaginator(Paginator):
+    def __init__(self, *args, **kwargs):
+        self.products = kwargs.pop("products")
+        super().__init__(*args, **kwargs)
 
-SearchBackend = get_search_backend()
-
-ProductProxy = get_model("search", "ProductProxy")
-
-CatalogueSearchForm = get_class("search.forms", "CatalogueSearchForm")
-process_facets = get_class("search.facets", "process_facets")
-get_facet_names = get_class("search.utils", "get_facet_names")
-select_suggestion = get_class("search.suggestions", "select_suggestion")
-query_hit = get_class("search.signals", "query_hit")
+    def page(self, number):
+        """Return a Page object for the given 1-based page number."""
+        number = self.validate_number(number)
+        bottom = (number - 1) * self.per_page
+        top = bottom + self.per_page
+        if top + self.orphans >= self.count:
+            top = self.count
+        return self._get_page(self.products, number, self)
 
 
 class BaseSearchView(ListView):
-    model = ProductProxy
-    paginate_by = settings.DEFAULT_ITEMS_PER_PAGE
-
-    order_by_relevance = True
-    facets = get_facet_names()
-    suggestion_field_name = "title"
-
-    form_class = None
-
-    def build_form(self, **kwargs):
-        if not self.form_class:
-            raise NotImplementedError(
-                "Please include a form_class when using this view"
-            )
-
-        kwargs["selected_facets"] = self.request.GET.getlist("selected_facets")
-        # pylint: disable=not-callable
-        return self.form_class(self.request.GET, **kwargs)
-
-    def get_base_search_results(self, query, queryset, order_by_relevance):
-        results = SearchBackend.search(
-            query, queryset, order_by_relevance=order_by_relevance
+    model = Product
+    paginate_by = DEFAULT_ITEMS_PER_PAGE
+    
+    def get_search_results(self):
+        print(OSCAR_PRODUCTS_INDEX_NAME)
+        print(es.indices.exists_alias(name=OSCAR_PRODUCTS_INDEX_NAME))
+        elasticsearch_from = int(self.request.GET.get("page", 1)) * self.paginate_by
+        print(elasticsearch_from)
+        results = es.search(
+            index=OSCAR_PRODUCTS_INDEX_NAME,
+            body={"query": {"match_all": {}}},
+            size=self.paginate_by,
+            from_=elasticsearch_from
         )
-
-        if settings.FILTER_AVAILABLE:
-            results = results.es_filter(is_available=True)
 
         return results
-
-    def get_es_ordering(self):
-        ordering = self.form.get_sort_params(self.form.cleaned_data)
-        if ordering:
-            return [ordering]
-        return []
-
-    def get_query(self):
-        filters, query_string = separate_filters_from_query(
-            self.form.cleaned_data.get("q")
+        
+    def paginate(self, results, products):
+        print(results)
+        total_hits = results["hits"]["total"]
+        paginator = ElasticSearchPaginator(
+            range(0, total_hits),
+            self.paginate_by,
+            products=products
         )
-        if not query_string or query_string == "*":
-            return filters, MatchAll()
-        else:
-            query_hit.send(sender=self, querystring=query_string)
-
-        return filters, query_string
-
-    def get_queryset(self):
-        return self.model.objects.browsable()
-
-    def get_results(self, order_by_relevance=True):
-        """
-        Fetches the results via the form.
-        """
-        if not self.form.is_valid():
-            logger.error("Invalid form %s", self.form.errors)
-            return self.get_base_search_results(
-                MatchAll(),
-                self.get_queryset().filter(
-                    pk__isnull=True
-                ),  # queryset.none() can not be handled by the elasticsearch querycompiler
-                order_by_relevance=order_by_relevance,
-            )
-
-        filters, query = self.get_query()
-        filters.update(self.form.selected_multi_facets)
-
-        return (
-            self.get_base_search_results(
-                query, self.get_queryset(), order_by_relevance=order_by_relevance
-            )
-            .es_filter(**filters)
-            .es_order_by(self.get_es_ordering())
-        )
-
-    def paginate(self, search_results):
-        page = self.request.GET.get("page", 1)
-        paginator = Paginator(
-            search_results,
-            self.form.cleaned_data.get("items_per_page", self.paginate_by),
-        )
-
-        try:
-            page_obj = paginator.page(page)
-        except PageNotAnInteger:
-            page_obj = paginator.page(1)
-        except EmptyPage:
-            page_obj = paginator.page(paginator.num_pages)
-
-        return page_obj, paginator
+        return paginator
 
     def get_context_data(self, *args, **kwargs):
-        context = super().get_context_data(*args, **kwargs)
-
-        self.form = self.build_form()  # pylint: disable=attribute-defined-outside-init
-
-        search_results = self.get_results(order_by_relevance=self.order_by_relevance)
-
-        try:
-            if search_results.count():  # there are actual search results
-                page_obj, paginator = self.paginate(search_results)
-                facets = page_obj.object_list.facets(*self.facets)
-                processed_facets = process_facets(
-                    self.request.get_full_path(), self.form, facets
-                )
-                suggestion = None
-            else:  # no results, fetch suggestions
-                page_obj, paginator = self.paginate(self.get_queryset().none())
-                facets = search_results.facets(*self.facets)
-                processed_facets = process_facets(
-                    self.request.get_full_path(), self.form, facets
-                )
-                suggestions = search_results.suggestions(self.suggestion_field_name)
-                suggestion = select_suggestion(self.suggestion_field_name, suggestions)
-        except RequestError as e:
-            logger.exception(e)
-            page_obj, paginator = self.paginate(self.get_queryset().none())
-            facets = []
-            processed_facets = []
-            suggestion = None
-
+        # context = super().get_context_data(*args, **kwargs)
+        context = {}
+        search_results = self.get_search_results()
+        
+        print(search_results)
+        
+        idgetter = operator.itemgetter("id")
+        product_ids = [idgetter(hit["_source"]) for hit in search_results["hits"]["hits"]]
+        print(product_ids)
+        products = Product.objects.filter(pk__in=product_ids)
+        paginator = self.paginate(search_results, products)
+        
         context["paginator"] = paginator
+        page_obj = paginator.get_page(self.request.GET.get("page", 1))
         context["page_obj"] = page_obj
-        context["suggestion"] = suggestion
+#         context["suggestion"] = suggestion
         context["page"] = page_obj
         context[self.context_object_name] = page_obj
-        context["facet_data"] = LegacyOscarFacetList(processed_facets)
-        context["has_facets"] = bool(processed_facets)
-        context["query"] = self.form.cleaned_data.get("q") or gettext("Blank")
-        context["form"] = self.form
+#         context["facet_data"] = LegacyOscarFacetList(processed_facets)
+#         context["has_facets"] = bool(processed_facets)
+#         context["query"] = self.form.cleaned_data.get("q") or gettext("Blank")
+#         context["form"] = self.form
         return context

@@ -6,8 +6,8 @@ from extendedsearch import index
 from extendedsearch.backends import get_search_backend
 
 chunked = get_class("search.utils", "chunked")
-ProductProxy = get_model("search", "ProductProxy")
-CategoryProxy = get_model("search", "CategoryProxy")
+# ProductProxy = get_model("search", "ProductProxy")
+# CategoryProxy = get_model("search", "CategoryProxy")
 
 
 def add_bulk(instances, model):

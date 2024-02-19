@@ -10,7 +10,7 @@ from . import settings
 
 Product = get_model("catalogue", "Product")
 Category = get_model("catalogue", "Category")
-ProductProxy = get_model("search", "ProductProxy")
+# ProductProxy = get_model("search", "ProductProxy")
 StockRecord = get_model("partner", "StockRecord")
 UpdateIndex = get_class("search.update", "UpdateIndex")
 
@@ -28,10 +28,10 @@ def product_post_save_signal_handler(sender, instance, raw, **kwargs):
     if not raw:  # raw is when fixture is loaded
         push_product_update(instance)
 
-
-def product_post_delete_signal_handler(sender, instance, **kwargs):
-    return post_delete_signal_handler(ProductProxy(pk=instance.pk), **kwargs)
-
+#
+# def product_post_delete_signal_handler(sender, instance, **kwargs):
+#     return post_delete_signal_handler(ProductProxy(pk=instance.pk), **kwargs)
+#
 
 def product_category_m2m_changed_signal_handler(
     sender, instance, action, reverse, **kwargs

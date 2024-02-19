@@ -25,14 +25,13 @@ setup(
     zip_safe=False,
     # specify dependencies
     install_requires=[
-        "django>=1.11",
+        "django>=3.2",
         "setuptools",
-        "django-oscar>=1.6",
-        "wagtail>=2,<3",
+        "django-oscar>=3.2.3",
         "purl",
         "elasticsearch>=6.0.0,<7.0.0",
         "uwsgidecorators-fallback",
-        "wagtail-extendedsearch",
+        "django-oscar-odin"
     ],
     # mark test target to require extras.
     extras_require={
