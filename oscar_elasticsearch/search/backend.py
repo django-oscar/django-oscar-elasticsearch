@@ -1,3 +1,3 @@
-from oscar.core.loading import get_class
+from elasticsearch import Elasticsearch
 
-SearchBackend = get_class("search.search", "SearchBackend")
+es = Elasticsearch()

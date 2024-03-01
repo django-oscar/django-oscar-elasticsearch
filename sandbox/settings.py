@@ -67,6 +67,7 @@ INSTALLED_APPS = [
     'sorl.thumbnail',
     'django_tables2',
     'oscar_elasticsearch.search.apps.OscarElasticSearchConfig',
+    "oscar_odin"
 ]
 
 MIDDLEWARE = [
@@ -281,6 +282,7 @@ OSCAR_ELASTICSEARCH_FACETS = [
 ]
 
 OSCAR_DEFAULT_CURRENCY = 'EUR'
+OSCAR_ELASTICSEARCH_PROJECT_NAME = "oscar_elasticsearch"
 
 WAGTAILSEARCH_BACKENDS = {
     "default": {
