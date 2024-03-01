@@ -49,7 +49,6 @@ class Indexer(object):
             es.indices.put_alias(name=self.name, index=self.alias_name)
 
     def create(self, name):
-        print(name, self.settings)
         return es.indices.create(
             index=name, body={"settings": self.settings, "mappings": self.mappings}
         )

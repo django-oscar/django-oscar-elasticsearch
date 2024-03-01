@@ -28,10 +28,12 @@ def product_post_save_signal_handler(sender, instance, raw, **kwargs):
     if not raw:  # raw is when fixture is loaded
         push_product_update(instance)
 
+
 #
 # def product_post_delete_signal_handler(sender, instance, **kwargs):
 #     return post_delete_signal_handler(ProductProxy(pk=instance.pk), **kwargs)
 #
+
 
 def product_category_m2m_changed_signal_handler(
     sender, instance, action, reverse, **kwargs

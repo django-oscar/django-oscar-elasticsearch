@@ -1,5 +1,6 @@
 # pylint: disable=wildcard-import,unused-wildcard-import
 from django.conf import settings
+
 # from extendedsearch.settings import *
 from .constants import ES_CTX_AVAILABLE, ES_CTX_PUBLIC
 

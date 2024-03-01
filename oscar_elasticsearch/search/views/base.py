@@ -30,52 +30,51 @@ class ElasticSearchPaginator(Paginator):
 class BaseSearchView(ListView):
     model = Product
     paginate_by = DEFAULT_ITEMS_PER_PAGE
-    
+
+    def get_elasticsearch_body(self):
+        return {"query": {"match_all": {}}}
+
     def get_search_results(self):
-        print(OSCAR_PRODUCTS_INDEX_NAME)
-        print(es.indices.exists_alias(name=OSCAR_PRODUCTS_INDEX_NAME))
-        elasticsearch_from = int(self.request.GET.get("page", 1)) * self.paginate_by
-        print(elasticsearch_from)
-        results = es.search(
+        elasticsearch_from = (
+            int(self.request.GET.get("page", 1)) * self.paginate_by
+        ) - self.paginate_by
+
+        print(self.get_elasticsearch_body())
+        return es.search(
             index=OSCAR_PRODUCTS_INDEX_NAME,
-            body={"query": {"match_all": {}}},
+            body=self.get_elasticsearch_body(),
             size=self.paginate_by,
-            from_=elasticsearch_from
+            from_=elasticsearch_from,
         )
 
-        return results
-        
     def paginate(self, results, products):
-        print(results)
         total_hits = results["hits"]["total"]
-        paginator = ElasticSearchPaginator(
-            range(0, total_hits),
-            self.paginate_by,
-            products=products
+
+        return ElasticSearchPaginator(
+            range(0, total_hits), self.paginate_by, products=products
         )
-        return paginator
 
     def get_context_data(self, *args, **kwargs):
         # context = super().get_context_data(*args, **kwargs)
         context = {}
         search_results = self.get_search_results()
-        
-        print(search_results)
-        
+
         idgetter = operator.itemgetter("id")
-        product_ids = [idgetter(hit["_source"]) for hit in search_results["hits"]["hits"]]
-        print(product_ids)
+        product_ids = [
+            idgetter(hit["_source"]) for hit in search_results["hits"]["hits"]
+        ]
+
         products = Product.objects.filter(pk__in=product_ids)
         paginator = self.paginate(search_results, products)
-        
+
         context["paginator"] = paginator
         page_obj = paginator.get_page(self.request.GET.get("page", 1))
         context["page_obj"] = page_obj
-#         context["suggestion"] = suggestion
+        #         context["suggestion"] = suggestion
         context["page"] = page_obj
         context[self.context_object_name] = page_obj
-#         context["facet_data"] = LegacyOscarFacetList(processed_facets)
-#         context["has_facets"] = bool(processed_facets)
-#         context["query"] = self.form.cleaned_data.get("q") or gettext("Blank")
-#         context["form"] = self.form
+        #         context["facet_data"] = LegacyOscarFacetList(processed_facets)
+        #         context["has_facets"] = bool(processed_facets)
+        #         context["query"] = self.form.cleaned_data.get("q") or gettext("Blank")
+        #         context["form"] = self.form
         return context

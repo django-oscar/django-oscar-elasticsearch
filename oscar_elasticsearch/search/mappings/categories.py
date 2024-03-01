@@ -23,7 +23,7 @@ class CategoryElasticSearchResource(OscarElasticSearchResourceMixin):
 class CategoryMapping(odin.Mapping):
     from_resource = CategoryResource
     to_resource = CategoryElasticSearchResource
-    
+
     @odin.assign_field
     def content_type(self) -> str:
         content_type = ContentType.objects.get_for_model(Category)
