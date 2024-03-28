@@ -63,17 +63,17 @@ OSCAR_INDEX_SETTINGS = {
             },
         },
         "tokenizer": {
-            "ngram_tokenizer": {"type": "nGram", "min_gram": 3, "max_gram": 15},
+            "ngram_tokenizer": {"type": "ngram", "min_gram": 3, "max_gram": 15},
             "edgengram_tokenizer": {
-                "type": "edgeNGram",
+                "type": "edge_ngram",
                 "min_gram": 2,
                 "max_gram": 15,
                 "side": "front",
             },
         },
         "filter": {
-            "ngram": {"type": "nGram", "min_gram": 3, "max_gram": 15},
-            "edgengram": {"type": "edgeNGram", "min_gram": 1, "max_gram": 15},
+            "ngram": {"type": "ngram", "min_gram": 3, "max_gram": 15},
+            "edgengram": {"type": "edge_ngram", "min_gram": 1, "max_gram": 15},
             "reversed_edgengram": {
                 "type": "edge_ngram",
                 "min_gram": 3,
@@ -88,7 +88,7 @@ OSCAR_INDEX_SETTINGS = {
             }
         },
     },
-    "index": {"number_of_shards": 1},
+    "index": {"number_of_shards": 1, "max_ngram_diff": 15},
 }
 
 
@@ -162,69 +162,66 @@ OSCAR_INDEX_SETTINGS = {
 
 
 OSCAR_INDEX_MAPPING = {
-    "doc": {
-        "properties": {
-            "id": {"type": "integer", "store": True},
-            "content_type": {"type": "keyword", "store": True},
-            "title": {
-                "type": "text",
-                "analyzer": "edgengram_analyzer",
-                "search_analyzer": "standard",
-                "fields": {
-                    "reversed": {
-                        "type": "text",
-                        "analyzer": "reversed_edgengram_analyzer",
-                        "search_analyzer": "standard",
-                    }
-                },
-                "copy_to": "_all_text",
+    "properties": {
+        "id": {"type": "integer", "store": True},
+        "content_type": {"type": "keyword", "store": True},
+        "title": {
+            "type": "text",
+            "analyzer": "edgengram_analyzer",
+            "search_analyzer": "standard",
+            "fields": {
+                "reversed": {
+                    "type": "text",
+                    "analyzer": "reversed_edgengram_analyzer",
+                    "search_analyzer": "standard",
+                }
             },
-            "is_public": {"type": "boolean"},
-            "code": {"type": "text", "analyzer": "keyword", "copy_to": "_all_text"},
-            "slug": {"type": "text", "copy_to": "_all_text"},
-            "description": {
-                "type": "text",
-                "analyzer": "edgengram_analyzer",
-                "search_analyzer": "standard",
-                "copy_to": "_all_text",
-            },
-            "absolute_url": {"type": "text"},
-            "slug": {"type": "text", "copy_to": "_all_text"},
-            "_all_text": {"type": "text"},
-        }
+            "copy_to": "_all_text",
+        },
+        "is_public": {"type": "boolean"},
+        "code": {"type": "text", "analyzer": "keyword", "copy_to": "_all_text"},
+        "slug": {"type": "text", "copy_to": "_all_text"},
+        "description": {
+            "type": "text",
+            "analyzer": "edgengram_analyzer",
+            "search_analyzer": "standard",
+            "copy_to": "_all_text",
+        },
+        "absolute_url": {"type": "text"},
+        "slug": {"type": "text", "copy_to": "_all_text"},
+        "_all_text": {"type": "text"},
     }
 }
 
 OSCAR_PRODUCTS_INDEX_MAPPING = OSCAR_INDEX_MAPPING.copy()
+
 OSCAR_PRODUCTS_INDEX_MAPPING.update(
     {
-        "doc": {
-            "properties": {
-                "parent_id": {"type": "integer"},
-                "structure": {"type": "text", "copy_to": "_all_text"},
-                "rating": {"type": "float"},
-                "priority": {"type": "integer"},
-                "price": {"type": "double"},
-                "num_available": {"type": "integer"},
-                "currency": {"type": "text", "copy_to": "_all_text"},
-                "date_created": {"type": "date"},
-                "date_updated": {"type": "date"},
-                "string_attrs": {"type": "text", "copy_to": "_all_text"},
-                "facets": {"type": "nested"},
-                "categories": {
-                    "type": "nested",
-                    "properties": {
-                        "id": {"type": "integer"},
-                        "description": {
-                            "type": "text",
-                            "copy_to": "_all_text",
-                        },
-                        "full_name": {
-                            "type": "text",
-                        },
+        "properties": {
+            "parent_id": {"type": "integer"},
+            "structure": {"type": "text", "copy_to": "_all_text"},
+            "rating": {"type": "float"},
+            "priority": {"type": "integer"},
+            "price": {"type": "double"},
+            "num_available": {"type": "integer"},
+            "currency": {"type": "text", "copy_to": "_all_text"},
+            "date_created": {"type": "date"},
+            "date_updated": {"type": "date"},
+            "string_attrs": {"type": "text", "copy_to": "_all_text"},
+            "facets": {"type": "nested"},
+            "categories": {
+                "type": "nested",
+                "properties": {
+                    "id": {"type": "integer"},
+                    "description": {
+                        "type": "text",
+                        "copy_to": "_all_text",
+                    },
+                    "full_name": {
+                        "type": "text",
                     },
                 },
-            }
+            },
         }
     }
 )
@@ -232,11 +229,7 @@ print(OSCAR_PRODUCTS_INDEX_MAPPING)
 
 OSCAR_CATEGORIES_INDEX_MAPPING = OSCAR_INDEX_MAPPING.copy()
 OSCAR_CATEGORIES_INDEX_MAPPING.update(
-    {
-        "doc": {
-            "properties": {"full_name": {"type": "text"}, "full_slug": {"type": "text"}}
-        }
-    },
+    {"properties": {"full_name": {"type": "text"}, "full_slug": {"type": "text"}}}
 )
 
 

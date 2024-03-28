@@ -25,7 +25,6 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
-    'django.contrib.staticfiles',
 
     'django.contrib.sites',
     'django.contrib.flatpages',
@@ -207,9 +206,9 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.0/howto/static-files/
 
-STATIC_URL = '/static/'
+STATIC_URL = 'static/'
 
-MEDIA_URL = '/media/'
+MEDIA_URL = 'media/'
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'sandbox', 'static')
 
@@ -228,56 +227,7 @@ OSCAR_ELASTICSEARCH_FACETS = [
     {
         "name": "price",
         "label": "Price",
-        "type": "range",
-        "formatter": "oscar_elasticsearch.search.format.currency",
-        "ranges": [
-            25,
-            100,
-            500,
-            1000
-        ]
-    },
-    {
-        "name": "attrs.gewicht",
-        "label": "Gewicht",
         "type": "term",
-        "ranges": []
-    },
-    {
-        "name": "attrs.googleshopping",
-        "label": "Google product",
-        "type": "term",
-        "ranges": []
-    },
-    {
-        "name": "attrs.size",
-        "label": "Maat",
-        "type": "term",
-        "ranges": []
-    },
-    {
-        "name": "attrs.height",
-        "label": "Hoogte",
-        "type": "term",
-        "ranges": []
-    },
-    {
-        "name": "attrs.zult",
-        "label": "Datum",
-        "type": "term",
-        "ranges": []
-    },
-    {
-        "name": "attrs.stroomverbruik",
-        "label": "Stroomverbruik",
-        "type": "term",
-        "ranges": []
-    },
-    {
-        "name": "attrs.bijzonderheden",
-        "label": "Bijzonderheden",
-        "type": "term",
-        "ranges": []
     }
 ]
 

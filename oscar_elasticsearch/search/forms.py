@@ -104,7 +104,7 @@ class BaseSearchForm(forms.Form):
             if ":" not in facet_kv:
                 continue
 
-            field_name, value = facet_kv.split(":", 1)
+            field_name, value = facet_kv.split(":")
             selected_multi_facets[field_name].append(value)
 
         return selected_multi_facets

@@ -29,7 +29,7 @@ setup(
         "setuptools",
         "django-oscar>=3.2.3",
         "purl",
-        "elasticsearch>=6.0.0,<7.0.0",
+        "elasticsearch>=8.0.0",
         "uwsgidecorators-fallback",
         "django-oscar-odin",
     ],

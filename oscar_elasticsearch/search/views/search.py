@@ -2,9 +2,11 @@ from oscar.apps.search.views.search import FacetedSearchView as BaseFacetedSearc
 
 
 class FacetedSearchView(BaseFacetedSearchView):
-    def get_elasticsearch_body(self):
-        return {
-            "query": {
+    def get_elasticsearch_body(self, selected_facets={}):
+        body = super().get_elasticsearch_body(selected_facets=selected_facets)
+
+        body["query"]["bool"]["filter"].append(
+            {
                 "multi_match": {
                     "query": self.request.GET.get("q"),
                     "fields": [
@@ -16,4 +18,6 @@ class FacetedSearchView(BaseFacetedSearchView):
                     ],
                 }
             }
-        }
+        )
+
+        return body

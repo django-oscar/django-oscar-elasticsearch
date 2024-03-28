@@ -28,7 +28,7 @@ class Indexer(object):
         bulk(es, objects, ignore=[400])
 
     def finish(self):
-        es.indices.refresh(self.alias_name)
+        es.indices.refresh(index=self.alias_name)
 
         # Check if alias exists for indice
         if es.indices.exists_alias(name=self.name):
@@ -55,6 +55,6 @@ class Indexer(object):
 
     def delete(self, name):
         try:
-            es.indices.delete(name)
+            es.indices.delete(index=name)
         except NotFoundError:
             pass

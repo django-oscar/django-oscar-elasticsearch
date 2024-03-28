@@ -32,8 +32,8 @@ def process_facets(request_full_path, form, facets):
     for facet_definition in facet_definitions:
         facet_name = facet_definition["name"]
         selected_facets = selected_multi_facets[facet_name]
-        unfiltered_facet = unfiltered_facets.get(facet_name)
-        filtered_facet = filtered_facets.get(facet_name, {})
+        unfiltered_facet = unfiltered_facets["aggregations"].get(facet_name)
+        filtered_facet = filtered_facets["aggregations"].get(facet_name, {})
         if unfiltered_facet is None:
             continue
 

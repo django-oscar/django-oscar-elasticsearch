@@ -14,9 +14,7 @@ OSCAR_PRODUCTS_INDEX_MAPPING = get_class(
 )
 OSCAR_INDEX_SETTINGS = get_class("search.settings", "OSCAR_INDEX_SETTINGS")
 
-ProductElasticSearchMapping = get_class(
-    "search.mappings.products", "ProductElasticSearchMapping"
-)
+ProductMapping = get_class("search.mappings.products", "ProductMapping")
 
 Product = get_model("catalogue", "Product")
 
@@ -34,8 +32,8 @@ class Command(BaseCommand):
             OSCAR_INDEX_SETTINGS,
         )
 
-        product_resources = ProductElasticSearchMapping.apply(
-            product_resources, context={"_index": indexer.alias_name, "_type": "doc"}
+        product_resources = ProductMapping.apply(
+            product_resources, context={"_index": indexer.alias_name}
         )
         print(dict_codec.dump(product_resources, include_type_field=False))
         indexer.execute(dict_codec.dump(product_resources, include_type_field=False))

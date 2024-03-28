@@ -16,9 +16,7 @@ OSCAR_CATEGORIES_INDEX_MAPPING = get_class(
 )
 OSCAR_INDEX_SETTINGS = get_class("search.settings", "OSCAR_INDEX_SETTINGS")
 
-CategoryElasticSearchMapping = get_class(
-    "search.mappings.categories", "CategoryElasticSearchMapping"
-)
+CategoryMapping = get_class("search.mappings.categories", "CategoryMapping")
 
 Category = get_model("catalogue", "Category")
 
@@ -36,8 +34,8 @@ class Command(BaseCommand):
             OSCAR_INDEX_SETTINGS,
         )
 
-        category_resources = CategoryElasticSearchMapping.apply(
-            category_resources, context={"_index": indexer.alias_name, "_type": "doc"}
+        category_resources = CategoryMapping.apply(
+            category_resources, context={"_index": indexer.alias_name}
         )
 
         indexer.execute(dict_codec.dump(category_resources, include_type_field=False))
