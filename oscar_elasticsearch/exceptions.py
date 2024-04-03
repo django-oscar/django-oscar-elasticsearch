@@ -1,0 +1,2 @@
+class ElasticSearchQueryException(Exception):
+    pass

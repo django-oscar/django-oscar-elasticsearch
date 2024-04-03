@@ -8,11 +8,13 @@ from oscar_odin.mappings import catalogue
 
 Indexer = get_class("search.indexing", "Indexer")
 
-OSCAR_PRODUCTS_INDEX_NAME = get_class("search.settings", "OSCAR_PRODUCTS_INDEX_NAME")
-OSCAR_PRODUCTS_INDEX_MAPPING = get_class(
-    "search.settings", "OSCAR_PRODUCTS_INDEX_MAPPING"
+OSCAR_PRODUCTS_INDEX_NAME = get_class(
+    "search.indexing.settings", "OSCAR_PRODUCTS_INDEX_NAME"
 )
-OSCAR_INDEX_SETTINGS = get_class("search.settings", "OSCAR_INDEX_SETTINGS")
+get_products_index_mapping = get_class(
+    "search.indexing.settings", "get_products_index_mapping"
+)
+OSCAR_INDEX_SETTINGS = get_class("search.indexing.settings", "OSCAR_INDEX_SETTINGS")
 
 ProductMapping = get_class("search.mappings.products", "ProductMapping")
 
@@ -28,7 +30,7 @@ class Command(BaseCommand):
 
         indexer = Indexer(
             OSCAR_PRODUCTS_INDEX_NAME,
-            OSCAR_PRODUCTS_INDEX_MAPPING,
+            get_products_index_mapping(),
             OSCAR_INDEX_SETTINGS,
         )
 

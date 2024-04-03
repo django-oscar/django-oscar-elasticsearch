@@ -9,12 +9,12 @@ from oscar_odin.mappings import catalogue
 Indexer = get_class("search.indexing", "Indexer")
 
 OSCAR_CATEGORIES_INDEX_NAME = get_class(
-    "search.settings", "OSCAR_CATEGORIES_INDEX_NAME"
+    "search.indexing.settings", "OSCAR_CATEGORIES_INDEX_NAME"
 )
 OSCAR_CATEGORIES_INDEX_MAPPING = get_class(
-    "search.settings", "OSCAR_CATEGORIES_INDEX_MAPPING"
+    "search.indexing.settings", "OSCAR_CATEGORIES_INDEX_MAPPING"
 )
-OSCAR_INDEX_SETTINGS = get_class("search.settings", "OSCAR_INDEX_SETTINGS")
+OSCAR_INDEX_SETTINGS = get_class("search.indexing", "OSCAR_INDEX_SETTINGS")
 
 CategoryMapping = get_class("search.mappings.categories", "CategoryMapping")
 

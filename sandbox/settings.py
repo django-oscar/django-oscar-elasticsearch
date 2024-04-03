@@ -227,7 +227,60 @@ OSCAR_ELASTICSEARCH_FACETS = [
     {
         "name": "price",
         "label": "Price",
+        "type": "range",
+        "formatter": "oscar_elasticsearch.search.format.currency",
+        "ranges": [
+            25,
+            100,
+            500,
+            1000
+        ]
+    },
+    {
+        "name": "attrs.gewicht",
+        "label": "Gewicht",
+        "type": "range",
+        "ranges": [
+            50,
+            100,
+            150
+        ]
+    },
+    {
+        "name": "attrs.googleshopping",
+        "label": "Google product",
         "type": "term",
+        "ranges": []
+    },
+    {
+        "name": "attrs.size",
+        "label": "Maat",
+        "type": "term",
+        "ranges": []
+    },
+    {
+        "name": "attrs.height",
+        "label": "Hoogte",
+        "type": "term",
+        "ranges": []
+    },
+    {
+        "name": "attrs.zult",
+        "label": "Datum",
+        "type": "term",
+        "ranges": []
+    },
+    {
+        "name": "attrs.stroomverbruik",
+        "label": "Stroomverbruik",
+        "type": "term",
+        "ranges": []
+    },
+    {
+        "name": "attrs.bijzonderheden",
+        "label": "Bijzonderheden",
+        "type": "term",
+        "ranges": []
     }
 ]
 

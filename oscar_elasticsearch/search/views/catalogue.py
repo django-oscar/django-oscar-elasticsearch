@@ -4,14 +4,14 @@ from oscar.apps.search.views.catalogue import (
 
 
 class ProductCategoryView(BaseProductCategoryView):
-    def get_elasticsearch_body(self, selected_facets={}):
-        body = super().get_elasticsearch_body(selected_facets=selected_facets)
+    def get_elasticsearch_filters(self, include_facets=True):
+        filters = super().get_elasticsearch_filters(include_facets=include_facets)
 
         category_ids = self.category.get_descendants_and_self().values_list(
             "pk", flat=True
         )
 
-        body["query"]["bool"]["filter"].append(
+        filters.append(
             {
                 "nested": {
                     "path": "categories",
@@ -21,4 +21,4 @@ class ProductCategoryView(BaseProductCategoryView):
             }
         )
 
-        return body
+        return filters

@@ -24,6 +24,9 @@ Product = get_model("catalogue", "Product")
 OscarElasticSearchResourceMixin = get_class(
     "search.mappings.mixins", "OscarElasticSearchResourceMixin"
 )
+get_attributes_to_index = get_class(
+    "search.indexing.settings", "get_attributes_to_index"
+)
 
 __all__ = [
     "ProductElasticSearchResource",
@@ -31,6 +34,9 @@ __all__ = [
     "ProductMapping",
     "ProductElasticSearchMapping",
 ]
+
+
+ATTRIBUTES_TO_INDEX = get_attributes_to_index().keys()
 
 
 class CategoryElasticSearchRelatedResource(odin.AnnotatedResource):
@@ -49,6 +55,7 @@ class CategoryRelatedMapping(odin.Mapping):
 
 
 class ProductElasticSearchResource(OscarElasticSearchResourceMixin):
+    search_title: str
     structure: str
     rating: Optional[float]
     priority: int
@@ -57,6 +64,7 @@ class ProductElasticSearchResource(OscarElasticSearchResourceMixin):
     currency: str
     num_available: int
     categories: List[CategoryElasticSearchRelatedResource]
+    attrs: dict
     date_created: datetime
     date_updated: datetime
     string_attrs: List[str]
@@ -86,9 +94,24 @@ class ProductMapping(odin.Mapping):
     def categories(self) -> str:
         return CategoryRelatedMapping.apply(self.source.categories)
 
+    @odin.map_field(from_field="attributes")
+    def attrs(self, attributes):
+        attrs = {}
+        for code in ATTRIBUTES_TO_INDEX:
+            if code in attributes:
+                attrs[code] = str(attributes[code])
+
+        return attrs
+
     @odin.assign_field(to_list=True)
-    def string_attrs(self) -> str:
-        return list(self.source.attributes.values())
+    def string_attrs(self):
+        attrs = [str(a) for a in self.source.attributes.values()]
+        # if self.structure == self.PARENT:
+        #            for child in ProductProxy.objects.filter(parent=self):
+        #                attrs.append(child.title)
+        #                attrs.extend(child.string_attrs())
+
+        return attrs
 
     @odin.assign_field
     def facets(self) -> str:
@@ -101,6 +124,10 @@ class ProductMapping(odin.Mapping):
                 facets[name] = attributes[name]
 
         return facets
+
+    @odin.map_field(from_field="title", to_field=["title", "search_title"])
+    def title(self, title):
+        return title, title
 
     @odin.assign_field
     def _index(self) -> str:
