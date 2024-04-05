@@ -1,22 +1,8 @@
-from odin.codecs import dict_codec
-
 from django.core.management.base import BaseCommand
 
 from oscar.core.loading import get_class, get_model
 
-from oscar_odin.mappings import catalogue
-
-Indexer = get_class("search.indexing", "Indexer")
-
-OSCAR_PRODUCTS_INDEX_NAME = get_class(
-    "search.indexing.settings", "OSCAR_PRODUCTS_INDEX_NAME"
-)
-get_products_index_mapping = get_class(
-    "search.indexing.settings", "get_products_index_mapping"
-)
-OSCAR_INDEX_SETTINGS = get_class("search.indexing.settings", "OSCAR_INDEX_SETTINGS")
-
-ProductMapping = get_class("search.mappings.products", "ProductMapping")
+ESProductIndexer = get_class("search.indexing", "ESProductIndexer")
 
 Product = get_model("catalogue", "Product")
 
@@ -24,19 +10,6 @@ Product = get_model("catalogue", "Product")
 class Command(BaseCommand):
     def handle(self, *args, **options):
         print("--" * 25)
-        product_resources = catalogue.product_queryset_to_resources(
-            Product.objects.browsable()
-        )
+        product_ids = Product.objects.browsable().values_list("pk", flat=True)
 
-        indexer = Indexer(
-            OSCAR_PRODUCTS_INDEX_NAME,
-            get_products_index_mapping(),
-            OSCAR_INDEX_SETTINGS,
-        )
-
-        product_resources = ProductMapping.apply(
-            product_resources, context={"_index": indexer.alias_name}
-        )
-        print(dict_codec.dump(product_resources, include_type_field=False))
-        indexer.execute(dict_codec.dump(product_resources, include_type_field=False))
-        print("Finished indexing %s products" % len(product_resources))
+        ESProductIndexer().reindex(product_ids)

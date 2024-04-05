@@ -49,7 +49,6 @@ class CategoryMapping(odin.Mapping):
 
 class ElasticSearchResource(odin.AnnotatedResource):
     _index: str
-    _type: str
     _id: str
     _source: CategoryElasticSearchResource
 
@@ -67,7 +66,3 @@ class CategoryElasticSearchMapping(odin.Mapping):
     @odin.assign_field
     def _index(self) -> str:
         return self.context.get("_index")
-
-    @odin.assign_field
-    def _type(self) -> str:
-        return self.context.get("_type")

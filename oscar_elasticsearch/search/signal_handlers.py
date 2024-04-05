@@ -4,7 +4,7 @@ from oscar.core.loading import get_model, get_class
 from django.core.signals import request_finished
 from django.db.models.signals import post_delete, post_save, m2m_changed
 
-from extendedsearch.signal_handlers import post_delete_signal_handler
+# from extendedsearch.signal_handlers import post_delete_signal_handler
 
 from . import settings
 
@@ -46,6 +46,7 @@ def product_category_m2m_changed_signal_handler(
 
 
 def category_change_handler(sender, instance, raw=False, **kwargs):
+    print(instance, raw)
     if not raw:  # raw is when fixture is loaded
         update_index.push_category(str(instance.pk))
 
@@ -67,7 +68,7 @@ def register_signal_handlers():
         product_category_m2m_changed_signal_handler, sender=Product.categories.through
     )
     post_save.connect(product_post_save_signal_handler, sender=Product)
-    post_delete.connect(product_post_delete_signal_handler, sender=Product)
+    # post_delete.connect(product_post_delete_signal_handler, sender=Product)
     post_save.connect(category_change_handler, sender=Category)
     post_delete.connect(category_change_handler, sender=Category)
     if settings.HANDLE_STOCKRECORD_CHANGES:
@@ -82,7 +83,7 @@ def deregister_signal_handlers():
         product_category_m2m_changed_signal_handler, sender=Product.categories.through
     )
     post_save.disconnect(product_post_save_signal_handler, sender=Product)
-    post_delete.disconnect(product_post_delete_signal_handler, sender=Product)
+    # post_delete.disconnect(product_post_delete_signal_handler, sender=Product)
     post_save.disconnect(category_change_handler, sender=Category)
     post_delete.disconnect(category_change_handler, sender=Category)
     if settings.HANDLE_STOCKRECORD_CHANGES:

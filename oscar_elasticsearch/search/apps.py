@@ -14,17 +14,18 @@ class OscarElasticSearchConfig(SearchConfig):
     verbose_name = _("Elasticsearch")
 
     namespace = "search"
-    #
-    # # pylint: disable=W0201
-    # def ready(self):
-    #     super().ready()
-    #     self.autocomplete_view = get_class(
-    #         "search.views.search", "CatalogueAutoCompleteView"
-    #     )
-    #
-    #     # from .signal_handlers import register_signal_handlers
-    #
-    #     # register_signal_handlers()
+
+    # pylint: disable=W0201
+    def ready(self):
+        super().ready()
+        # self.autocomplete_view = get_class(
+        #            "search.views.search", "CatalogueAutoCompleteView"
+        #        )
+
+        from .signal_handlers import register_signal_handlers
+
+        register_signal_handlers()
+
     #
     # def get_urls(self):
     #     urls = super().get_urls()

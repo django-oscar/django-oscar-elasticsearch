@@ -453,7 +453,7 @@ def get_products_index_mapping():
             "attrs": {"type": "object", "properties": get_attributes_to_index()},
         }
     )
-
+    print(OSCAR_PRODUCTS_INDEX_MAPPING)
     return OSCAR_PRODUCTS_INDEX_MAPPING
 
 

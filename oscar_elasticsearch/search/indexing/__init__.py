@@ -1,2 +1,2 @@
-from .indexer import Indexer
+from .indexer import *
 from .settings import *

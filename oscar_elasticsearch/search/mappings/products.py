@@ -70,14 +70,13 @@ class ProductElasticSearchResource(OscarElasticSearchResourceMixin):
     date_updated: datetime
     string_attrs: List[str]
     facets: dict
-    _index: str
 
 
 class ElasticSearchResource(odin.AnnotatedResource):
     _index: str
-    _type: str
     _id: str
     _source: ProductElasticSearchResource
+    _op_type: str = "index"
 
 
 class ProductMapping(odin.Mapping):
@@ -133,10 +132,6 @@ class ProductMapping(odin.Mapping):
     def title(self, title):
         return title, title
 
-    @odin.assign_field
-    def _index(self) -> str:
-        return self.context.get("_index")
-
 
 class ProductElasticSearchMapping(odin.Mapping):
     from_resource = ProductResource
@@ -151,7 +146,3 @@ class ProductElasticSearchMapping(odin.Mapping):
     @odin.assign_field
     def _index(self) -> str:
         return self.context.get("_index")
-
-    @odin.assign_field
-    def _type(self) -> str:
-        return self.context.get("_type")
