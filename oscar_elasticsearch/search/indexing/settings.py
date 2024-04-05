@@ -152,6 +152,7 @@ OSCAR_INDEX_MAPPING = {
             },
             "copy_to": "_all_text",
         },
+        "autocomplete_title": {"type": "search_as_you_type"},
         "is_public": {"type": "boolean"},
         "code": {"type": "text", "analyzer": "keyword", "copy_to": "_all_text"},
         "slug": {"type": "text", "copy_to": "_all_text"},

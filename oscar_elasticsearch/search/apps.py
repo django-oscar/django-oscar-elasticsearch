@@ -18,20 +18,19 @@ class OscarElasticSearchConfig(SearchConfig):
     # pylint: disable=W0201
     def ready(self):
         super().ready()
-        # self.autocomplete_view = get_class(
-        #            "search.views.search", "CatalogueAutoCompleteView"
-        #        )
+        self.autocomplete_view = get_class(
+            "search.views.search", "CatalogueAutoCompleteView"
+        )
 
         from .signal_handlers import register_signal_handlers
 
         register_signal_handlers()
 
-    #
-    # def get_urls(self):
-    #     urls = super().get_urls()
-    #     urls += [
-    #         path(
-    #             "autocomplete/", self.autocomplete_view.as_view(), name="autocomplete"
-    #         ),
-    #     ]
-    #     return self.post_process_urls(urls)
+    def get_urls(self):
+        urls = super().get_urls()
+        urls += [
+            path(
+                "autocomplete/", self.autocomplete_view.as_view(), name="autocomplete"
+            ),
+        ]
+        return self.post_process_urls(urls)

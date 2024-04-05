@@ -33,3 +33,5 @@ AUTOCOMPLETE_CONTEXTS = getattr(
 INDEX_PREFIX = getattr(
     settings, "OSCAR_ELASTICSEARCH_INDEX_PREFIX", "django-oscar-elasticsearch"
 )
+
+NUM_SUGGESTIONS = getattr(settings, "OSCAR_ELASTICSEARCH_NUM_SUGGESTIONS", 20)

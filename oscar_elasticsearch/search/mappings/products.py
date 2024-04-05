@@ -56,6 +56,7 @@ class CategoryRelatedMapping(odin.Mapping):
 
 class ProductElasticSearchResource(OscarElasticSearchResourceMixin):
     search_title: str
+    autocomplete_title: str
     structure: str
     rating: Optional[float]
     priority: int
@@ -128,9 +129,11 @@ class ProductMapping(odin.Mapping):
 
         return facets
 
-    @odin.map_field(from_field="title", to_field=["title", "search_title"])
+    @odin.map_field(
+        from_field="title", to_field=["title", "search_title", "autocomplete_title"]
+    )
     def title(self, title):
-        return title, title
+        return title, title, title
 
 
 class ProductElasticSearchMapping(odin.Mapping):
