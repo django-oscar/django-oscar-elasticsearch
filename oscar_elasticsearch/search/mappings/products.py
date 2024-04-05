@@ -63,6 +63,7 @@ class ProductElasticSearchResource(OscarElasticSearchResourceMixin):
     price: Decimal = DecimalField()
     currency: str
     num_available: int
+    is_available: bool
     categories: List[CategoryElasticSearchRelatedResource]
     attrs: dict
     date_created: datetime
@@ -83,7 +84,10 @@ class ProductMapping(odin.Mapping):
     from_resource = ProductResource
     to_resource = ProductElasticSearchResource
 
-    mappings = (odin.define(from_field="upc", to_field="code"),)
+    mappings = (
+        odin.define(from_field="upc", to_field="code"),
+        odin.define(from_field="is_available_to_buy", to_field="is_available"),
+    )
 
     @odin.assign_field
     def content_type(self) -> str:

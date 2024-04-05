@@ -12,11 +12,14 @@ from oscar_elasticsearch.exceptions import ElasticSearchQueryException
 from oscar_elasticsearch.search import settings
 from oscar_elasticsearch.search.facets import process_facets
 from oscar_elasticsearch.search.utils import LegacyOscarFacetList
+from oscar_elasticsearch.search.settings import FILTER_AVAILABLE
 
 DEFAULT_ITEMS_PER_PAGE = get_class("search.settings", "DEFAULT_ITEMS_PER_PAGE")
+
 OSCAR_PRODUCTS_INDEX_NAME = get_class(
     "search.indexing.settings", "OSCAR_PRODUCTS_INDEX_NAME"
 )
+select_suggestion = get_class("search.suggestions", "select_suggestion")
 es = get_class("search.backend", "es")
 
 Product = get_model("catalogue", "Product")
@@ -40,6 +43,7 @@ class ElasticSearchPaginator(Paginator):
 class BaseSearchView(ListView):
     model = Product
     paginate_by = DEFAULT_ITEMS_PER_PAGE
+    suggestion_field_name = "title"
 
     def get_elasticsearch_aggs(self):
         aggs = {}
@@ -81,8 +85,8 @@ class BaseSearchView(ListView):
                             "_all_text",
                             "_edgengrams",
                             "upc",
-                            "search_title^2",
-                            "search_title.reversed^1.5",
+                            "search_title^1",
+                            "search_title.reversed^0.8",
                         ],
                     }
                 }
@@ -121,6 +125,9 @@ class BaseSearchView(ListView):
                 else:
                     filters.append({"terms": {name: value}})
 
+        if FILTER_AVAILABLE:
+            filters.append({"term": {"is_available": True}})
+
         return filters
 
     def get_sort_by(self):
@@ -150,6 +157,12 @@ class BaseSearchView(ListView):
             },
             "sort": self.get_sort_by(),
             "aggs": self.get_elasticsearch_aggs(),
+            "suggest": {
+                self.suggestion_field_name: {
+                    "text": self.request.GET.get("q", ""),
+                    "term": {"field": self.suggestion_field_name},
+                }
+            },
         }
 
     def get_search_results(self):
@@ -226,7 +239,9 @@ class BaseSearchView(ListView):
         context["paginator"] = paginator
         page_obj = paginator.get_page(self.request.GET.get("page", 1))
         context["page_obj"] = page_obj
-        #         context["suggestion"] = suggestion
+        context["suggestion"] = select_suggestion(
+            self.suggestion_field_name, search_results["suggest"]
+        )
         context["page"] = page_obj
         context[self.context_object_name] = page_obj
         context["facet_data"] = LegacyOscarFacetList(processed_facets)

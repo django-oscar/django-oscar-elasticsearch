@@ -431,6 +431,7 @@ def get_products_index_mapping():
             "priority": {"type": "integer"},
             "price": {"type": "double"},
             "num_available": {"type": "integer"},
+            "is_available": {"type": "boolean"},
             "currency": {"type": "text", "copy_to": "_all_text"},
             "date_created": {"type": "date"},
             "date_updated": {"type": "date"},
