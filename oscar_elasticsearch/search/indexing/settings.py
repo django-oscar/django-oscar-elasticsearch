@@ -453,11 +453,9 @@ def get_products_index_mapping():
             "attrs": {"type": "object", "properties": get_attributes_to_index()},
         }
     )
-    print(OSCAR_PRODUCTS_INDEX_MAPPING)
     return OSCAR_PRODUCTS_INDEX_MAPPING
 
 
-# print(OSCAR_PRODUCTS_INDEX_MAPPING)
 OSCAR_CATEGORIES_INDEX_MAPPING = OSCAR_INDEX_MAPPING.copy()
 OSCAR_CATEGORIES_INDEX_MAPPING.update(
     {"properties": {"full_name": {"type": "text"}, "full_slug": {"type": "text"}}}

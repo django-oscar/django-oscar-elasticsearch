@@ -89,6 +89,9 @@ class Indexer(object):
         except NotFoundError:
             pass
 
+    def delete_doc(self, id):
+        return es.delete(index=self.get_current_alias(), id=id)
+
 
 class ESModelIndexer:
     index_name = None
@@ -112,6 +115,9 @@ class ESModelIndexer:
     def reindex(self, object_ids):
         es_data = self.get_es_data_from_objects(object_ids)
         return self.indexer.execute(es_data)
+
+    def delete(self, id):
+        return self.indexer.delete_doc(id)
 
 
 class ESProductIndexer(ESModelIndexer):
