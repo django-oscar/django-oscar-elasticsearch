@@ -43,7 +43,7 @@ class ElasticSearchPaginator(Paginator):
 class BaseSearchView(ListView):
     model = Product
     paginate_by = DEFAULT_ITEMS_PER_PAGE
-    suggestion_field_name = "title"
+    suggestion_field_name = "search_title"
 
     def get_elasticsearch_aggs(self):
         aggs = {}
@@ -101,7 +101,7 @@ class BaseSearchView(ListView):
             return {"match_all": {}}
 
     def get_elasticsearch_filters(self, include_facets=True):
-        filters = []
+        filters = [{"term": {"is_public": True}}]
 
         if include_facets:
 

@@ -13,11 +13,6 @@ urlpatterns = [
     path('search/', include(apps.get_app_config("search").urls[0])),
 ]
 
-print(settings.DEBUG)
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-    print(settings.STATIC_ROOT)
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
-
-
-print(urlpatterns)
