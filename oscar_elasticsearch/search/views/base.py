@@ -52,7 +52,12 @@ class BaseSearchView(ListView):
             name = facet_definition["name"]
             facet_type = facet_definition["type"]
             if facet_type == "term":
-                aggs[name] = {"terms": {"field": name}}
+                terms = {"terms": {"field": name}}
+
+                if "order" in facet_definition:
+                    terms["terms"]["order"] = {"_key": facet_definition["order"]}
+
+                aggs[name] = terms
             elif facet_type == "range":
                 ranges_definition = facet_definition["ranges"]
                 ranges = [

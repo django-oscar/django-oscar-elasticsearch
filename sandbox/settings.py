@@ -256,7 +256,8 @@ OSCAR_ELASTICSEARCH_FACETS = [
         "name": "attrs.size",
         "label": "Maat",
         "type": "term",
-        "ranges": []
+        "ranges": [],
+        "order": "asc"
     },
     {
         "name": "attrs.height",

@@ -14,14 +14,17 @@ OSCAR_PRODUCTS_INDEX_NAME = get_class(
 OSCAR_CATEGORIES_INDEX_NAME = get_class(
     "search.indexing.settings", "OSCAR_CATEGORIES_INDEX_NAME"
 )
-OSCAR_CATEGORIES_INDEX_MAPPING = get_class(
-    "search.indexing.settings", "OSCAR_CATEGORIES_INDEX_MAPPING"
+get_categories_index_mapping = get_class(
+    "search.indexing.settings", "get_categories_index_mapping"
 )
 get_products_index_mapping = get_class(
     "search.indexing.settings", "get_products_index_mapping"
 )
-OSCAR_INDEX_SETTINGS = get_class("search.indexing.settings", "OSCAR_INDEX_SETTINGS")
+get_oscar_index_settings = get_class(
+    "search.indexing.settings", "get_oscar_index_settings"
+)
 
+OSCAR_INDEX_SETTINGS = get_oscar_index_settings()
 
 Product = get_model("catalogue", "Product")
 Category = get_model("catalogue", "Category")
@@ -143,7 +146,7 @@ class ESProductIndexer(ESModelIndexer):
 
 class ESCategoryIndexer(ESModelIndexer):
     index_name = OSCAR_CATEGORIES_INDEX_NAME
-    index_mappings = OSCAR_CATEGORIES_INDEX_MAPPING
+    index_mappings = get_categories_index_mapping()
     index_settings = OSCAR_INDEX_SETTINGS
 
     def get_es_data_from_objects(self, object_ids):
