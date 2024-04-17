@@ -70,7 +70,12 @@ OSCAR_INDEX_MAPPING = {
     "properties": {
         "id": {"type": "integer", "store": True},
         "content_type": {"type": "keyword", "store": True},
-        "title": {"type": "text", "analyzer": "case_insensitive", "fielddata": True},
+        "title": {
+            "type": "text",
+            "analyzer": "case_insensitive",
+            "fielddata": True,
+            "copy_to": "_all_text",
+        },
         "search_title": {
             "type": "text",
             "analyzer": "edgengram_analyzer",
@@ -82,7 +87,6 @@ OSCAR_INDEX_MAPPING = {
                     "search_analyzer": "standard",
                 }
             },
-            "copy_to": "_all_text",
         },
         "autocomplete_title": {"type": "search_as_you_type"},
         "is_public": {"type": "boolean"},

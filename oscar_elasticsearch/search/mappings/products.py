@@ -103,12 +103,9 @@ class ProductMapping(OscarBaseMapping):
         months_to_run = settings.MONTHS_TO_RUN_ANALYTICS
         orders_above_date = timezone.now() - relativedelta(months=months_to_run)
 
-        popularity = Line.objects.filter(
+        return Line.objects.filter(
             product_id=self.source.id, order__date_placed__gte=orders_above_date
         ).count()
-
-        print(self.source.upc, popularity)
-        return popularity
 
     @odin.assign_field
     def content_type(self) -> str:
