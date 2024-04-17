@@ -2,9 +2,16 @@ import odin
 
 from typing import Optional, List
 
+from django.contrib.contenttypes.models import ContentType
+from django.utils import timezone
+from django.utils.html import strip_tags
+
+from dateutil.relativedelta import relativedelta
 from datetime import datetime
 
 from decimal import Decimal
+
+from oscar.core.loading import get_model, get_class
 
 from oscar_odin.mappings._common import OscarBaseMapping
 from oscar_odin.resources._base import OscarResource
@@ -16,13 +23,12 @@ from oscar_odin.resources.catalogue import (
 )
 from oscar_odin.resources._base import OscarResource
 
-from oscar.core.loading import get_model, get_class
 
-from django.contrib.contenttypes.models import ContentType
-from django.utils.html import strip_tags
-from django.conf import settings
+from oscar_elasticsearch.search import settings
 
 Product = get_model("catalogue", "Product")
+Line = get_model("order", "Line")
+
 OscarElasticSearchResourceMixin = get_class(
     "search.mappings.mixins", "OscarElasticSearchResourceMixin"
 )
@@ -73,6 +79,7 @@ class ProductElasticSearchResource(OscarElasticSearchResourceMixin):
     date_updated: datetime
     string_attrs: List[str]
     facets: dict
+    popularity: int
 
 
 class ElasticSearchResource(OscarResource):
@@ -90,6 +97,18 @@ class ProductMapping(OscarBaseMapping):
         odin.define(from_field="upc", to_field="code"),
         odin.define(from_field="is_available_to_buy", to_field="is_available"),
     )
+
+    @odin.assign_field
+    def popularity(self):
+        months_to_run = settings.MONTHS_TO_RUN_ANALYTICS
+        orders_above_date = timezone.now() - relativedelta(months=months_to_run)
+
+        popularity = Line.objects.filter(
+            product_id=self.source.id, order__date_placed__gte=orders_above_date
+        ).count()
+
+        print(self.source.upc, popularity)
+        return popularity
 
     @odin.assign_field
     def content_type(self) -> str:
@@ -126,7 +145,7 @@ class ProductMapping(OscarBaseMapping):
         facets = {}
         attributes = self.source.attributes
 
-        for definition in settings.OSCAR_ELASTICSEARCH_FACETS:
+        for definition in settings.FACETS:
             name = definition["name"].replace("facets.", "")
             if name in attributes.keys():
                 facets[name] = attributes[name]
