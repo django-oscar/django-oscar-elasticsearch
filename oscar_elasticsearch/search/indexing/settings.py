@@ -138,6 +138,7 @@ def get_products_index_mapping():
             "string_attrs": {"type": "text", "copy_to": "_all_text"},
             "facets": {"type": "nested"},
             "popularity": {"type": "integer"},
+            "status": {"type": "text"},
             "categories": {
                 "type": "nested",
                 "properties": {

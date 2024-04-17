@@ -158,7 +158,7 @@ class BaseSearchView(ListView):
             "aggs": self.get_elasticsearch_aggs(),
             "suggest": {
                 self.suggestion_field_name: {
-                    "text": self.request.GET.get("q", ""),
+                    "prefix": self.request.GET.get("q", ""),
                     "term": {"field": self.suggestion_field_name},
                 }
             },

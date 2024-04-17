@@ -23,7 +23,11 @@ from oscar_odin.resources.catalogue import (
 )
 from oscar_odin.resources._base import OscarResource
 
-
+from oscar_elasticsearch.search.constants import (
+    ES_CTX_PUBLIC,
+    ES_CTX_AVAILABLE,
+    ES_CTX_BROWSABLE,
+)
 from oscar_elasticsearch.search import settings
 
 Product = get_model("catalogue", "Product")
@@ -80,6 +84,7 @@ class ProductElasticSearchResource(OscarElasticSearchResourceMixin):
     string_attrs: List[str]
     facets: dict
     popularity: int
+    status: List[str]
 
 
 class ElasticSearchResource(OscarResource):
@@ -124,6 +129,29 @@ class ProductMapping(OscarBaseMapping):
                 attrs[code] = str(attributes[code])
 
         return attrs
+
+    @odin.assign_field(to_list=True)
+    def status(self):
+        ctx = []
+        if self.source.is_public:
+            ctx.append(ES_CTX_PUBLIC)
+
+            # non public items are not available or browsable
+            if self.source.is_available_to_buy:
+                ctx.append(ES_CTX_AVAILABLE)
+
+            # depending on FILTER_AVAILABLE things are browsable only if
+            # they are available
+            is_browsable = (
+                self.source.structure == Product.STANDALONE
+                or self.source.structure == Product.PARENT
+            )
+            if not settings.FILTER_AVAILABLE and is_browsable:
+                ctx.append(ES_CTX_BROWSABLE)
+            elif self.source.is_available_to_buy and is_browsable:
+                ctx.append(ES_CTX_BROWSABLE)
+
+        return ctx
 
     @odin.assign_field(to_list=True)
     def string_attrs(self):
