@@ -1,6 +1,8 @@
 from elasticsearch import Elasticsearch
 
+from oscar_elasticsearch.search.settings import ELASTICSEARCH_SERVER_URLS
+
 es = Elasticsearch(
-    "http://127.0.0.1:9200",
+    hosts=ELASTICSEARCH_SERVER_URLS,
     verify_certs=False,
 )

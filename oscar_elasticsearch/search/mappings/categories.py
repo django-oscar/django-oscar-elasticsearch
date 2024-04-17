@@ -5,6 +5,8 @@ from django.utils.html import strip_tags
 from oscar.core.loading import get_class, get_model
 
 from oscar_odin.resources.catalogue import Category as CategoryResource
+from oscar_odin.mappings._common import OscarBaseMapping
+from oscar_odin.resources._base import OscarResource
 
 from django.contrib.contenttypes.models import ContentType
 
@@ -21,7 +23,7 @@ class CategoryElasticSearchResource(OscarElasticSearchResourceMixin):
     _index: str
 
 
-class CategoryMapping(odin.Mapping):
+class CategoryMapping(OscarBaseMapping):
     from_resource = CategoryResource
     to_resource = CategoryElasticSearchResource
 
@@ -47,13 +49,13 @@ class CategoryMapping(odin.Mapping):
         return self.context.get("_index")
 
 
-class ElasticSearchResource(odin.AnnotatedResource):
+class ElasticSearchResource(OscarResource):
     _index: str
     _id: str
     _source: CategoryElasticSearchResource
 
 
-class CategoryElasticSearchMapping(odin.Mapping):
+class CategoryElasticSearchMapping(OscarBaseMapping):
     from_resource = CategoryResource
     to_resource = ElasticSearchResource
 

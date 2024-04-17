@@ -1,9 +1,11 @@
 import odin
 
+from oscar_odin.resources._base import OscarResource
+
 from datetime import datetime
 
 
-class OscarElasticSearchResourceMixin(odin.AnnotatedResource):
+class OscarElasticSearchResourceMixin(OscarResource):
     id: str
     content_type: str
     title: str

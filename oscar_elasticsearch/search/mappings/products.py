@@ -6,6 +6,8 @@ from datetime import datetime
 
 from decimal import Decimal
 
+from oscar_odin.mappings._common import OscarBaseMapping
+from oscar_odin.resources._base import OscarResource
 from oscar_odin.mappings import catalogue
 from oscar_odin.fields import DecimalField
 from oscar_odin.resources.catalogue import (
@@ -39,13 +41,13 @@ __all__ = [
 ATTRIBUTES_TO_INDEX = get_attributes_to_index().keys()
 
 
-class CategoryElasticSearchRelatedResource(odin.AnnotatedResource):
+class CategoryElasticSearchRelatedResource(OscarResource):
     id: int
     description: str
     full_name: str
 
 
-class CategoryRelatedMapping(odin.Mapping):
+class CategoryRelatedMapping(OscarBaseMapping):
     from_resource = CategoryResource
     to_resource = CategoryElasticSearchRelatedResource
 
@@ -73,14 +75,14 @@ class ProductElasticSearchResource(OscarElasticSearchResourceMixin):
     facets: dict
 
 
-class ElasticSearchResource(odin.AnnotatedResource):
+class ElasticSearchResource(OscarResource):
     _index: str
     _id: str
     _source: ProductElasticSearchResource
     _op_type: str = "index"
 
 
-class ProductMapping(odin.Mapping):
+class ProductMapping(OscarBaseMapping):
     from_resource = ProductResource
     to_resource = ProductElasticSearchResource
 
@@ -110,10 +112,12 @@ class ProductMapping(odin.Mapping):
     @odin.assign_field(to_list=True)
     def string_attrs(self):
         attrs = [str(a) for a in self.source.attributes.values()]
-        # if self.structure == self.PARENT:
-        #            for child in ProductProxy.objects.filter(parent=self):
-        #                attrs.append(child.title)
-        #                attrs.extend(child.string_attrs())
+        if self.source.structure == Product.PARENT:
+            for child in Product.objects.filter(parent_id=self.source.id):
+                attrs.append(child.title)
+                attrs.extend(
+                    [str(a.value_as_text) for a in child.get_attribute_values()]
+                )
 
         return attrs
 
@@ -136,7 +140,7 @@ class ProductMapping(odin.Mapping):
         return title, title, title
 
 
-class ProductElasticSearchMapping(odin.Mapping):
+class ProductElasticSearchMapping(OscarBaseMapping):
     from_resource = ProductResource
     to_resource = ElasticSearchResource
 
