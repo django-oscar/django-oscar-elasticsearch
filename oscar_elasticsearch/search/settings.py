@@ -55,6 +55,12 @@ SEARCH_FIELDS = getattr(
         "search_title.reversed^0.8",
     ],
 )
+SEARCH_QUERY_TYPE = getattr(
+    settings, "OSCAR_ELASTICSEARCH_SEARCH_QUERY_TYPE", "most_fields"
+)
+SEARCH_QUERY_OPERATOR = getattr(
+    settings, "OSCAR_ELASTICSEARCH_SEARCH_QUERY_OPERATOR", "or"
+)
 
 NUM_SUGGESTIONS = getattr(settings, "OSCAR_ELASTICSEARCH_NUM_SUGGESTIONS", 20)
 

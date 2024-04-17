@@ -84,8 +84,10 @@ class BaseSearchView(ListView):
         if search_query:
             return [
                 {
-                    "query_string": {
+                    "multi_match": {
                         "query": search_query,
+                        "type": settings.SEARCH_QUERY_TYPE,
+                        "operator": settings.SEARCH_QUERY_OPERATOR,
                         "fields": settings.SEARCH_FIELDS,
                     }
                 }
