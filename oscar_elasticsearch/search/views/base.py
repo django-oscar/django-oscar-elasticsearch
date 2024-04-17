@@ -86,13 +86,7 @@ class BaseSearchView(ListView):
                 {
                     "query_string": {
                         "query": search_query,
-                        "fields": [
-                            "_all_text",
-                            "_edgengrams",
-                            "upc",
-                            "search_title^1",
-                            "search_title.reversed^0.8",
-                        ],
+                        "fields": settings.SEARCH_FIELDS,
                     }
                 }
             ]

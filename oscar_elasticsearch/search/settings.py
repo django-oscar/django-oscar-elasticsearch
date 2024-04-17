@@ -41,6 +41,17 @@ ELASTICSEARCH_SERVER_URLS = getattr(
     settings, "OSCAR_ELASTICSEARCH_SERVER_URLS", ["http://127.0.0.1:9200"]
 )
 
+SEARCH_FIELDS = getattr(
+    settings,
+    "OSCAR_ELASTICSEARCH_SEARCH_FIELDS",
+    [
+        "_all_text",
+        "_edgengrams",
+        "upc",
+        "search_title^1",
+        "search_title.reversed^0.8",
+    ],
+)
 
 RELEVANCY = "relevancy"
 TOP_RATED = "rating"
