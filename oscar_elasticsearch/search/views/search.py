@@ -11,6 +11,9 @@ from oscar_elasticsearch.search.settings import (
 )
 
 es = get_class("search.backend", "es")
+autocomplete_suggestions = get_class(
+    "search.api.autocomplete", "autocomplete_suggestions"
+)
 
 
 class CatalogueAutoCompleteView(View):
@@ -18,24 +21,15 @@ class CatalogueAutoCompleteView(View):
         return {"status": SUGGESTION_STATUS_FILTER}
 
     def get_suggestions(self):
-        body = {
-            "suggest": {
-                "autocompletion": {
-                    "prefix": self.request.GET.get("q"),
-                    "completion": {
-                        "field": "suggest",
-                        "skip_duplicates": True,
-                        "contexts": self.get_suggestion_context(),
-                    },
-                }
-            },
-            "_source": False,
-        }
+        search_string = self.request.GET.get("q")
 
-        results = es.search(index=OSCAR_PRODUCTS_INDEX_NAME, body=body)
-        suggestion = results["suggest"]["autocompletion"][0]
-
-        return [option["text"] for option in suggestion["options"]][0:NUM_SUGGESTIONS]
+        return autocomplete_suggestions(
+            OSCAR_PRODUCTS_INDEX_NAME,
+            search_string,
+            "suggest",
+            skip_duplicates=True,
+            contexts=self.get_suggestion_context(),
+        )
 
     # pylint: disable=W0613
     def get(self, request, *args, **kwargs):
