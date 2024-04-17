@@ -27,18 +27,21 @@ SUGGESTION_STATUS_FILTER = getattr(
     ES_CTX_AVAILABLE if FILTER_AVAILABLE else ES_CTX_PUBLIC,
 )
 FACETS = getattr(settings, "OSCAR_ELASTICSEARCH_FACETS", [])
+
 AUTOCOMPLETE_CONTEXTS = getattr(
-    settings, "OSCAR_ELASTICSEARCH_AUTOCOMPLETE_CONTEXTS", []
+    settings,
+    "OSCAR_ELASTICSEARCH_AUTOCOMPLETE_CONTEXTS",
+    [
+        {
+            "name": "status",
+            "type": "category",
+            "path": "status",
+        }
+    ],
 )
 
-INDEX_PREFIX = getattr(
-    settings, "OSCAR_ELASTICSEARCH_INDEX_PREFIX", "django-oscar-elasticsearch"
-)
-
-NUM_SUGGESTIONS = getattr(settings, "OSCAR_ELASTICSEARCH_NUM_SUGGESTIONS", 20)
-
-ELASTICSEARCH_SERVER_URLS = getattr(
-    settings, "OSCAR_ELASTICSEARCH_SERVER_URLS", ["http://127.0.0.1:9200"]
+AUTOCOMPLETE_SEARCH_FIELDS = getattr(
+    settings, "OSCAR_ELASTICSEARCH_AUTOCOMPLETE_SEARCH_FIELDS", ["title", "upc"]
 )
 
 SEARCH_FIELDS = getattr(
@@ -51,6 +54,16 @@ SEARCH_FIELDS = getattr(
         "search_title^1",
         "search_title.reversed^0.8",
     ],
+)
+
+NUM_SUGGESTIONS = getattr(settings, "OSCAR_ELASTICSEARCH_NUM_SUGGESTIONS", 20)
+
+ELASTICSEARCH_SERVER_URLS = getattr(
+    settings, "OSCAR_ELASTICSEARCH_SERVER_URLS", ["http://127.0.0.1:9200"]
+)
+
+INDEX_PREFIX = getattr(
+    settings, "OSCAR_ELASTICSEARCH_INDEX_PREFIX", "django-oscar-elasticsearch"
 )
 
 RELEVANCY = "relevancy"

@@ -68,7 +68,8 @@ class CategoryRelatedMapping(OscarBaseMapping):
 
 class ProductElasticSearchResource(OscarElasticSearchResourceMixin):
     search_title: str
-    autocomplete_title: str
+    title_auto_complete: str
+    code_auto_complete: str
     structure: str
     rating: Optional[float]
     priority: int
@@ -85,6 +86,7 @@ class ProductElasticSearchResource(OscarElasticSearchResourceMixin):
     facets: dict
     popularity: int
     status: List[str]
+    suggest: List[str]
 
 
 class ElasticSearchResource(OscarResource):
@@ -99,6 +101,7 @@ class ProductMapping(OscarBaseMapping):
     to_resource = ProductElasticSearchResource
 
     mappings = (
+        odin.define(from_field="upc", to_field="code_auto_complete"),
         odin.define(from_field="upc", to_field="code"),
         odin.define(from_field="is_available_to_buy", to_field="is_available"),
     )
@@ -178,7 +181,13 @@ class ProductMapping(OscarBaseMapping):
         return facets
 
     @odin.map_field(
-        from_field="title", to_field=["title", "search_title", "autocomplete_title"]
+        from_field=settings.AUTOCOMPLETE_SEARCH_FIELDS, to_field="suggest", to_list=True
+    )
+    def suggest(self, *args):
+        return list(args)
+
+    @odin.map_field(
+        from_field="title", to_field=["title", "search_title", "title_auto_complete"]
     )
     def title(self, title):
         return title, title, title

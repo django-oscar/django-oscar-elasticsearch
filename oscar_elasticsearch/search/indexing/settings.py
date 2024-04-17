@@ -1,4 +1,8 @@
-from oscar_elasticsearch.search.settings import INDEX_PREFIX, FACETS
+from oscar_elasticsearch.search.settings import (
+    INDEX_PREFIX,
+    FACETS,
+    AUTOCOMPLETE_CONTEXTS,
+)
 from oscar.core.loading import get_class
 
 
@@ -88,7 +92,6 @@ OSCAR_INDEX_MAPPING = {
                 }
             },
         },
-        "autocomplete_title": {"type": "search_as_you_type"},
         "is_public": {"type": "boolean"},
         "code": {"type": "text", "analyzer": "keyword", "copy_to": "_all_text"},
         "slug": {"type": "text", "copy_to": "_all_text"},
@@ -153,8 +156,10 @@ def get_products_index_mapping():
                 },
             },
             "attrs": {"type": "object", "properties": get_attributes_to_index()},
+            "suggest": {"type": "completion", "contexts": AUTOCOMPLETE_CONTEXTS},
         }
     )
+
     return OSCAR_PRODUCTS_INDEX_MAPPING
 
 
