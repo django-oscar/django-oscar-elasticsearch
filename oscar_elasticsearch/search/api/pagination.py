@@ -1,5 +1,6 @@
 import operator
 
+from django.db.models import Case, When
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 
 
@@ -22,13 +23,8 @@ def paginate_result(search_results, Model, size):
     idgetter = operator.itemgetter("id")
     product_ids = [idgetter(hit["_source"]) for hit in search_results["hits"]["hits"]]
 
-    clauses = " ".join(
-        ["WHEN id=%s THEN %s" % (pk, i) for i, pk in enumerate(product_ids)]
-    )
-    ordering = "CASE %s END" % clauses
-    products = Model.objects.filter(pk__in=product_ids).extra(
-        select={"ordering": ordering}, order_by=("ordering",)
-    )
+    preserved = Case(*[When(pk=pk, then=pos) for pos, pk in enumerate(product_ids)])
+    products = Model.objects.filter(pk__in=product_ids).order_by(preserved)
 
     total_hits = search_results["hits"]["total"]["value"]
 
