@@ -6,8 +6,6 @@ chunked = get_class("search.utils", "chunked")
 Product = get_model("catalogue", "Product")
 Category = get_model("catalogue", "Category")
 
-from oscar.core.loading import get_class, get_model
-
 ESProductIndexer = get_class("search.indexing", "ESProductIndexer")
 ESCategoryIndexer = get_class("search.indexing", "ESCategoryIndexer")
 

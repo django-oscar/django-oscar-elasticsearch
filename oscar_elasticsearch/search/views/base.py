@@ -1,5 +1,3 @@
-import operator
-
 from decimal import Decimal as D
 
 from django.views.generic.list import ListView
@@ -25,6 +23,7 @@ class BaseSearchView(ListView):
     model = Product
     paginate_by = settings.DEFAULT_ITEMS_PER_PAGE
     suggestion_field_name = settings.SUGGESTION_FIELD_NAME
+    form_class = None
 
     def get_default_filters(self):
         filters = [{"term": {"is_public": True}}]
@@ -34,10 +33,11 @@ class BaseSearchView(ListView):
 
         return filters
 
-    def get_facet_filters(self, include_facets=True):
+    def get_facet_filters(self):
         filters = []
 
         for name, value in self.form.selected_multi_facets.items():
+            # pylint: disable=W0640
             definition = list(filter(lambda x: x["name"] == name, settings.FACETS))[0]
             if definition["type"] == "range":
                 ranges = []
@@ -78,6 +78,7 @@ class BaseSearchView(ListView):
         return sort_by
 
     def get_form(self, request):
+        # pylint: disable=E1102
         return self.form_class(
             data=request.GET or {},
             selected_facets=request.GET.getlist("selected_facets", []),
@@ -86,6 +87,7 @@ class BaseSearchView(ListView):
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
 
+        # pylint: disable=W0201
         self.form = self.get_form(self.request)
         self.form.is_valid()
 

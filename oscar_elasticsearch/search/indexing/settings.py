@@ -3,7 +3,6 @@ from oscar_elasticsearch.search.settings import (
     FACETS,
     AUTOCOMPLETE_CONTEXTS,
 )
-from oscar.core.loading import get_class
 
 
 def get_oscar_index_settings():
@@ -102,7 +101,6 @@ OSCAR_INDEX_MAPPING = {
             "copy_to": "_all_text",
         },
         "absolute_url": {"type": "text"},
-        "slug": {"type": "text", "copy_to": "_all_text"},
         "_all_text": {"type": "text"},
     }
 }

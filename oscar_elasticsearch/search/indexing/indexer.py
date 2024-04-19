@@ -5,7 +5,7 @@ from django.utils.crypto import get_random_string
 from oscar.core.loading import get_class, get_model
 
 from elasticsearch.helpers import bulk
-from elasticsearch.exceptions import RequestError, NotFoundError
+from elasticsearch.exceptions import NotFoundError
 
 es = get_class("search.backend", "es")
 OSCAR_PRODUCTS_INDEX_NAME = get_class(
@@ -50,6 +50,7 @@ class Indexer(object):
         if current_alias is None:
             current_alias = self.get_current_alias()
 
+        # pylint: disable=W0106
         [obj.update({"_index": current_alias}) for obj in objects]
         bulk(es, objects, ignore=[400])
 
@@ -92,8 +93,8 @@ class Indexer(object):
         except NotFoundError:
             pass
 
-    def delete_doc(self, id):
-        return es.delete(index=self.get_current_alias(), id=id)
+    def delete_doc(self, _id):
+        return es.delete(index=self.get_current_alias(), id=_id)
 
 
 class ESModelIndexer:
@@ -119,8 +120,8 @@ class ESModelIndexer:
         es_data = self.get_es_data_from_objects(object_ids)
         return self.indexer.execute(es_data)
 
-    def delete(self, id):
-        return self.indexer.delete_doc(id)
+    def delete(self, _id):
+        return self.indexer.delete_doc(_id)
 
 
 class ESProductIndexer(ESModelIndexer):

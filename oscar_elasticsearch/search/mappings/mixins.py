@@ -1,8 +1,4 @@
-import odin
-
 from oscar_odin.resources._base import OscarResource
-
-from datetime import datetime
 
 
 class OscarElasticSearchResourceMixin(OscarResource):

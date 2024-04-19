@@ -2,11 +2,10 @@ from django.utils.translation import gettext_lazy as _
 from django.views import View
 from django.http import JsonResponse
 
-from oscar.core.loading import get_model, get_class
+from oscar.core.loading import get_class
 
 from oscar_elasticsearch.search.indexing.settings import OSCAR_PRODUCTS_INDEX_NAME
 from oscar_elasticsearch.search.settings import (
-    NUM_SUGGESTIONS,
     SUGGESTION_STATUS_FILTER,
 )
 

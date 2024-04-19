@@ -15,13 +15,11 @@ from oscar.core.loading import get_model, get_class
 
 from oscar_odin.mappings._common import OscarBaseMapping
 from oscar_odin.resources._base import OscarResource
-from oscar_odin.mappings import catalogue
 from oscar_odin.fields import DecimalField
 from oscar_odin.resources.catalogue import (
     Product as ProductResource,
     Category as CategoryResource,
 )
-from oscar_odin.resources._base import OscarResource
 
 from oscar_elasticsearch.search.constants import (
     ES_CTX_PUBLIC,
