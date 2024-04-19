@@ -27,12 +27,6 @@ def product_post_save_signal_handler(sender, instance, raw, **kwargs):
         push_product_update(instance)
 
 
-#
-# def product_post_delete_signal_handler(sender, instance, **kwargs):
-#     return post_delete_signal_handler(ProductProxy(pk=instance.pk), **kwargs)
-#
-
-
 def product_post_delete_signal_handler(sender, instance, **kwargs):
     ESProductIndexer().delete(instance.pk)
 
