@@ -7,7 +7,6 @@ from oscar.core.loading import get_class, get_model
 
 from oscar_elasticsearch.search import settings
 from oscar_elasticsearch.search.facets import process_facets
-from oscar_elasticsearch.search.utils import LegacyOscarFacetList
 
 OSCAR_PRODUCTS_INDEX_NAME = get_class(
     "search.indexing.settings", "OSCAR_PRODUCTS_INDEX_NAME"
@@ -125,7 +124,7 @@ class BaseSearchView(ListView):
         )
         context["page"] = page_obj
         context[self.context_object_name] = page_obj
-        context["facet_data"] = LegacyOscarFacetList(processed_facets)
+        context["facet_data"] = processed_facets
         context["has_facets"] = bool(processed_facets)
         context["query"] = self.request.GET.get("q") or gettext("Blank")
         context["form"] = self.form

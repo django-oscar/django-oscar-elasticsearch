@@ -15,9 +15,3 @@ def chunked(qs, size, startindex=0):
         if chunklen < size:
             break
         startindex += size
-
-
-class LegacyOscarFacetList(list):
-    def items(self):
-        for item in self:
-            yield None, item
