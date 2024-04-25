@@ -1,21 +1,14 @@
 import odin
 
-from typing import Optional, List
-
 from django.contrib.contenttypes.models import ContentType
 from django.utils import timezone
 from django.utils.html import strip_tags
 
 from dateutil.relativedelta import relativedelta
-from datetime import datetime
-
-from decimal import Decimal
 
 from oscar.core.loading import get_model, get_class
 
 from oscar_odin.mappings._common import OscarBaseMapping
-from oscar_odin.resources._base import OscarResource
-from oscar_odin.fields import DecimalField
 from oscar_odin.resources.catalogue import (
     Product as ProductResource,
     Category as CategoryResource,
@@ -38,21 +31,14 @@ get_attributes_to_index = get_class(
     "search.indexing.settings", "get_attributes_to_index"
 )
 
-__all__ = [
-    "ProductElasticSearchResource",
-    "ElasticSearchResource",
-    "ProductMapping",
-    "ProductElasticSearchMapping",
-]
-
+CategoryElasticSearchRelatedResource = get_class(
+    "search.mappings.products.resources", "CategoryElasticSearchRelatedResource"
+)
+ProductElasticSearchResource = get_class(
+    "search.mappings.products.resources", "ProductElasticSearchResource"
+)
 
 ATTRIBUTES_TO_INDEX = get_attributes_to_index().keys()
-
-
-class CategoryElasticSearchRelatedResource(OscarResource):
-    id: int
-    description: str
-    full_name: str
 
 
 class CategoryRelatedMapping(OscarBaseMapping):
@@ -64,39 +50,11 @@ class CategoryRelatedMapping(OscarBaseMapping):
         return strip_tags(self.source.description)
 
 
-class ProductElasticSearchResource(OscarElasticSearchResourceMixin):
-    search_title: str
-    title_auto_complete: str
-    code_auto_complete: str
-    structure: str
-    rating: Optional[float]
-    priority: int
-    parent_id: Optional[int]
-    price: Decimal = DecimalField()
-    currency: str
-    num_available: int
-    is_available: bool
-    categories: List[CategoryElasticSearchRelatedResource]
-    attrs: dict
-    date_created: datetime
-    date_updated: datetime
-    string_attrs: List[str]
-    facets: dict
-    popularity: int
-    status: List[str]
-    suggest: List[str]
-
-
-class ElasticSearchResource(OscarResource):
-    _index: str
-    _id: str
-    _source: ProductElasticSearchResource
-    _op_type: str = "index"
-
-
 class ProductMapping(OscarBaseMapping):
     from_resource = ProductResource
     to_resource = ProductElasticSearchResource
+
+    register_mapping = False
 
     mappings = (
         odin.define(from_field="upc", to_field="code_auto_complete"),
@@ -192,18 +150,3 @@ class ProductMapping(OscarBaseMapping):
     )
     def title(self, title):
         return title, title, title
-
-
-class ProductElasticSearchMapping(OscarBaseMapping):
-    from_resource = ProductResource
-    to_resource = ElasticSearchResource
-
-    mappings = (odin.define(from_field="id", to_field="_id"),)
-
-    @odin.assign_field
-    def _source(self) -> str:
-        return ProductMapping.apply(self.source)
-
-    @odin.assign_field
-    def _index(self) -> str:
-        return self.context.get("_index")
