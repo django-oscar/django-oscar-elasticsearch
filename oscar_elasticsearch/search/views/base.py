@@ -100,7 +100,7 @@ class BaseSearchView(ListView):
             self.paginate_by,
             Product,
             settings.SEARCH_FIELDS,
-            query_string=self.request.GET.get("q"),
+            query_string=self.request.GET.get("q", ""),
             default_filters=self.get_default_filters(),
             facet_filters=self.get_facet_filters(),
             sort_by=self.get_sort_by(),

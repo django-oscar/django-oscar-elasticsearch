@@ -20,7 +20,7 @@ class CatalogueAutoCompleteView(View):
         return {"status": SUGGESTION_STATUS_FILTER}
 
     def get_suggestions(self):
-        search_string = self.request.GET.get("q")
+        search_string = self.request.GET.get("q", "")
 
         return autocomplete_suggestions(
             OSCAR_PRODUCTS_INDEX_NAME,
