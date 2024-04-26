@@ -94,7 +94,10 @@ class Indexer(object):
             pass
 
     def delete_doc(self, _id):
-        return es.delete(index=self.get_current_alias(), id=_id)
+        try:
+            return es.delete(index=self.get_current_alias(), id=_id)
+        except NotFoundError:
+            pass
 
 
 class ESModelIndexer:
