@@ -32,9 +32,9 @@ class CategoryMapping(OscarBaseMapping):
         content_type = ContentType.objects.get_for_model(Category)
         return ".".join(content_type.natural_key())
 
-    @odin.assign_field
-    def title(self) -> str:
-        return self.source.name
+    @odin.map_field(from_field="name", to_field=["title", "search_title"])
+    def title(self, name) -> str:
+        return name, name
 
     @odin.assign_field
     def description(self) -> str:
@@ -42,6 +42,9 @@ class CategoryMapping(OscarBaseMapping):
 
     @odin.assign_field
     def code(self) -> str:
+        if self.source.code:
+            return self.source.code
+
         return "%s-%s" % (self.source.slug, self.source.id)
 
     @odin.assign_field

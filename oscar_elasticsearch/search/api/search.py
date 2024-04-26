@@ -128,16 +128,16 @@ def search(
         search_operator=search_operator,
     )
 
-    result = es.search(index=index, body=body)
+    search_results = es.search(index=index, body=body)
 
-    status = search_results["status"]
+    # status = search_results["status"]
+    #
+    # if status > 200:
+    #     raise ElasticSearchQueryException(
+    #         "Something went wrong during elasticsearch query", search_results
+    #     )
 
-    if status > 200:
-        raise ElasticSearchQueryException(
-            "Something went wrong during elasticsearch query", search_results
-        )
-
-    return paginate_result(result, Model, size)
+    return paginate_result(search_results, Model, size)
 
 
 def facet_search(

@@ -10,3 +10,4 @@ class OscarElasticSearchResourceMixin(OscarResource):
     description: str
     absolute_url: str
     slug: str
+    search_title: str

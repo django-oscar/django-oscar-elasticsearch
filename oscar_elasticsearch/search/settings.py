@@ -53,7 +53,7 @@ SEARCH_FIELDS = getattr(
     [
         "_all_text",
         "_edgengrams",
-        "upc",
+        "code",
         "search_title^1",
         "search_title.reversed^0.8",
     ],
