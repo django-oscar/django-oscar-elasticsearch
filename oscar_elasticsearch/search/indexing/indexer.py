@@ -1,6 +1,7 @@
 from odin.codecs import dict_codec
 
 from django.utils.crypto import get_random_string
+from django.db import transaction
 
 from oscar.core.loading import get_class, get_model
 
@@ -139,13 +140,14 @@ class ESProductIndexer(ESModelIndexer):
             "search.mappings.products", "ProductElasticSearchMapping"
         )
 
-        products = Product.objects.filter(pk__in=object_ids).select_for_update()
+        with transaction.atomic():
+            products = Product.objects.filter(pk__in=object_ids).select_for_update()
 
-        product_resources = catalogue.product_queryset_to_resources(products)
+            product_resources = catalogue.product_queryset_to_resources(products)
 
-        product_resources = ProductElasticSearchMapping.apply(product_resources)
+            product_resources = ProductElasticSearchMapping.apply(product_resources)
 
-        return dict_codec.dump(product_resources, include_type_field=False)
+            return dict_codec.dump(product_resources, include_type_field=False)
 
 
 class ESCategoryIndexer(ESModelIndexer):
@@ -158,10 +160,11 @@ class ESCategoryIndexer(ESModelIndexer):
 
         CategoryMapping = get_class("search.mappings.categories", "CategoryMapping")
 
-        categories = Category.objects.filter(pk__in=object_ids).select_for_update()
+        with transaction.atomic():
+            categories = Category.objects.filter(pk__in=object_ids).select_for_update()
 
-        category_resources = catalogue.CategoryToResource.apply(categories)
+            category_resources = catalogue.CategoryToResource.apply(categories)
 
-        category_resources = CategoryMapping.apply(category_resources)
+            category_resources = CategoryMapping.apply(category_resources)
 
-        return dict_codec.dump(category_resources, include_type_field=False)
+            return dict_codec.dump(category_resources, include_type_field=False)
