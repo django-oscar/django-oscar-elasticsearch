@@ -17,7 +17,6 @@ class CategoryElasticSearchRelatedResource(OscarResource):
 
 
 class ProductElasticSearchResource(OscarElasticSearchResourceMixin):
-    search_title: str
     title_auto_complete: str
     code_auto_complete: str
     structure: str
