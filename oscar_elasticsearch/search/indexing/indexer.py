@@ -1,7 +1,7 @@
 from odin.codecs import dict_codec
-
 from django.utils.crypto import get_random_string
 from django.db import transaction
+from django.utils.text import format_lazy
 
 from oscar.core.loading import get_class, get_model
 
@@ -34,7 +34,9 @@ Category = get_model("catalogue", "Category")
 class Indexer(object):
     def __init__(self, name, mappings, settings):
         self.name = name
-        self.alias_name = "%s_%s" % (name, get_random_string(7).lower())
+        self.alias_name = format_lazy(
+            "{name}_{suffix}", name=name, suffix=get_random_string(7).lower()
+        )
         self.mappings = mappings
         self.settings = settings
 
