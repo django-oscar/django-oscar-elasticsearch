@@ -40,6 +40,7 @@ setup(
             "coverage>=5.4,<5.5",
             "sorl-thumbnail>=12.9,<12.10",
             "django-oscar @ git+https://github.com/django-oscar/django-oscar.git",
+            "vdt.versionplugin.wheel",
         ],
         "dev": ["pylint>=2.17.4", "pylint-django>=2.5.3", "black>=23.3.0"],
     },
