@@ -290,6 +290,8 @@ OSCAR_ELASTICSEARCH_PROJECT_NAME = "oscar_elasticsearch"
 
 OSCAR_ELASTICSEARCH_FILTER_AVAILABLE = True
 
+OSCAR_ELASTICSEARCH_SERVER_URLS = [os.environ.get("OSCAR_ELASTICSEARCH_SERVER_URLS", "http://127.0.0.1:9200")]
+
 WAGTAILSEARCH_BACKENDS = {
     "default": {
         "BACKEND": "oscar_elasticsearch.search.backend",

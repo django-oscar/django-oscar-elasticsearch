@@ -22,7 +22,9 @@ pipeline {
         stage('Test') {
             steps {
                 withPythonEnv('System-CPython-3.10') {
-                    pysh "make test"
+                    withEnv(['OSCAR_ELASTICSEARCH_SERVER_URLS=https://eden.highbiza.nl:9200/']) {
+                        pysh "make test"
+                    }
                 }
             }
             post {
