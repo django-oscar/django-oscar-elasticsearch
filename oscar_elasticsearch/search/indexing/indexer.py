@@ -2,6 +2,7 @@ from odin.codecs import dict_codec
 from django.utils.crypto import get_random_string
 from django.db import transaction
 from django.utils.text import format_lazy
+from django.utils.encoding import force_str
 
 from oscar.core.loading import get_class, get_model
 
@@ -53,8 +54,10 @@ class Indexer(object):
         if current_alias is None:
             current_alias = self.get_current_alias()
 
+        _index = force_str(current_alias)
+
         # pylint: disable=W0106
-        [obj.update({"_index": current_alias}) for obj in objects]
+        [obj.update({"_index": _index}) for obj in objects]
         bulk(es, objects, ignore=[400])
 
     def get_current_alias(self):
