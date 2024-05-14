@@ -129,3 +129,5 @@ SORT_BY_MAP_CATALOGUE = getattr(
         TITLE_Z_TO_A: "-title",
     },
 )
+
+DEFAULT_ORDERING = getattr(settings, "OSCAR_ELASTICSEARCH_DEFAULT_ORDERING", None)
