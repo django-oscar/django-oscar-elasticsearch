@@ -2,14 +2,13 @@ from oscar.core.loading import get_class
 
 from oscar_elasticsearch.exceptions import ElasticSearchQueryException
 from oscar_elasticsearch.search import settings
-
+from oscar_elasticsearch.search.api.base import BaseModelIndex
 
 paginate_result = get_class("search.api.pagination", "paginate_result")
 search_result_to_queryset = get_class(
     "search.api.pagination", "search_result_to_queryset"
 )
 es = get_class("search.backend", "es")
-BaseElasticSearchClass = get_class("search.api.base", "BaseElasticSearchClass")
 
 
 def get_search_query(
@@ -206,7 +205,7 @@ def facet_search(
     )
 
 
-class BaseElasticSearchApi(BaseElasticSearchClass):
+class BaseElasticSearchApi(BaseModelIndex):
     Model = None
     SEARCH_FIELDS = []
     SUGGESTION_FIELD_NAME = None

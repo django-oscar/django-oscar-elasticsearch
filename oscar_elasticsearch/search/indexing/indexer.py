@@ -7,9 +7,9 @@ from oscar.core.loading import get_class
 from elasticsearch.helpers import bulk
 from elasticsearch.exceptions import NotFoundError
 
-es = get_class("search.backend", "es")
+from oscar_elasticsearch.search.api.base import BaseModelIndex
 
-BaseElasticSearchClass = get_class("search.api.base", "BaseElasticSearchClass")
+es = get_class("search.backend", "es")
 
 
 class Indexer(object):
@@ -86,7 +86,7 @@ class Indexer(object):
             pass
 
 
-class ESModelIndexer(BaseElasticSearchClass):
+class ESModelIndexer(BaseModelIndex):
     def __init__(self):
         super().__init__()
         self.indexer = Indexer(

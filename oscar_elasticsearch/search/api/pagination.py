@@ -28,8 +28,7 @@ def paginate_result(search_results, Model, size):
 
 
 def search_result_to_queryset(search_results, Model):
-    idgetter = operator.itemgetter("id")
-    instance_ids = [idgetter(hit["_source"]) for hit in search_results["hits"]["hits"]]
+    instance_ids = [hit["_source"]["id"] for hit in search_results["hits"]["hits"]]
 
     preserved = Case(*[When(pk=pk, then=pos) for pos, pk in enumerate(instance_ids)])
     return Model.objects.filter(pk__in=instance_ids).order_by(preserved)

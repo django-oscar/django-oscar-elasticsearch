@@ -1,7 +1,8 @@
-class BaseElasticSearchClass:
+class BaseModelIndex:
     INDEX_NAME = None
     INDEX_MAPPING = None
     INDEX_SETTINGS = None
+    Model = None
 
     def get_index_name(self):
         return self.INDEX_NAME
