@@ -22,7 +22,6 @@ BaseElasticSearchApi = get_class("search.api.search", "BaseElasticSearchApi")
 ESModelIndexer = get_class("search.indexing.indexer", "ESModelIndexer")
 
 Product = get_model("catalogue", "Product")
-Category = get_model("catalogue", "Category")
 
 
 class ProductElasticSearchApi(BaseElasticSearchApi, ESModelIndexer):
@@ -33,8 +32,8 @@ class ProductElasticSearchApi(BaseElasticSearchApi, ESModelIndexer):
     SEARCH_FIELDS = settings.SEARCH_FIELDS
     SUGGESTION_FIELD_NAME = settings.SUGGESTION_FIELD_NAME
 
-    # def get_default_filters(self):
-    #        return [{"term": {"is_public": True}}]
+    def get_default_filters(self):
+        return [{"term": {"is_public": True}}]
 
     def get_es_data_from_objects(self, object_ids):
         from oscar_odin.mappings import catalogue

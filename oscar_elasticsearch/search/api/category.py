@@ -22,7 +22,6 @@ OSCAR_INDEX_SETTINGS = get_oscar_index_settings()
 BaseElasticSearchApi = get_class("search.api.search", "BaseElasticSearchApi")
 ESModelIndexer = get_class("search.indexing.indexer", "ESModelIndexer")
 
-Product = get_model("catalogue", "Product")
 Category = get_model("catalogue", "Category")
 
 

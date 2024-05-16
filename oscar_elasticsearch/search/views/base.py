@@ -100,7 +100,7 @@ class BaseSearchView(ListView):
         ) - self.paginate_by
 
         paginator, search_results, unfiltered_result = (
-            product_search_api.paginate_facet_search(
+            product_search_api.paginated_facet_search(
                 _from=elasticsearch_from,
                 query_string=self.request.GET.get("q", ""),
                 filters=self.get_default_filters(),

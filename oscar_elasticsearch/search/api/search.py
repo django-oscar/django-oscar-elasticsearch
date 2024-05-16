@@ -220,7 +220,7 @@ class BaseElasticSearchApi(BaseElasticSearchClass):
     def get_suggestion_field_name(self):
         return self.SUGGESTION_FIELD_NAME
 
-    def paginate_search(
+    def paginated_search(
         self,
         query_string=None,
         filters=None,
@@ -317,7 +317,7 @@ class BaseElasticSearchApi(BaseElasticSearchClass):
             unfiltered_result,
         )
 
-    def paginate_facet_search(
+    def paginated_facet_search(
         self,
         query_string=None,
         filters=None,
