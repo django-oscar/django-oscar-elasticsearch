@@ -115,6 +115,8 @@ class BaseSearchView(ListView):
                 self.form,
                 (unfiltered_result, search_results),
             )
+        else:
+            processed_facets = None
 
         context["paginator"] = paginator
         page_obj = paginator.get_page(self.request.GET.get("page", 1))
