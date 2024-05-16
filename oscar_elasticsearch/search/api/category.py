@@ -4,8 +4,6 @@ from django.db import transaction
 
 from oscar.core.loading import get_class, get_model
 
-from oscar_elasticsearch.search import settings
-
 OSCAR_CATEGORIES_INDEX_NAME = get_class(
     "search.indexing.settings", "OSCAR_CATEGORIES_INDEX_NAME"
 )

@@ -1,13 +1,12 @@
+# pylint: disable=W0102
 from oscar.core.loading import get_class
 
 from oscar_elasticsearch.exceptions import ElasticSearchQueryException
 from oscar_elasticsearch.search import settings
 from oscar_elasticsearch.search.api.base import BaseModelIndex
+from oscar_elasticsearch.search.utils import search_result_to_queryset
 
 paginate_result = get_class("search.api.pagination", "paginate_result")
-search_result_to_queryset = get_class(
-    "search.api.pagination", "search_result_to_queryset"
-)
 es = get_class("search.backend", "es")
 
 
@@ -31,7 +30,7 @@ def get_search_query(
 
 
 def get_search_body(
-    _from,
+    from_,
     size,
     search_fields=[],
     query_string=None,
@@ -51,7 +50,7 @@ def get_search_body(
                 "filter": filters,
             }
         },
-        "from": _from,
+        "from": from_,
         "size": size,
     }
 
@@ -108,7 +107,7 @@ def get_elasticsearch_aggs(aggs_definitions):
 
 def search(
     index,
-    _from,
+    from_,
     size,
     search_fields=[],
     query_string=None,
@@ -119,7 +118,7 @@ def search(
     search_operator=settings.SEARCH_QUERY_OPERATOR,
 ):
     body = get_search_body(
-        _from,
+        from_,
         size,
         search_fields=search_fields,
         query_string=query_string,
@@ -135,9 +134,9 @@ def search(
 
 def facet_search(
     index,
-    _from,
+    from_,
     size,
-    search_fields,
+    search_fields=[],
     query_string=None,
     default_filters=None,
     facet_filters=None,
@@ -148,20 +147,20 @@ def facet_search(
     aggs_definitions=None,
 ):
 
-    aggs = get_elasticsearch_aggs(aggs_definitions)
+    aggs = get_elasticsearch_aggs(aggs_definitions) if aggs_definitions else {}
 
     index_body = {"index": index}
 
     result_body = get_search_body(
-        _from,
+        from_,
         size,
         search_fields=search_fields,
         query_string=query_string,
         filters=default_filters + facet_filters,
         sort_by=sort_by,
         suggestion_field_name=suggestion_field_name,
-        search_type=settings.SEARCH_QUERY_TYPE,
-        search_operator=settings.SEARCH_QUERY_OPERATOR,
+        search_type=search_type,
+        search_operator=search_operator,
         aggs=aggs,
     )
 
@@ -173,8 +172,8 @@ def facet_search(
         filters=default_filters,
         sort_by=sort_by,
         suggestion_field_name=suggestion_field_name,
-        search_type=settings.SEARCH_QUERY_TYPE,
-        search_operator=settings.SEARCH_QUERY_OPERATOR,
+        search_type=search_type,
+        search_operator=search_operator,
         aggs=aggs,
     )
 
@@ -210,50 +209,29 @@ class BaseElasticSearchApi(BaseModelIndex):
     SEARCH_FIELDS = []
     SUGGESTION_FIELD_NAME = None
 
-    def get_default_filters(self):
-        return []
+    def get_search_fields(self, search_fields):
+        if search_fields is not None:
+            return search_fields
 
-    def get_default_search_fields(self):
         return self.SEARCH_FIELDS
 
-    def get_suggestion_field_name(self):
-        return self.SUGGESTION_FIELD_NAME
+    def get_filters(self, filters):
+        if filters is not None:
+            return filters
 
-    def paginated_search(
-        self,
-        query_string=None,
-        filters=None,
-        _from=0,
-        to=settings.DEFAULT_ITEMS_PER_PAGE,
-        search_fields=[],
-        sort_by=None,
-        suggestion_field_name=None,
-        search_type=settings.SEARCH_QUERY_TYPE,
-        search_operator=settings.SEARCH_QUERY_OPERATOR,
-    ):
-        search_results = search(
-            self.get_index_name(),
-            _from,
-            to,
-            search_fields=(
-                self.get_default_search_field()
-                if search_fields is None
-                else search_fields
-            ),
-            query_string=query_string,
-            filters=self.get_default_filters() if filters is None else filters,
-            sort_by=sort_by,
-            suggestion_field_name=suggestion_field_name,
-            search_type=search_type,
-            search_operator=search_operator,
-        )
-        return paginate_result(search_results, self.get_model(), to)
+        return []
+
+    def get_suggestion_field_name(self, suggestion_field_name):
+        if suggestion_field_name is not None:
+            return suggestion_field_name
+
+        return self.SUGGESTION_FIELD_NAME
 
     def search(
         self,
         query_string=None,
         filters=None,
-        _from=0,
+        from_=0,
         to=settings.DEFAULT_ITEMS_PER_PAGE,
         search_fields=[],
         sort_by=None,
@@ -263,51 +241,48 @@ class BaseElasticSearchApi(BaseModelIndex):
     ):
         search_results = search(
             self.get_index_name(),
-            _from,
+            from_,
             to,
-            search_fields=(
-                self.get_default_search_field()
-                if search_fields is None
-                else search_fields
-            ),
+            search_fields=self.get_search_fields(search_fields),
             query_string=query_string,
-            filters=self.get_default_filters() if filters is None else filters,
+            filters=self.get_filters(filters),
             sort_by=sort_by,
-            suggestion_field_name=suggestion_field_name,
+            suggestion_field_name=self.get_suggestion_field_name(suggestion_field_name),
             search_type=search_type,
             search_operator=search_operator,
         )
 
-        return search_result_to_queryset(search_results, self.get_model())
+        total_hits = search_results["hits"]["total"]["value"]
+
+        return search_result_to_queryset(search_results, self.get_model()), total_hits
 
     def facet_search(
         self,
-        query_string=None,
-        filters=None,
-        _from=0,
+        from_=0,
         to=settings.DEFAULT_ITEMS_PER_PAGE,
+        query_string=None,
         search_fields=[],
+        filters=None,
+        facet_filters=None,
         sort_by=None,
         suggestion_field_name=None,
         search_type=settings.SEARCH_QUERY_TYPE,
         search_operator=settings.SEARCH_QUERY_OPERATOR,
         aggs_definitions=settings.FACETS,
-        facet_filters=None,
     ):
-
         search_results, unfiltered_result = facet_search(
             self.get_index_name(),
-            _from,
-            size,
-            search_fields,
+            from_,
+            to,
+            search_fields=self.get_search_fields(search_fields),
             query_string=query_string,
-            default_filters=self.get_default_filters() if filters is None else filters,
+            default_filters=self.get_filters(filters),
             facet_filters=facet_filters,
             sort_by=sort_by,
-            suggestion_field_name=None,
-            search_type=settings.SEARCH_QUERY_TYPE,
-            search_operator=settings.SEARCH_QUERY_OPERATOR,
-            aggs_definitions=None,
+            suggestion_field_name=self.get_suggestion_field_name(suggestion_field_name),
+            search_type=search_type,
+            search_operator=search_operator,
+            aggs_definitions=aggs_definitions,
         )
 
         return (
@@ -316,42 +291,64 @@ class BaseElasticSearchApi(BaseModelIndex):
             unfiltered_result,
         )
 
-    def paginated_facet_search(
+    def paginated_search(
         self,
         query_string=None,
         filters=None,
-        _from=0,
+        from_=0,
         to=settings.DEFAULT_ITEMS_PER_PAGE,
         search_fields=[],
         sort_by=None,
         suggestion_field_name=None,
         search_type=settings.SEARCH_QUERY_TYPE,
         search_operator=settings.SEARCH_QUERY_OPERATOR,
-        aggs_definitions=settings.FACETS,
-        facet_filters=None,
     ):
-
-        search_results, unfiltered_result = facet_search(
-            self.get_index_name(),
-            _from,
-            to,
-            search_fields,
+        instances, total_hits = self.search(
             query_string=query_string,
-            default_filters=self.get_default_filters() if filters is None else filters,
+            filters=filters,
+            from_=from_,
+            to=to,
+            search_fields=search_fields,
+            sort_by=sort_by,
+            suggestion_field_name=suggestion_field_name,
+            search_type=search_type,
+            search_operator=search_operator,
+        )
+
+        return paginate_result(instances, total_hits, to)
+
+    def paginated_facet_search(
+        self,
+        from_=0,
+        to=settings.DEFAULT_ITEMS_PER_PAGE,
+        query_string=None,
+        search_fields=[],
+        filters=None,
+        facet_filters=None,
+        sort_by=None,
+        suggestion_field_name=None,
+        search_type=settings.SEARCH_QUERY_TYPE,
+        search_operator=settings.SEARCH_QUERY_OPERATOR,
+        aggs_definitions=settings.FACETS,
+    ):
+        instances, search_results, unfiltered_result = self.facet_search(
+            from_=from_,
+            to=to,
+            query_string=query_string,
+            search_fields=search_fields,
+            filters=filters,
             facet_filters=facet_filters,
             sort_by=sort_by,
-            suggestion_field_name=(
-                self.get_suggestion_field_name()
-                if suggestion_field_name is None
-                else suggestion_field_name
-            ),
-            search_type=settings.SEARCH_QUERY_TYPE,
-            search_operator=settings.SEARCH_QUERY_OPERATOR,
+            suggestion_field_name=suggestion_field_name,
+            search_type=search_type,
+            search_operator=search_operator,
             aggs_definitions=aggs_definitions,
         )
 
+        total_hits = search_results["hits"]["total"]["value"]
+
         return (
-            paginate_result(search_results, self.get_model(), to),
+            paginate_result(instances, total_hits, to),
             search_results,
             unfiltered_result,
         )

@@ -37,4 +37,4 @@ def autocomplete_suggestions(
 
     results = es.search(index=index, body=body)
 
-    return list(get_option_results(results))
+    return list(get_option_results(results))[:num_suggestions]

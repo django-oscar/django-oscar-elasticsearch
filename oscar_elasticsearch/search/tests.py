@@ -108,19 +108,23 @@ class TestSearchApi(TestCase):
     category_search_api = CategoryElasticSearchApi()
 
     def test_product_search(self):
-        results = self.product_search_api.search()
+        results, total_hits = self.product_search_api.search()
 
         self.assertEqual(results.count(), 4)
+        self.assertEqual(total_hits, 4)
 
-        results = self.product_search_api.search(query_string="bikini")
+        results, total_hits = self.product_search_api.search(query_string="bikini")
 
         self.assertEqual(results.count(), 1)
+        self.assertEqual(total_hits, 1)
 
     def test_category_search(self):
-        results = self.category_search_api.search()
+        results, total_hits = self.category_search_api.search()
 
         self.assertEqual(results.count(), 2)
+        self.assertEqual(total_hits, 2)
 
-        results = self.category_search_api.search(query_string="hoi")
+        results, total_hits = self.category_search_api.search(query_string="hoi")
 
         self.assertEqual(results.count(), 1)
+        self.assertEqual(total_hits, 1)

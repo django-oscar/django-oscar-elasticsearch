@@ -32,7 +32,10 @@ class ProductElasticSearchApi(BaseElasticSearchApi, ESModelIndexer):
     SEARCH_FIELDS = settings.SEARCH_FIELDS
     SUGGESTION_FIELD_NAME = settings.SUGGESTION_FIELD_NAME
 
-    def get_default_filters(self):
+    def get_filters(self, filters):
+        if filters is not None:
+            return filters
+
         return [{"term": {"is_public": True}}]
 
     def get_es_data_from_objects(self, object_ids):

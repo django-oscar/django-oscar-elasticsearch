@@ -52,9 +52,9 @@ class BaseSearchView(ListView):
                             {"range": {name: {"from": D(val.replace("-*", ""))}}}
                         )
                     else:
-                        _from, to = val.split("-")
+                        from_, to = val.split("-")
                         ranges.append(
-                            {"range": {name: {"from": D(_from), "to": D(to)}}}
+                            {"range": {name: {"from": D(from_), "to": D(to)}}}
                         )
 
                 filters.append({"bool": {"should": ranges}})
@@ -101,7 +101,7 @@ class BaseSearchView(ListView):
 
         paginator, search_results, unfiltered_result = (
             product_search_api.paginated_facet_search(
-                _from=elasticsearch_from,
+                from_=elasticsearch_from,
                 query_string=self.request.GET.get("q", ""),
                 filters=self.get_default_filters(),
                 facet_filters=self.get_facet_filters(),
@@ -109,17 +109,18 @@ class BaseSearchView(ListView):
             )
         )
 
-        processed_facets = process_facets(
-            self.request.get_full_path(),
-            self.form,
-            (unfiltered_result, search_results),
-        )
+        if "aggregations" in unfiltered_result:
+            processed_facets = process_facets(
+                self.request.get_full_path(),
+                self.form,
+                (unfiltered_result, search_results),
+            )
 
         context["paginator"] = paginator
         page_obj = paginator.get_page(self.request.GET.get("page", 1))
         context["page_obj"] = page_obj
         context["suggestion"] = select_suggestion(
-            product_search_api.get_suggestion_field_name(),
+            product_search_api.get_suggestion_field_name(None),
             search_results.get("suggest", []),
         )
         context["page"] = page_obj
