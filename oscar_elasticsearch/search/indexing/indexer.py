@@ -1,34 +1,15 @@
-from odin.codecs import dict_codec
 from django.utils.crypto import get_random_string
-from django.db import transaction
 from django.utils.text import format_lazy
+from django.utils.encoding import force_str
 
-from oscar.core.loading import get_class, get_model
+from oscar.core.loading import get_class
 
 from elasticsearch.helpers import bulk
 from elasticsearch.exceptions import NotFoundError
 
 es = get_class("search.backend", "es")
-OSCAR_PRODUCTS_INDEX_NAME = get_class(
-    "search.indexing.settings", "OSCAR_PRODUCTS_INDEX_NAME"
-)
-OSCAR_CATEGORIES_INDEX_NAME = get_class(
-    "search.indexing.settings", "OSCAR_CATEGORIES_INDEX_NAME"
-)
-get_categories_index_mapping = get_class(
-    "search.indexing.settings", "get_categories_index_mapping"
-)
-get_products_index_mapping = get_class(
-    "search.indexing.settings", "get_products_index_mapping"
-)
-get_oscar_index_settings = get_class(
-    "search.indexing.settings", "get_oscar_index_settings"
-)
 
-OSCAR_INDEX_SETTINGS = get_oscar_index_settings()
-
-Product = get_model("catalogue", "Product")
-Category = get_model("catalogue", "Category")
+BaseElasticSearchClass = get_class("search.api.base", "BaseElasticSearchClass")
 
 
 class Indexer(object):
@@ -53,8 +34,10 @@ class Indexer(object):
         if current_alias is None:
             current_alias = self.get_current_alias()
 
+        _index = force_str(current_alias)
+
         # pylint: disable=W0106
-        [obj.update({"_index": current_alias}) for obj in objects]
+        [obj.update({"_index": _index}) for obj in objects]
         bulk(es, objects, ignore=[400])
 
     def get_current_alias(self):
@@ -103,14 +86,11 @@ class Indexer(object):
             pass
 
 
-class ESModelIndexer:
-    index_name = None
-    index_mappings = None
-    index_settings = None
-
+class ESModelIndexer(BaseElasticSearchClass):
     def __init__(self):
+        super().__init__()
         self.indexer = Indexer(
-            self.index_name, self.index_mappings, self.index_settings
+            self.get_index_name(), self.get_index_mapping(), self.get_index_settings()
         )
 
     def get_es_data_from_objects(self, object_ids):
@@ -128,45 +108,3 @@ class ESModelIndexer:
 
     def delete(self, _id):
         return self.indexer.delete_doc(_id)
-
-
-class ESProductIndexer(ESModelIndexer):
-    index_name = OSCAR_PRODUCTS_INDEX_NAME
-    index_mappings = get_products_index_mapping()
-    index_settings = OSCAR_INDEX_SETTINGS
-
-    def get_es_data_from_objects(self, object_ids):
-        from oscar_odin.mappings import catalogue
-
-        ProductElasticSearchMapping = get_class(
-            "search.mappings.products", "ProductElasticSearchMapping"
-        )
-
-        with transaction.atomic():
-            products = Product.objects.filter(pk__in=object_ids).select_for_update()
-
-            product_resources = catalogue.product_queryset_to_resources(products)
-
-            product_resources = ProductElasticSearchMapping.apply(product_resources)
-
-            return dict_codec.dump(product_resources, include_type_field=False)
-
-
-class ESCategoryIndexer(ESModelIndexer):
-    index_name = OSCAR_CATEGORIES_INDEX_NAME
-    index_mappings = get_categories_index_mapping()
-    index_settings = OSCAR_INDEX_SETTINGS
-
-    def get_es_data_from_objects(self, object_ids):
-        from oscar_odin.mappings import catalogue
-
-        CategoryMapping = get_class("search.mappings.categories", "CategoryMapping")
-
-        with transaction.atomic():
-            categories = Category.objects.filter(pk__in=object_ids).select_for_update()
-
-            category_resources = catalogue.CategoryToResource.apply(categories)
-
-            category_resources = CategoryMapping.apply(category_resources)
-
-            return dict_codec.dump(category_resources, include_type_field=False)

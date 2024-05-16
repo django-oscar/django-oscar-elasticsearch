@@ -2,7 +2,7 @@ from django.core.management.base import BaseCommand
 
 from oscar.core.loading import get_class, get_model
 
-ESCategoryIndexer = get_class("search.indexing", "ESCategoryIndexer")
+CategoryElasticSearchApi = get_class("search.api.category", "CategoryElasticSearchApi")
 
 Category = get_model("catalogue", "Category")
 
@@ -12,4 +12,4 @@ class Command(BaseCommand):
         print("--" * 25)
         category_ids = Category.objects.browsable().values_list("pk", flat=True)
 
-        ESCategoryIndexer().reindex(category_ids)
+        CategoryElasticSearchApi().reindex(category_ids)

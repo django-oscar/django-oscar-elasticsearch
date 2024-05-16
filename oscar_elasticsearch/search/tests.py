@@ -12,6 +12,7 @@ import oscar_elasticsearch.search.utils
 
 Product = get_model("catalogue", "Product")
 update_index_products = get_class("search.helpers", "update_index_products")
+ProductElasticSearchApi = get_class("search.api.product", "ProductElasticSearchApi")
 
 
 def load_tests(loader, tests, ignore):  # pylint: disable=W0613
@@ -78,3 +79,32 @@ class ElasticSearchViewTest(TestCase):
         self.assertContains(response, "second")
         self.assertContains(response, "serious product")
         self.assertNotContains(response, "Hubble Photo")
+
+
+class TestProductSearchHandler(TestCase):
+    fixtures = [
+        "search/auth",
+        "catalogue/catalogue",
+    ]
+
+    @classmethod
+    def setUpClass(cls):
+        # clear search index
+        call_command("update_oscar_index")
+        super().setUpClass()
+
+    def setUp(self):
+        super().setUp()
+        update_index_products(Product.objects.values_list("id", flat=True))
+        sleep(3)
+
+    product_search_api = ProductElasticSearchApi()
+
+    def test_normal_search(self):
+        results = self.product_search_api.search()
+
+        self.assertEqual(results.count(), 4)
+
+        results = self.product_search_api.search(query_string="bikini")
+
+        self.assertEqual(results.count(), 1)

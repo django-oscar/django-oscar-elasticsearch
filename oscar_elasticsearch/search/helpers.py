@@ -6,8 +6,8 @@ chunked = get_class("search.utils", "chunked")
 Product = get_model("catalogue", "Product")
 Category = get_model("catalogue", "Category")
 
-ESProductIndexer = get_class("search.indexing", "ESProductIndexer")
-ESCategoryIndexer = get_class("search.indexing", "ESCategoryIndexer")
+ProductElasticSearchApi = get_class("search.api.product", "ProductElasticSearchApi")
+CategoryElasticSearchApi = get_class("search.api.category", "CategoryElasticSearchApi")
 
 
 def update_index_category(category_id):
@@ -27,7 +27,7 @@ def update_index_categories(category_ids, update_products=True):
 
     for chunk in chunked(category_ids, 100):
         with transaction.atomic():
-            ESCategoryIndexer().update_or_create_objects(chunk)
+            CategoryElasticSearchApi().update_or_create_objects(chunk)
 
             if update_products:
                 product_ids.update(
@@ -49,4 +49,4 @@ def update_index_product(product_id):
 def update_index_products(product_ids):
     for chunk in chunked(product_ids, 100):
         with transaction.atomic():
-            ESProductIndexer().update_or_create_objects(chunk)
+            ProductElasticSearchApi().update_or_create_objects(chunk)

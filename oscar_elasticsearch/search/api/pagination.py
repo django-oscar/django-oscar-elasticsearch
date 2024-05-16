@@ -6,7 +6,7 @@ from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 
 class ElasticSearchPaginator(Paginator):
     def __init__(self, *args, **kwargs):
-        self.products = kwargs.pop("products")
+        self.instances = kwargs.pop("instances")
         super().__init__(*args, **kwargs)
 
     def page(self, number):
@@ -16,16 +16,20 @@ class ElasticSearchPaginator(Paginator):
         top = bottom + self.per_page
         if top + self.orphans >= self.count:
             top = self.count
-        return self._get_page(self.products, number, self)
+        return self._get_page(self.instances, number, self)
 
 
 def paginate_result(search_results, Model, size):
-    idgetter = operator.itemgetter("id")
-    product_ids = [idgetter(hit["_source"]) for hit in search_results["hits"]["hits"]]
-
-    preserved = Case(*[When(pk=pk, then=pos) for pos, pk in enumerate(product_ids)])
-    products = Model.objects.filter(pk__in=product_ids).order_by(preserved)
+    instances = search_result_to_queryset(search_results, Model)
 
     total_hits = search_results["hits"]["total"]["value"]
 
-    return ElasticSearchPaginator(range(0, total_hits), size, products=products)
+    return ElasticSearchPaginator(range(0, total_hits), size, instances=instances)
+
+
+def search_result_to_queryset(search_results, Model):
+    idgetter = operator.itemgetter("id")
+    instance_ids = [idgetter(hit["_source"]) for hit in search_results["hits"]["hits"]]
+
+    preserved = Case(*[When(pk=pk, then=pos) for pos, pk in enumerate(instance_ids)])
+    return Model.objects.filter(pk__in=instance_ids).order_by(preserved)
