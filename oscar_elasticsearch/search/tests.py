@@ -11,7 +11,13 @@ import oscar_elasticsearch.search.format
 import oscar_elasticsearch.search.utils
 
 Product = get_model("catalogue", "Product")
+Category = get_model("catalogue", "Category")
+
 update_index_products = get_class("search.helpers", "update_index_products")
+update_index_categories = get_class("search.helpers", "update_index_categories")
+
+ProductElasticSearchApi = get_class("search.api.product", "ProductElasticSearchApi")
+CategoryElasticSearchApi = get_class("search.api.category", "CategoryElasticSearchApi")
 
 
 def load_tests(loader, tests, ignore):  # pylint: disable=W0613
@@ -78,3 +84,47 @@ class ElasticSearchViewTest(TestCase):
         self.assertContains(response, "second")
         self.assertContains(response, "serious product")
         self.assertNotContains(response, "Hubble Photo")
+
+
+class TestSearchApi(TestCase):
+    fixtures = [
+        "search/auth",
+        "catalogue/catalogue",
+    ]
+
+    @classmethod
+    def setUpClass(cls):
+        # clear search index
+        call_command("update_oscar_index")
+        super().setUpClass()
+
+    def setUp(self):
+        super().setUp()
+        update_index_products(Product.objects.values_list("id", flat=True))
+        update_index_categories(Category.objects.values_list("id", flat=True))
+        sleep(3)
+
+    product_search_api = ProductElasticSearchApi()
+    category_search_api = CategoryElasticSearchApi()
+
+    def test_product_search(self):
+        results, total_hits = self.product_search_api.search()
+
+        self.assertEqual(results.count(), 4)
+        self.assertEqual(total_hits, 4)
+
+        results, total_hits = self.product_search_api.search(query_string="bikini")
+
+        self.assertEqual(results.count(), 1)
+        self.assertEqual(total_hits, 1)
+
+    def test_category_search(self):
+        results, total_hits = self.category_search_api.search()
+
+        self.assertEqual(results.count(), 2)
+        self.assertEqual(total_hits, 2)
+
+        results, total_hits = self.category_search_api.search(query_string="hoi")
+
+        self.assertEqual(results.count(), 1)
+        self.assertEqual(total_hits, 1)

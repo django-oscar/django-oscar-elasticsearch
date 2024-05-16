@@ -1,12 +1,9 @@
-import operator
-
-from django.db.models import Case, When
-from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
+from django.core.paginator import Paginator
 
 
 class ElasticSearchPaginator(Paginator):
-    def __init__(self, *args, **kwargs):
-        self.products = kwargs.pop("products")
+    def __init__(self, instances, *args, **kwargs):
+        self.instances = instances
         super().__init__(*args, **kwargs)
 
     def page(self, number):
@@ -16,16 +13,8 @@ class ElasticSearchPaginator(Paginator):
         top = bottom + self.per_page
         if top + self.orphans >= self.count:
             top = self.count
-        return self._get_page(self.products, number, self)
+        return self._get_page(self.instances, number, self)
 
 
-def paginate_result(search_results, Model, size):
-    idgetter = operator.itemgetter("id")
-    product_ids = [idgetter(hit["_source"]) for hit in search_results["hits"]["hits"]]
-
-    preserved = Case(*[When(pk=pk, then=pos) for pos, pk in enumerate(product_ids)])
-    products = Model.objects.filter(pk__in=product_ids).order_by(preserved)
-
-    total_hits = search_results["hits"]["total"]["value"]
-
-    return ElasticSearchPaginator(range(0, total_hits), size, products=products)
+def paginate_result(instances, total_hits, size):
+    return ElasticSearchPaginator(instances, range(0, total_hits), size)

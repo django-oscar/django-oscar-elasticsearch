@@ -13,15 +13,17 @@ OSCAR_PRODUCTS_INDEX_NAME = get_class(
 )
 select_suggestion = get_class("search.suggestions", "select_suggestion")
 es = get_class("search.backend", "es")
-facet_search = get_class("search.api.search", "facet_search")
+ProductElasticSearchApi = get_class("search.api.product", "ProductElasticSearchApi")
 
 Product = get_model("catalogue", "Product")
+
+
+product_search_api = ProductElasticSearchApi()
 
 
 class BaseSearchView(ListView):
     model = Product
     paginate_by = settings.DEFAULT_ITEMS_PER_PAGE
-    suggestion_field_name = settings.SUGGESTION_FIELD_NAME
     form_class = None
 
     def get_default_filters(self):
@@ -50,9 +52,9 @@ class BaseSearchView(ListView):
                             {"range": {name: {"from": D(val.replace("-*", ""))}}}
                         )
                     else:
-                        _from, to = val.split("-")
+                        from_, to = val.split("-")
                         ranges.append(
-                            {"range": {name: {"from": D(_from), "to": D(to)}}}
+                            {"range": {name: {"from": D(from_), "to": D(to)}}}
                         )
 
                 filters.append({"bool": {"should": ranges}})
@@ -97,33 +99,29 @@ class BaseSearchView(ListView):
             int(self.request.GET.get("page", 1)) * self.paginate_by
         ) - self.paginate_by
 
-        paginator, search_results, unfiltered_result = facet_search(
-            OSCAR_PRODUCTS_INDEX_NAME,
-            elasticsearch_from,
-            self.paginate_by,
-            Product,
-            settings.SEARCH_FIELDS,
-            query_string=self.request.GET.get("q", ""),
-            default_filters=self.get_default_filters(),
-            facet_filters=self.get_facet_filters(),
-            sort_by=self.get_sort_by(),
-            suggestion_field_name=self.suggestion_field_name,
-            search_type=settings.SEARCH_QUERY_TYPE,
-            search_operator=settings.SEARCH_QUERY_OPERATOR,
-            aggs_definitions=settings.FACETS,
+        paginator, search_results, unfiltered_result = (
+            product_search_api.paginated_facet_search(
+                from_=elasticsearch_from,
+                query_string=self.request.GET.get("q", ""),
+                filters=self.get_default_filters(),
+                facet_filters=self.get_facet_filters(),
+                sort_by=self.get_sort_by(),
+            )
         )
 
-        processed_facets = process_facets(
-            self.request.get_full_path(),
-            self.form,
-            (unfiltered_result, search_results),
-        )
+        if "aggregations" in unfiltered_result:
+            processed_facets = process_facets(
+                self.request.get_full_path(),
+                self.form,
+                (unfiltered_result, search_results),
+            )
 
         context["paginator"] = paginator
         page_obj = paginator.get_page(self.request.GET.get("page", 1))
         context["page_obj"] = page_obj
         context["suggestion"] = select_suggestion(
-            self.suggestion_field_name, search_results.get("suggest", [])
+            product_search_api.get_suggestion_field_name(None),
+            search_results.get("suggest", []),
         )
         context["page"] = page_obj
         context[self.context_object_name] = page_obj

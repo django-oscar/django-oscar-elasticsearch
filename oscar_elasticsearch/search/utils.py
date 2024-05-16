@@ -1,3 +1,6 @@
+from django.db.models import Case, When
+
+
 def chunked(qs, size, startindex=0):
     """
     Divide an interable into chunks of ``size``
@@ -15,3 +18,10 @@ def chunked(qs, size, startindex=0):
         if chunklen < size:
             break
         startindex += size
+
+
+def search_result_to_queryset(search_results, Model):
+    instance_ids = [hit["_source"]["id"] for hit in search_results["hits"]["hits"]]
+
+    preserved = Case(*[When(pk=pk, then=pos) for pos, pk in enumerate(instance_ids)])
+    return Model.objects.filter(pk__in=instance_ids).order_by(preserved)
