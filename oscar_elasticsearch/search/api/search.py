@@ -86,21 +86,22 @@ def get_elasticsearch_aggs(aggs_definitions):
             aggs[name] = terms
         elif facet_type == "range":
             ranges_definition = facet_definition["ranges"]
-            ranges = [
-                (
-                    {"to": ranges_definition[i]}
-                    if i == 0
-                    else {
-                        "from": ranges_definition[i - 1],
-                        "to": ranges_definition[i],
-                    }
-                )
-                for i in range(len(ranges_definition))
-            ]
+            if ranges_definition:
+                ranges = [
+                    (
+                        {"to": ranges_definition[i]}
+                        if i == 0
+                        else {
+                            "from": ranges_definition[i - 1],
+                            "to": ranges_definition[i],
+                        }
+                    )
+                    for i in range(len(ranges_definition))
+                ]
 
-            ranges.append({"from": ranges_definition[-1]})
+                ranges.append({"from": ranges_definition[-1]})
 
-            aggs[name] = {"range": {"field": name, "ranges": ranges}}
+                aggs[name] = {"range": {"field": name, "ranges": ranges}}
 
     return aggs
 
