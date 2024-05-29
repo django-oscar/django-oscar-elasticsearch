@@ -65,10 +65,10 @@ class BaseSearchView(ListView):
 
     def get_sort_by(self):
         sort_by = []
-        ordering = (
-            self.form.get_sort_params(self.form.cleaned_data)
-            or settings.DEFAULT_ORDERING
-        )
+        ordering = self.form.get_sort_params(self.form.cleaned_data)
+
+        if not ordering and not self.request.GET.get("q"):
+            ordering = settings.DEFAULT_ORDERING
 
         if ordering:
             if ordering.startswith("-"):
