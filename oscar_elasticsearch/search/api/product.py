@@ -1,6 +1,7 @@
 from odin.codecs import dict_codec
 
 from django.db import transaction
+from django.db.models import QuerySet
 
 from oscar.core.loading import get_class, get_model
 
@@ -24,7 +25,7 @@ ESModelIndexer = get_class("search.indexing.indexer", "ESModelIndexer")
 Product = get_model("catalogue", "Product")
 
 
-class ProductElasticSearchApi(BaseElasticSearchApi, ESModelIndexer):
+class ProductElasticsearchIndex(BaseElasticSearchApi, ESModelIndexer):
     INDEX_NAME = OSCAR_PRODUCTS_INDEX_NAME
     INDEX_MAPPING = get_products_index_mapping()
     INDEX_SETTINGS = OSCAR_INDEX_SETTINGS
@@ -38,18 +39,22 @@ class ProductElasticSearchApi(BaseElasticSearchApi, ESModelIndexer):
 
         return [{"term": {"is_public": True}}]
 
-    def get_es_data_from_objects(self, object_ids):
+    def make_documents(self, objects):
         from oscar_odin.mappings import catalogue
 
         ProductElasticSearchMapping = get_class(
             "search.mappings.products", "ProductElasticSearchMapping"
         )
 
+        # the transaction and the select_for_update are candidates for removal!
         with transaction.atomic():
-            products = Product.objects.filter(pk__in=object_ids).select_for_update()
+            if isinstance(objects, QuerySet):
+                objects = objects.select_for_update()
 
-            product_resources = catalogue.product_queryset_to_resources(products)
+            product_resources = catalogue.product_queryset_to_resources(objects)
 
-            product_resources = ProductElasticSearchMapping.apply(product_resources)
+            product_document_resources = ProductElasticSearchMapping.apply(
+                product_resources
+            )
 
-            return dict_codec.dump(product_resources, include_type_field=False)
+            return dict_codec.dump(product_document_resources, include_type_field=False)
