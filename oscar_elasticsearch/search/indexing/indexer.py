@@ -21,24 +21,32 @@ class Indexer(object):
         self.mappings = mappings
         self.settings = settings
 
-    def execute(self, objects):
+    def execute(self, documents):
         self.start()
-        self.bulk_index(objects, self.alias_name)
+        self.bulk_index(documents, self.alias_name)
         self.finish()
 
     def start(self):
         # Create alias
         self.create(self.alias_name)
 
-    def bulk_index(self, objects, current_alias=None):
+    def index(self, _id, document, current_alias=None):
+        if current_alias is None:
+            current_alias = self.get_current_alias()
+
+        _index = force_str(current_alias)
+
+        es.index(index=_index, id=_id, document=document, ignore=[400])
+
+    def bulk_index(self, documents, current_alias=None):
         if current_alias is None:
             current_alias = self.get_current_alias()
 
         _index = force_str(current_alias)
 
         # pylint: disable=W0106
-        [obj.update({"_index": _index}) for obj in objects]
-        bulk(es, objects, ignore=[400])
+        [doc.update({"_index": _index}) for doc in documents]
+        bulk(es, documents, ignore=[400])
 
     def get_current_alias(self):
         aliasses = list(es.indices.get_alias(name=self.name).keys())
@@ -93,17 +101,21 @@ class ESModelIndexer(BaseModelIndex):
             self.get_index_name(), self.get_index_mapping(), self.get_index_settings()
         )
 
-    def get_es_data_from_objects(self, object_ids):
+    def make_documents(self, objects):
         raise NotImplementedError(
-            "Please implement `get_es_data_from_objects` on your indexer class"
+            "Please implement `make_documents` on your indexer class"
         )
 
-    def update_or_create_objects(self, object_ids):
-        es_data = self.get_es_data_from_objects(object_ids)
+    def update_or_create(self, objects):
+        es_data = self.make_documents(objects)
         return self.indexer.bulk_index(es_data)
 
-    def reindex(self, object_ids):
-        es_data = self.get_es_data_from_objects(object_ids)
+    def index(self, obj):
+        (es_data,) = self.make_documents([obj])
+        self.indexer.index(obj.id, es_data["_source"])
+
+    def reindex(self, objects):
+        es_data = self.make_documents(objects)
         return self.indexer.execute(es_data)
 
     def delete(self, _id):

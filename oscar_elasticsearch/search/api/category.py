@@ -1,6 +1,7 @@
 from odin.codecs import dict_codec
 
 from django.db import transaction
+from django.db.models import QuerySet
 
 from oscar.core.loading import get_class, get_model
 
@@ -23,22 +24,25 @@ ESModelIndexer = get_class("search.indexing.indexer", "ESModelIndexer")
 Category = get_model("catalogue", "Category")
 
 
-class CategoryElasticSearchApi(BaseElasticSearchApi, ESModelIndexer):
+class CategoryElasticsearchIndex(BaseElasticSearchApi, ESModelIndexer):
     INDEX_NAME = OSCAR_CATEGORIES_INDEX_NAME
     INDEX_MAPPING = get_categories_index_mapping()
     INDEX_SETTINGS = OSCAR_INDEX_SETTINGS
     Model = Category
 
-    def get_es_data_from_objects(self, object_ids):
+    def make_documents(self, objects):
         from oscar_odin.mappings import catalogue
 
         CategoryMapping = get_class("search.mappings.categories", "CategoryMapping")
 
+        # the transaction and the select_for_update are candidates for removal!
         with transaction.atomic():
-            categories = Category.objects.filter(pk__in=object_ids).select_for_update()
+            if isinstance(objects, QuerySet):
+                objects = objects.select_for_update()
 
-            category_resources = catalogue.CategoryToResource.apply(categories)
+            category_resources = catalogue.CategoryToResource.apply(objects)
+            category_document_resources = CategoryMapping.apply(category_resources)
 
-            category_resources = CategoryMapping.apply(category_resources)
-
-            return dict_codec.dump(category_resources, include_type_field=False)
+            return dict_codec.dump(
+                category_document_resources, include_type_field=False
+            )

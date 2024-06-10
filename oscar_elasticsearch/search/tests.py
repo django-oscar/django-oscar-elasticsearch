@@ -16,8 +16,10 @@ Category = get_model("catalogue", "Category")
 update_index_products = get_class("search.helpers", "update_index_products")
 update_index_categories = get_class("search.helpers", "update_index_categories")
 
-ProductElasticSearchApi = get_class("search.api.product", "ProductElasticSearchApi")
-CategoryElasticSearchApi = get_class("search.api.category", "CategoryElasticSearchApi")
+ProductElasticsearchIndex = get_class("search.api.product", "ProductElasticsearchIndex")
+CategoryElasticsearchIndex = get_class(
+    "search.api.category", "CategoryElasticsearchIndex"
+)
 
 
 def load_tests(loader, tests, ignore):  # pylint: disable=W0613
@@ -104,8 +106,8 @@ class TestSearchApi(TestCase):
         update_index_categories(Category.objects.values_list("id", flat=True))
         sleep(3)
 
-    product_search_api = ProductElasticSearchApi()
-    category_search_api = CategoryElasticSearchApi()
+    product_search_api = ProductElasticsearchIndex()
+    category_search_api = CategoryElasticsearchIndex()
 
     def test_product_search(self):
         results, total_hits = self.product_search_api.search()

@@ -13,12 +13,12 @@ OSCAR_PRODUCTS_INDEX_NAME = get_class(
 )
 select_suggestion = get_class("search.suggestions", "select_suggestion")
 es = get_class("search.backend", "es")
-ProductElasticSearchApi = get_class("search.api.product", "ProductElasticSearchApi")
+ProductElasticsearchIndex = get_class("search.api.product", "ProductElasticsearchIndex")
 
 Product = get_model("catalogue", "Product")
 
 
-product_search_api = ProductElasticSearchApi()
+product_search_api = ProductElasticsearchIndex()
 
 
 class BaseSearchView(ListView):

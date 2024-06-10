@@ -10,7 +10,7 @@ Product = get_model("catalogue", "Product")
 Category = get_model("catalogue", "Category")
 StockRecord = get_model("partner", "StockRecord")
 UpdateIndex = get_class("search.update", "UpdateIndex")
-ProductElasticSearchApi = get_class("search.api.product", "ProductElasticSearchApi")
+ProductElasticsearchIndex = get_class("search.api.product", "ProductElasticsearchIndex")
 
 update_index = UpdateIndex()
 
@@ -33,7 +33,7 @@ def product_post_delete_signal_handler(sender, instance, **kwargs):
     if kwargs.get("raw", False):
         return
 
-    ProductElasticSearchApi().delete(instance.pk)
+    ProductElasticsearchIndex().delete(instance.pk)
 
 
 def product_category_m2m_changed_signal_handler(
