@@ -228,6 +228,9 @@ class BaseElasticSearchApi(BaseModelIndex):
 
         return self.SUGGESTION_FIELD_NAME
 
+    def make_queryset(self, search_result):
+        return search_result_to_queryset(search_result, self.get_model())
+
     def search(
         self,
         query_string=None,
@@ -255,7 +258,7 @@ class BaseElasticSearchApi(BaseModelIndex):
 
         total_hits = search_results["hits"]["total"]["value"]
 
-        return search_result_to_queryset(search_results, self.get_model()), total_hits
+        return self.make_queryset(search_results), total_hits
 
     def facet_search(
         self,
@@ -287,7 +290,7 @@ class BaseElasticSearchApi(BaseModelIndex):
         )
 
         return (
-            search_result_to_queryset(search_results, self.get_model()),
+            self.make_queryset(search_results),
             search_results,
             unfiltered_result,
         )
