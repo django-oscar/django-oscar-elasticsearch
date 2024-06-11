@@ -211,7 +211,7 @@ class BaseElasticSearchApi(BaseModelIndex):
     SUGGESTION_FIELD_NAME = None
 
     def get_search_fields(self, search_fields):
-        if search_fields is not None:
+        if search_fields:
             return search_fields
 
         return self.SEARCH_FIELDS
