@@ -44,9 +44,12 @@ class Indexer(object):
 
         _index = force_str(current_alias)
 
-        # pylint: disable=W0106
-        [doc.update({"_index": _index}) for doc in documents]
-        bulk(es, documents, ignore=[400])
+        docs = []
+        for doc in documents:
+            doc["_index"] = _index
+            docs.append(doc)
+
+        bulk(es, docs, ignore=[400])
 
     def get_current_alias(self):
         aliasses = list(es.indices.get_alias(name=self.name).keys())
