@@ -10,6 +10,5 @@ Product = get_model("catalogue", "Product")
 class Command(BaseCommand):
     def handle(self, *args, **options):
         print("--" * 25)
-        product_ids = Product.objects.browsable().values_list("pk", flat=True)
-
-        ProductElasticsearchIndex().reindex(product_ids)
+        products = Product.objects.browsable()
+        ProductElasticsearchIndex().reindex(products)

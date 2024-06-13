@@ -12,6 +12,6 @@ Category = get_model("catalogue", "Category")
 class Command(BaseCommand):
     def handle(self, *args, **options):
         print("--" * 25)
-        category_ids = Category.objects.browsable().values_list("pk", flat=True)
+        categories = Category.objects.browsable()
 
-        CategoryElasticsearchIndex().reindex(category_ids)
+        CategoryElasticsearchIndex().reindex(categories)
