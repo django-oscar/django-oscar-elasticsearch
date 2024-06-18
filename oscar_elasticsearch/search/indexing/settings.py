@@ -11,12 +11,16 @@ def get_oscar_index_settings():
     return {
         "analysis": {
             "analyzer": {
+                # the simplest analyzer most useful for normalizing and splitting a sentence into words
+                # this is most likely only used as a search analyzer
                 "lowercasewhitespace": {
                     "tokenizer": "whitespace",
                     "filter": ["lowercase"],
                     "char_filter": ["non_ascii_character_filter_mapping"],
                 },
-                "technical_analyzer": {  # keep all punctuation and numbers
+                # this analyzer will keep all punctuation and numbers and make ngrams
+                # as small as a single character. Only usefull for upcs and techincal terms
+                "technical_analyzer": {
                     "tokenizer": "whitespace",
                     "filter": [
                         "shallow_edgengram",
@@ -26,6 +30,9 @@ def get_oscar_index_settings():
                     ],
                     "char_filter": ["non_ascii_character_filter_mapping"],
                 },
+                # should be used as the search analyzer for terms analyzed with the
+                # technical_analyzer. Will just split the input into words and normalize
+                # but keeping in mind the max ngram size.
                 "technical_search_analyzer": {
                     "tokenizer": "whitespace",
                     "filter": [
@@ -35,6 +42,8 @@ def get_oscar_index_settings():
                     ],
                     "char_filter": ["non_ascii_character_filter_mapping"],
                 },
+                # this analyzer is usefull for important textual data like titles,
+                # that contain a lot of search terms.
                 "title_analyzer": {
                     "tokenizer": "standard",
                     "filter": [
@@ -44,6 +53,7 @@ def get_oscar_index_settings():
                         "max_gram_truncate",
                     ],
                 },
+                # should be used as the search analyzer for terms analyzed with title_analyzer
                 "reversed_title_analyzer": {
                     "tokenizer": "standard",
                     "filter": [
@@ -53,6 +63,7 @@ def get_oscar_index_settings():
                         "max_gram_truncate",
                     ],
                 },
+                # this analyzer is most usefull for long textual data.
                 "standard": {
                     "tokenizer": "standard",
                     "filter": ["lowercase", "asciifolding"],
