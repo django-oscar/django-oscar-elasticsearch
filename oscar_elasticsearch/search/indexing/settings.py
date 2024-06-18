@@ -63,7 +63,8 @@ def get_oscar_index_settings():
                         "max_gram_truncate",
                     ],
                 },
-                # this analyzer is most usefull for long textual data.
+                # this analyzer is most usefull for long textual data. punctuation and numbers
+                # WILL BE STRIPPED
                 "standard": {
                     "tokenizer": "standard",
                     "filter": ["lowercase", "asciifolding"],
