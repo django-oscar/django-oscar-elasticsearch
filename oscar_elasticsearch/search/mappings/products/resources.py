@@ -24,6 +24,7 @@ class ProductElasticSearchResource(OscarElasticSearchResourceMixin):
     rating: Optional[float]
     priority: int
     parent_id: Optional[int]
+    product_class: Optional[int]
     price: Decimal = DecimalField()
     currency: str
     num_available: int

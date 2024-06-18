@@ -225,7 +225,7 @@ class BaseElasticSearchApi(BaseModelIndex):
     def format_filters(self, filters):
         return [{"match": {key: value}} for key, value in filters.items()]
 
-    def format_order_by(self, *order_by):
+    def format_order_by(self, order_by):
         orderings = []
         for ordering in filter(None, order_by):
             if ordering.startswith("-"):

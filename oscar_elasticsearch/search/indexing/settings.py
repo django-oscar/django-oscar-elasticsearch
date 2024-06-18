@@ -172,6 +172,7 @@ def get_products_index_mapping():
                 "search_analyzer": "technical_search_analyzer",
             },
             "parent_id": {"type": "integer"},
+            "product_class": {"type": "keyword"},
             "structure": {"type": "text", "copy_to": "_all_text"},
             "rating": {"type": "float"},
             "priority": {"type": "integer"},

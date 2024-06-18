@@ -62,6 +62,10 @@ class ProductMapping(OscarBaseMapping):
         odin.define(from_field="is_available_to_buy", to_field="is_available"),
     )
 
+    @odin.map_field(from_field="product_class")
+    def product_class(self, obj):
+        return obj.slug
+
     @odin.assign_field
     def popularity(self):
         months_to_run = settings.MONTHS_TO_RUN_ANALYTICS
