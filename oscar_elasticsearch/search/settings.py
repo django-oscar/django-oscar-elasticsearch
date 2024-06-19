@@ -43,6 +43,8 @@ AUTOCOMPLETE_CONTEXTS = getattr(
     ],
 )
 
+MAX_GRAM = 15
+
 AUTOCOMPLETE_SEARCH_FIELDS = getattr(
     settings, "OSCAR_ELASTICSEARCH_AUTOCOMPLETE_SEARCH_FIELDS", ["title", "upc"]
 )
@@ -52,7 +54,6 @@ SEARCH_FIELDS = getattr(
     "OSCAR_ELASTICSEARCH_SEARCH_FIELDS",
     [
         "_all_text",
-        "_edgengrams",
         "code",
         "search_title^1",
         "search_title.reversed^0.8",

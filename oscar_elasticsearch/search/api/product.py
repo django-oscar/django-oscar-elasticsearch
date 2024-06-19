@@ -3,34 +3,35 @@ from odin.codecs import dict_codec
 from django.db import transaction
 from django.db.models import QuerySet
 
-from oscar.core.loading import get_class, get_model
-
+from oscar.core.loading import get_class, get_model, get_classes
 from oscar_elasticsearch.search import settings
 
-OSCAR_PRODUCTS_INDEX_NAME = get_class(
-    "search.indexing.settings", "OSCAR_PRODUCTS_INDEX_NAME"
+# this index name is retrived with get_class because of i18n but it might be removed later
+(
+    OSCAR_PRODUCTS_INDEX_NAME,
+    OSCAR_PRODUCT_SEARCH_FIELDS,
+    get_products_index_mapping,
+    get_oscar_index_settings,
+) = get_classes(
+    "search.indexing.settings",
+    [
+        "OSCAR_PRODUCTS_INDEX_NAME",
+        "OSCAR_PRODUCT_SEARCH_FIELDS",
+        "get_products_index_mapping",
+        "get_oscar_index_settings",
+    ],
 )
-get_products_index_mapping = get_class(
-    "search.indexing.settings", "get_products_index_mapping"
-)
-get_oscar_index_settings = get_class(
-    "search.indexing.settings", "get_oscar_index_settings"
-)
-
-OSCAR_INDEX_SETTINGS = get_oscar_index_settings()
-
 BaseElasticSearchApi = get_class("search.api.search", "BaseElasticSearchApi")
 ESModelIndexer = get_class("search.indexing.indexer", "ESModelIndexer")
-
 Product = get_model("catalogue", "Product")
 
 
 class ProductElasticsearchIndex(BaseElasticSearchApi, ESModelIndexer):
+    Model = Product
     INDEX_NAME = OSCAR_PRODUCTS_INDEX_NAME
     INDEX_MAPPING = get_products_index_mapping()
-    INDEX_SETTINGS = OSCAR_INDEX_SETTINGS
-    Model = Product
-    SEARCH_FIELDS = settings.SEARCH_FIELDS
+    INDEX_SETTINGS = get_oscar_index_settings()
+    SEARCH_FIELDS = OSCAR_PRODUCT_SEARCH_FIELDS
     SUGGESTION_FIELD_NAME = settings.SUGGESTION_FIELD_NAME
 
     def get_filters(self, filters):

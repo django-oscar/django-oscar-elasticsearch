@@ -5,6 +5,7 @@ from django.db.models import QuerySet
 
 from oscar.core.loading import get_class, get_model
 
+# this index name is retrived with get_class because of i18n but it might be removed later
 OSCAR_CATEGORIES_INDEX_NAME = get_class(
     "search.indexing.settings", "OSCAR_CATEGORIES_INDEX_NAME"
 )

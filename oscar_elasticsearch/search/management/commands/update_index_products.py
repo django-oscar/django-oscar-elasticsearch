@@ -9,6 +9,8 @@ Product = get_model("catalogue", "Product")
 
 class Command(BaseCommand):
     def handle(self, *args, **options):
-        print("--" * 25)
         products = Product.objects.browsable()
         ProductElasticsearchIndex().reindex(products)
+        self.stdout.write(
+            self.style.SUCCESS("%i products successfully indexed" % products.count())
+        )

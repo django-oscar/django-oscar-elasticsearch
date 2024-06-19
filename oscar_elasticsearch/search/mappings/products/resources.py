@@ -17,12 +17,14 @@ class CategoryElasticSearchRelatedResource(OscarResource):
 
 
 class ProductElasticSearchResource(OscarElasticSearchResourceMixin):
+    upc: str
     title_auto_complete: str
     code_auto_complete: str
     structure: str
     rating: Optional[float]
     priority: int
     parent_id: Optional[int]
+    product_class: Optional[int]
     price: Decimal = DecimalField()
     currency: str
     num_available: int
