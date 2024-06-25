@@ -3,6 +3,7 @@ import odin
 from django.contrib.contenttypes.models import ContentType
 from django.utils import timezone
 from django.utils.html import strip_tags
+from django.db.models import QuerySet
 
 from dateutil.relativedelta import relativedelta
 
@@ -89,7 +90,12 @@ class ProductMapping(OscarBaseMapping):
         attrs = {}
         for code in ATTRIBUTES_TO_INDEX:
             if code in attributes:
-                attrs[code] = str(attributes[code])
+                attribute = attributes[code]
+
+                if isinstance(attribute, QuerySet):
+                    attrs[code] = [str(o) for o in attribute]
+                else:
+                    attrs[code] = str(attribute)
 
         return attrs
 
@@ -130,18 +136,6 @@ class ProductMapping(OscarBaseMapping):
                 )
 
         return attrs
-
-    @odin.assign_field
-    def facets(self) -> str:
-        facets = {}
-        attributes = self.source.attributes
-
-        for definition in settings.FACETS:
-            name = definition["name"].replace("facets.", "")
-            if name in attributes.keys():
-                facets[name] = attributes[name]
-
-        return facets
 
     @odin.map_field(
         from_field=settings.AUTOCOMPLETE_SEARCH_FIELDS, to_field="suggest", to_list=True
