@@ -79,7 +79,7 @@ def get_elasticsearch_aggs(aggs_definitions):
         name = facet_definition["name"]
         facet_type = facet_definition["type"]
         if facet_type == "term":
-            terms = {"terms": {"field": name}}
+            terms = {"terms": {"field": name, "size": es_settings.FACET_BUCKET_SIZE}}
 
             if "order" in facet_definition:
                 terms["terms"]["order"] = {"_key": facet_definition.get("order", "asc")}
@@ -102,7 +102,12 @@ def get_elasticsearch_aggs(aggs_definitions):
 
                 ranges.append({"from": ranges_definition[-1]})
 
-                aggs[name] = {"range": {"field": name, "ranges": ranges}}
+                aggs[name] = {
+                    "range": {
+                        "field": name,
+                        "ranges": ranges,
+                    }
+                }
 
     return aggs
 

@@ -34,7 +34,6 @@ class ProductElasticSearchResource(OscarElasticSearchResourceMixin):
     date_created: datetime
     date_updated: datetime
     string_attrs: List[str]
-    facets: dict
     popularity: int
     status: List[str]
     suggest: List[str]
