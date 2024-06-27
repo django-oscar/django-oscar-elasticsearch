@@ -214,7 +214,6 @@ class BaseElasticSearchApi(BaseModelIndex):
     Model = None
     SEARCH_FIELDS = []
     SUGGESTION_FIELD_NAME = None
-    aggs_definitions = es_settings.FACETS
 
     def get_search_fields(self, search_fields):
         if search_fields:

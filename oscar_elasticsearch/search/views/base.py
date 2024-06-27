@@ -27,6 +27,9 @@ class BaseSearchView(ListView):
     form_class = None
     aggs_definitions = settings.FACETS
 
+    def get_aggs_definitions(self):
+        return self.aggs_definitions
+
     def get_default_filters(self):
         filters = [{"term": {"is_public": True}}]
 
