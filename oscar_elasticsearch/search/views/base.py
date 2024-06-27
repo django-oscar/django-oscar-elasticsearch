@@ -110,7 +110,7 @@ class BaseSearchView(ListView):
                 filters=self.get_default_filters(),
                 facet_filters=self.get_facet_filters(),
                 sort_by=self.get_sort_by(),
-                aggs_definitions=self.aggs_definitions
+                aggs_definitions=self.get_aggs_definitions(),
             )
         )
 
