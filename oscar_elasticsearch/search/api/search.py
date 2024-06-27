@@ -291,9 +291,6 @@ class BaseElasticSearchApi(BaseModelIndex):
         search_operator=es_settings.SEARCH_QUERY_OPERATOR,
         aggs_definitions=None,
     ):
-        if aggs_definitions == None:
-            aggs_definitions = self.aggs_definitions
-
         search_results, unfiltered_result = facet_search(
             self.get_index_name(),
             from_,
@@ -355,9 +352,6 @@ class BaseElasticSearchApi(BaseModelIndex):
         search_operator=es_settings.SEARCH_QUERY_OPERATOR,
         aggs_definitions=None,
     ):
-        if aggs_definitions == None:
-            aggs_definitions = self.aggs_definitions
-
         instances, search_results, unfiltered_result = self.facet_search(
             from_=from_,
             to=to,

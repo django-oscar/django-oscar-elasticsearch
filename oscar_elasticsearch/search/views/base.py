@@ -25,6 +25,7 @@ class BaseSearchView(ListView):
     model = Product
     paginate_by = settings.DEFAULT_ITEMS_PER_PAGE
     form_class = None
+    aggs_definitions = settings.FACETS
 
     def get_default_filters(self):
         filters = [{"term": {"is_public": True}}]
@@ -106,6 +107,7 @@ class BaseSearchView(ListView):
                 filters=self.get_default_filters(),
                 facet_filters=self.get_facet_filters(),
                 sort_by=self.get_sort_by(),
+                aggs_definitions=self.aggs_definitions
             )
         )
 
