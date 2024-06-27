@@ -214,6 +214,7 @@ class BaseElasticSearchApi(BaseModelIndex):
     Model = None
     SEARCH_FIELDS = []
     SUGGESTION_FIELD_NAME = None
+    aggs_definitions = es_settings.FACETS
 
     def get_search_fields(self, search_fields):
         if search_fields:
@@ -288,8 +289,11 @@ class BaseElasticSearchApi(BaseModelIndex):
         suggestion_field_name=None,
         search_type=es_settings.SEARCH_QUERY_TYPE,
         search_operator=es_settings.SEARCH_QUERY_OPERATOR,
-        aggs_definitions=es_settings.FACETS,
+        aggs_definitions=None,
     ):
+        if aggs_definitions == None:
+            aggs_definitions = self.aggs_definitions
+
         search_results, unfiltered_result = facet_search(
             self.get_index_name(),
             from_,
@@ -349,8 +353,11 @@ class BaseElasticSearchApi(BaseModelIndex):
         suggestion_field_name=None,
         search_type=es_settings.SEARCH_QUERY_TYPE,
         search_operator=es_settings.SEARCH_QUERY_OPERATOR,
-        aggs_definitions=es_settings.FACETS,
+        aggs_definitions=None,
     ):
+        if aggs_definitions == None:
+            aggs_definitions = self.aggs_definitions
+
         instances, search_results, unfiltered_result = self.facet_search(
             from_=from_,
             to=to,
