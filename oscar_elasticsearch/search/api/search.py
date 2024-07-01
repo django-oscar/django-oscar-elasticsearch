@@ -119,7 +119,7 @@ def get_elasticsearch_aggs(aggs_definitions):
 
             if "date_format" in facet_definition:
                 date_histogram["date_histogram"]["format"] = facet_definition.get(
-                    "format"
+                    "date_format"
                 )
 
             if "calendar_interval" in facet_definition:
