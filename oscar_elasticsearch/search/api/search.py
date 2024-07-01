@@ -109,6 +109,26 @@ def get_elasticsearch_aggs(aggs_definitions):
                     }
                 }
 
+        elif facet_type == "date_histogram":
+            date_histogram = {"date_histogram": {"field": name}}
+
+            if "order" in facet_definition:
+                date_histogram["date_histogram"]["order"] = {
+                    "_key": facet_definition.get("order", "asc")
+                }
+
+            if "format" in facet_definition:
+                date_histogram["date_histogram"]["format"] = facet_definition.get(
+                    "format"
+                )
+
+            if "calendar_interval" in facet_definition:
+                date_histogram["date_histogram"]["calendar_interval"] = (
+                    facet_definition.get("calendar_interval")
+                )
+
+            aggs[name] = date_histogram
+
     return aggs
 
 
@@ -154,7 +174,6 @@ def facet_search(
 ):
 
     aggs = get_elasticsearch_aggs(aggs_definitions) if aggs_definitions else {}
-
     index_body = {"index": index}
 
     result_body = get_search_body(
@@ -189,7 +208,6 @@ def facet_search(
         index_body,
         unfiltered_body,
     ]
-
     search_results, unfiltered_result = es.msearch(body=multi_body)["responses"]
 
     search_result_status = search_results["status"]

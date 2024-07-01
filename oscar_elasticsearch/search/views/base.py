@@ -43,7 +43,9 @@ class BaseSearchView(ListView):
 
         for name, value in self.form.selected_multi_facets.items():
             # pylint: disable=W0640
-            definition = list(filter(lambda x: x["name"] == name, settings.FACETS))[0]
+            definition = list(
+                filter(lambda x: x["name"] == name, self.get_aggs_definitions())
+            )[0]
             if definition["type"] == "range":
                 ranges = []
                 for val in value:
@@ -119,6 +121,7 @@ class BaseSearchView(ListView):
                 self.request.get_full_path(),
                 self.form,
                 (unfiltered_result, search_results),
+                facet_definitions=self.get_aggs_definitions(),
             )
         else:
             processed_facets = None

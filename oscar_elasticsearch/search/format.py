@@ -120,3 +120,13 @@ def decimal3(key):
     return decimal.Decimal(key).quantize(
         decimal.Decimal("0.001"), decimal.ROUND_HALF_UP
     )
+
+
+def year_and_translated_month(value):
+    """
+    Translate month separate from year
+    >>> '2024 January'
+    '2024 januari' (NL)
+    """
+    year, month = value.split(" ")
+    return f"{year} {_(month)}"
