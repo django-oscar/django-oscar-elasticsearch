@@ -23,11 +23,12 @@ def strip_pagination(url):
     return url.as_string()
 
 
-def process_facets(request_full_path, form, facets):
+def process_facets(request_full_path, form, facets, facet_definitions=None):
     unfiltered_facets, filtered_facets = facets
     selected_multi_facets = form.selected_multi_facets
+    if not facet_definitions:
+        facet_definitions = []
     processed_facets = {}
-    facet_definitions = settings.FACETS
 
     for facet_definition in facet_definitions:
         facet_name = facet_definition["name"]

@@ -109,6 +109,26 @@ def get_elasticsearch_aggs(aggs_definitions):
                     }
                 }
 
+        elif facet_type == "date_histogram":
+            date_histogram = {"date_histogram": {"field": name}}
+
+            if "order" in facet_definition:
+                date_histogram["date_histogram"]["order"] = {
+                    "_key": facet_definition.get("order", "asc")
+                }
+
+            if "date_format" in facet_definition:
+                date_histogram["date_histogram"]["format"] = facet_definition.get(
+                    "date_format"
+                )
+
+            if "calendar_interval" in facet_definition:
+                date_histogram["date_histogram"]["calendar_interval"] = (
+                    facet_definition.get("calendar_interval")
+                )
+
+            aggs[name] = date_histogram
+
     return aggs
 
 
@@ -154,7 +174,6 @@ def facet_search(
 ):
 
     aggs = get_elasticsearch_aggs(aggs_definitions) if aggs_definitions else {}
-
     index_body = {"index": index}
 
     result_body = get_search_body(
@@ -189,7 +208,6 @@ def facet_search(
         index_body,
         unfiltered_body,
     ]
-
     search_results, unfiltered_result = es.msearch(body=multi_body)["responses"]
 
     search_result_status = search_results["status"]
@@ -288,7 +306,7 @@ class BaseElasticSearchApi(BaseModelIndex):
         suggestion_field_name=None,
         search_type=es_settings.SEARCH_QUERY_TYPE,
         search_operator=es_settings.SEARCH_QUERY_OPERATOR,
-        aggs_definitions=es_settings.FACETS,
+        aggs_definitions=None,
     ):
         search_results, unfiltered_result = facet_search(
             self.get_index_name(),
@@ -349,7 +367,7 @@ class BaseElasticSearchApi(BaseModelIndex):
         suggestion_field_name=None,
         search_type=es_settings.SEARCH_QUERY_TYPE,
         search_operator=es_settings.SEARCH_QUERY_OPERATOR,
-        aggs_definitions=es_settings.FACETS,
+        aggs_definitions=None,
     ):
         instances, search_results, unfiltered_result = self.facet_search(
             from_=from_,
