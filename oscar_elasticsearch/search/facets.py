@@ -48,6 +48,11 @@ def process_facets(request_full_path, form, facets, facet_definitions=None):
             ):
                 continue
 
+            # filter out empty buckets
+            if facet_definition.get("type") == "date_histogram":
+                unfiltered_buckets = filter(lambda bucket: bucket["doc_count"] > 0, unfiltered_buckets)
+                filtered_buckets = filter(lambda bucket: bucket["doc_count"] > 0, filtered_buckets)
+
             facet = Facet(
                 facet_definition,
                 unfiltered_buckets,
