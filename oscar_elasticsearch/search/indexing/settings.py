@@ -69,15 +69,34 @@ def get_oscar_index_settings():
                     "tokenizer": "standard",
                     "filter": ["lowercase", "asciifolding"],
                 },
-                "ngram_analyzer": {
-                    "tokenizer": "ngram_tokenizer",
-                    "filter": ["lowercase", "asciifolding"],
+                # This analyzer is usefull for when you need to find really specific data inside some text,
+                # for example you have a 'Volvo Penta TAD163532E' code inside your model type and you want it to be found with 'Penta D16'
+                # Also use the 'technical_search_analyzer' for this one.
+                "technical_title_analyzer": {
+                    "tokenizer": "whitespace",
+                    "filter": [
+                        "shallow_ngram",
+                        "lowercase",
+                        "asciifolding",
+                        "max_gram_truncate",
+                    ],
                 },
-                "ngram_no_special_characters_analyzer": {
-                    "tokenizer": "ngram_tokenizer",
-                    "filter": ["lowercase", "asciifolding", "remove_symbols"],
+                # This analyzer removes any symbols like hyphens from the title.
+                # For example you have "Mazda MX-5" or "Skyline GT-R" inside your model name and we want it to be found with "mx5" and "gtr"
+                "technical_title_without_symbols_analyzer": {
+                    "tokenizer": "whitespace",
+                    "filter": [
+                        "shallow_ngram",
+                        "lowercase",
+                        "asciifolding",
+                        "max_gram_truncate",
+                        "remove_symbols",
+                    ],
                 },
-                "ngram_no_whitespace_analyzer": {
+                # This analyzer removes any symbols like hyphens and whitespaces from the title.
+                # For example you have "Audi A3, S3, RS 3" inside your model name and we want it to be found with "rs3"
+                # We tokenize with ngrams first because otherwise RS 3 will be split into 2 seperate tokens but they should be combined
+                "technical_title_without_whitespace_analyzer": {
                     "tokenizer": "ngram_tokenizer",
                     "filter": [
                         "lowercase",
@@ -115,6 +134,11 @@ def get_oscar_index_settings():
                 "shallow_edgengram": {
                     "type": "edge_ngram",
                     "min_gram": 1,
+                    "max_gram": MAX_GRAM,
+                },
+                "shallow_ngram": {
+                    "type": "ngram",
+                    "min_gram": 2,
                     "max_gram": MAX_GRAM,
                 },
                 "reversed_edgengram": {
