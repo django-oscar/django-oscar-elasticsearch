@@ -69,6 +69,18 @@ def get_oscar_index_settings():
                     "tokenizer": "standard",
                     "filter": ["lowercase", "asciifolding"],
                 },
+                # This analyzer is usefull for when you need to find really specific data inside some text,
+                # for example you have a 'Volvo Penta TAD163532E' code inside your model type and you want it to be found with 'Penta D16'
+                # Also use the 'technical_search_analyzer' for this one.
+                "technical_title_analyzer": {
+                    "tokenizer": "whitespace",
+                    "filter": [
+                        "ngram",
+                        "lowercase",
+                        "asciifolding",
+                        "max_gram_truncate",
+                    ],
+                },
             },
             "tokenizer": {
                 "ngram_tokenizer": {"type": "ngram", "min_gram": 3, "max_gram": 15},
