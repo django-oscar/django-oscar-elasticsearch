@@ -81,20 +81,8 @@ def get_oscar_index_settings():
                         "max_gram_truncate",
                     ],
                 },
-                # This analyzer removes any symbols like hyphens from the title.
-                # For example you have "Mazda MX-5" or "Skyline GT-R" inside your model name and we want it to be found with "mx5" and "gtr"
-                "technical_title_without_symbols_analyzer": {
-                    "tokenizer": "whitespace",
-                    "filter": [
-                        "shallow_ngram",
-                        "lowercase",
-                        "asciifolding",
-                        "max_gram_truncate",
-                        "remove_symbols",
-                    ],
-                },
                 # This analyzer removes any symbols like hyphens and whitespaces from the title.
-                # For example you have "Audi A3, S3, RS 3" inside your model name and we want it to be found with "rs3"
+                # For example you have "Audi A3, S3, RS 3" or "Mazda MX-5" inside your model name and we want it to be found with "rs3" and "mx5"
                 # We tokenize with ngrams first because otherwise RS 3 will be split into 2 seperate tokens but they should be combined
                 "technical_title_without_whitespace_analyzer": {
                     "tokenizer": "ngram_tokenizer",
