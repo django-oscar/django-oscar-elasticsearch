@@ -75,22 +75,10 @@ def get_oscar_index_settings():
                 "technical_title_analyzer": {
                     "tokenizer": "whitespace",
                     "filter": [
-                        "shallow_ngram",
+                        "ngram",
                         "lowercase",
                         "asciifolding",
                         "max_gram_truncate",
-                    ],
-                },
-                # This analyzer removes any symbols like hyphens and whitespaces from the title.
-                # For example you have "Audi A3, S3, RS 3" or "Mazda MX-5" inside your model name and we want it to be found with "rs3" and "mx5"
-                # We tokenize with ngrams first because otherwise RS 3 will be split into 2 seperate tokens but they should be combined
-                "technical_title_without_whitespace_analyzer": {
-                    "tokenizer": "ngram_tokenizer",
-                    "filter": [
-                        "lowercase",
-                        "asciifolding",
-                        "remove_symbols",
-                        "remove_whitespace",
                     ],
                 },
             },
@@ -104,16 +92,6 @@ def get_oscar_index_settings():
             },
             "filter": {
                 "ngram": {"type": "ngram", "min_gram": 3, "max_gram": MAX_GRAM},
-                "remove_symbols": {
-                    "type": "pattern_replace",
-                    "pattern": "[^\\w\\s]",
-                    "replacement": "",
-                },
-                "remove_whitespace": {
-                    "type": "pattern_replace",
-                    "pattern": " ",
-                    "replacement": "",
-                },
                 "edgengram": {
                     "type": "edge_ngram",
                     "min_gram": 2,
@@ -122,11 +100,6 @@ def get_oscar_index_settings():
                 "shallow_edgengram": {
                     "type": "edge_ngram",
                     "min_gram": 1,
-                    "max_gram": MAX_GRAM,
-                },
-                "shallow_ngram": {
-                    "type": "ngram",
-                    "min_gram": 2,
                     "max_gram": MAX_GRAM,
                 },
                 "reversed_edgengram": {
