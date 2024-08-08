@@ -77,6 +77,15 @@ def get_oscar_index_settings():
                     "tokenizer": "ngram_tokenizer",
                     "filter": ["lowercase", "asciifolding", "remove_symbols"],
                 },
+                "ngram_no_whitespace_analyzer": {
+                    "tokenizer": "ngram_tokenizer",
+                    "filter": [
+                        "lowercase",
+                        "asciifolding",
+                        "remove_symbols",
+                        "remove_whitespace",
+                    ],
+                },
             },
             "tokenizer": {
                 "ngram_tokenizer": {"type": "ngram", "min_gram": 3, "max_gram": 15},
@@ -91,6 +100,11 @@ def get_oscar_index_settings():
                 "remove_symbols": {
                     "type": "pattern_replace",
                     "pattern": "[^\\w\\s]",
+                    "replacement": "",
+                },
+                "remove_whitespace": {
+                    "type": "pattern_replace",
+                    "pattern": " ",
                     "replacement": "",
                 },
                 "edgengram": {
