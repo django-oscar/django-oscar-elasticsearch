@@ -15,7 +15,7 @@ def get_oscar_index_settings():
                 # this is most likely only used as a search analyzer
                 "lowercasewhitespace": {
                     "tokenizer": "whitespace",
-                    "filter": ["lowercase"],
+                    "filter": ["lowercase", "asciifolding"],
                     "char_filter": ["non_ascii_character_filter_mapping"],
                 },
                 # this analyzer will keep all punctuation and numbers and make ngrams
