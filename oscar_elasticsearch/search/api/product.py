@@ -40,8 +40,11 @@ class ProductElasticsearchIndex(BaseElasticSearchApi, ESModelIndexer):
 
         return [{"term": {"is_public": True}}]
 
+    def get_product_mapper(self):
+        return
+
     def make_documents(self, objects):
-        from oscar_odin.mappings import catalogue
+        from oscar_odin.mappings.catalogue import product_queryset_to_resources
 
         ProductElasticSearchMapping = get_class(
             "search.mappings.products", "ProductElasticSearchMapping"
@@ -52,8 +55,9 @@ class ProductElasticsearchIndex(BaseElasticSearchApi, ESModelIndexer):
             if isinstance(objects, QuerySet):
                 objects = objects.select_for_update()
 
-            product_resources = catalogue.product_queryset_to_resources(objects)
-
+            product_resources = product_queryset_to_resources(
+                objects, product_mapper=self.get_product_mapper()
+            )
             product_document_resources = ProductElasticSearchMapping.apply(
                 product_resources
             )
