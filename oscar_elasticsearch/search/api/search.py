@@ -232,7 +232,6 @@ def facet_search(
         raise ElasticSearchQueryException(
             "Something went wrong during elasticsearch query", unfiltered_result_status
         )
-
     return (
         search_results,
         unfiltered_result,

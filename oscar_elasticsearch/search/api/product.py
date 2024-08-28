@@ -58,6 +58,7 @@ class ProductElasticsearchIndex(BaseElasticSearchApi, ESModelIndexer):
             product_resources = product_queryset_to_resources(
                 objects, product_mapper=self.get_product_mapper()
             )
+
             product_document_resources = ProductElasticSearchMapping.apply(
                 product_resources
             )

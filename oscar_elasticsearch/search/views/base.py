@@ -26,13 +26,13 @@ class BaseSearchView(ListView):
     paginate_by = settings.DEFAULT_ITEMS_PER_PAGE
     form_class = None
     aggs_definitions = settings.FACETS
-    field_value_factors = settings.FIELD_VALUE_FACTORS
+    field_value_factors = None
 
     def get_aggs_definitions(self):
         return self.aggs_definitions
 
     def get_field_value_factors(self):
-        return self.field_value_factors
+        return self.field_value_factors if self.field_value_factors else []
 
     def get_default_filters(self):
         filters = [{"term": {"is_public": True}}]
