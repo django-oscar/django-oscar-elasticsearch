@@ -42,6 +42,7 @@ class ProductElasticsearchIndex(BaseElasticSearchApi, ESModelIndexer):
 
     def get_product_mapper(self):
         from oscar_odin.mappings.catalogue import ProductToResource
+
         return ProductToResource
 
     def make_documents(self, objects):
