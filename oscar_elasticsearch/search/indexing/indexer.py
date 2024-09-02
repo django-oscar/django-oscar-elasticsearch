@@ -47,6 +47,8 @@ class Indexer(object):
         docs = []
         for doc in documents:
             doc["_index"] = _index
+            if "id" in doc:
+                doc["_id"] = doc.get("id")
             docs.append(doc)
 
         bulk(es, docs, ignore=[400])
