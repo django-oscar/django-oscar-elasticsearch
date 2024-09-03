@@ -1,5 +1,7 @@
 from oscar.core.loading import get_model, get_class
 
+from oscar_elasticsearch.search import settings
+
 chunked = get_class("search.utils", "chunked")
 Product = get_model("catalogue", "Product")
 Category = get_model("catalogue", "Category")
@@ -23,7 +25,7 @@ def update_index_category(category_id, update_products=True):
 
 
 def update_index_categories(category_ids, update_products=True):
-    for chunk in chunked(category_ids, 100):
+    for chunk in chunked(category_ids, settings.INDEXING_CHUNK_SIZE):
         categories = Category.objects.filter(id__in=chunk)
         CategoryElasticsearchIndex().update_or_create(categories)
 
@@ -41,6 +43,6 @@ def update_index_product(product_id):
 
 
 def update_index_products(product_ids):
-    for chunk in chunked(product_ids, 100):
+    for chunk in chunked(product_ids, settings.INDEXING_CHUNK_SIZE):
         products = Product.objects.filter(id__in=chunk)
         ProductElasticsearchIndex().update_or_create(products)
