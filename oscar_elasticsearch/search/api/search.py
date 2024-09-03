@@ -40,21 +40,15 @@ def get_search_body(
     search_type=None,
     search_operator=None,
     aggs=None,
-    field_value_factors=[],
 ):
     body = {
         "query": {
-            "function_score": {
-                "query": {
-                    "bool": {
-                        "must": get_search_query(
-                            search_fields, query_string, search_type, search_operator
-                        ),
-                        "filter": filters,
-                    }
-                },
-                "functions": field_value_factors,
-            },
+            "bool": {
+                "must": get_search_query(
+                    search_fields, query_string, search_type, search_operator
+                ),
+                "filter": filters,
+            }
         },
         "from": from_,
         "size": size,
@@ -149,7 +143,6 @@ def search(
     suggestion_field_name=None,
     search_type=es_settings.SEARCH_QUERY_TYPE,
     search_operator=es_settings.SEARCH_QUERY_OPERATOR,
-    field_value_factors=[],
 ):
     body = get_search_body(
         from_,
@@ -161,7 +154,6 @@ def search(
         suggestion_field_name=suggestion_field_name,
         search_type=search_type,
         search_operator=search_operator,
-        field_value_factors=field_value_factors,
     )
     return es.search(index=index, body=body)
 
@@ -179,7 +171,6 @@ def facet_search(
     search_type=es_settings.SEARCH_QUERY_TYPE,
     search_operator=es_settings.SEARCH_QUERY_OPERATOR,
     aggs_definitions=None,
-    field_value_factors=[],
 ):
 
     aggs = get_elasticsearch_aggs(aggs_definitions) if aggs_definitions else {}
@@ -196,7 +187,6 @@ def facet_search(
         search_type=search_type,
         search_operator=search_operator,
         aggs=aggs,
-        field_value_factors=field_value_factors,
     )
 
     unfiltered_body = get_search_body(
@@ -210,7 +200,6 @@ def facet_search(
         search_type=search_type,
         search_operator=search_operator,
         aggs=aggs,
-        field_value_factors=field_value_factors,
     )
 
     multi_body = [
@@ -232,6 +221,7 @@ def facet_search(
         raise ElasticSearchQueryException(
             "Something went wrong during elasticsearch query", unfiltered_result_status
         )
+
     return (
         search_results,
         unfiltered_result,
@@ -287,7 +277,6 @@ class BaseElasticSearchApi(BaseModelIndex):
         suggestion_field_name=None,
         search_type=es_settings.SEARCH_QUERY_TYPE,
         search_operator=es_settings.SEARCH_QUERY_OPERATOR,
-        field_value_factors=[],
     ):
         search_results = search(
             self.get_index_name(),
@@ -300,7 +289,6 @@ class BaseElasticSearchApi(BaseModelIndex):
             suggestion_field_name=self.get_suggestion_field_name(suggestion_field_name),
             search_type=search_type,
             search_operator=search_operator,
-            field_value_factors=field_value_factors,
         )
 
         total_hits = search_results["hits"]["total"]["value"]
@@ -319,7 +307,6 @@ class BaseElasticSearchApi(BaseModelIndex):
         search_type=es_settings.SEARCH_QUERY_TYPE,
         search_operator=es_settings.SEARCH_QUERY_OPERATOR,
         aggs_definitions=None,
-        field_value_factors=[],
     ):
         search_results, unfiltered_result = facet_search(
             self.get_index_name(),
@@ -334,7 +321,6 @@ class BaseElasticSearchApi(BaseModelIndex):
             search_type=search_type,
             search_operator=search_operator,
             aggs_definitions=aggs_definitions,
-            field_value_factors=field_value_factors,
         )
 
         return (
@@ -354,7 +340,6 @@ class BaseElasticSearchApi(BaseModelIndex):
         suggestion_field_name=None,
         search_type=es_settings.SEARCH_QUERY_TYPE,
         search_operator=es_settings.SEARCH_QUERY_OPERATOR,
-        field_value_factors=[],
     ):
         instances, total_hits = self.search(
             query_string=query_string,
@@ -366,7 +351,6 @@ class BaseElasticSearchApi(BaseModelIndex):
             suggestion_field_name=suggestion_field_name,
             search_type=search_type,
             search_operator=search_operator,
-            field_value_factors=field_value_factors,
         )
 
         return paginate_result(instances, total_hits, to)
@@ -384,7 +368,6 @@ class BaseElasticSearchApi(BaseModelIndex):
         search_type=es_settings.SEARCH_QUERY_TYPE,
         search_operator=es_settings.SEARCH_QUERY_OPERATOR,
         aggs_definitions=None,
-        field_value_factors=[],
     ):
         instances, search_results, unfiltered_result = self.facet_search(
             from_=from_,
@@ -398,7 +381,6 @@ class BaseElasticSearchApi(BaseModelIndex):
             search_type=search_type,
             search_operator=search_operator,
             aggs_definitions=aggs_definitions,
-            field_value_factors=field_value_factors,
         )
 
         total_hits = search_results["hits"]["total"]["value"]
