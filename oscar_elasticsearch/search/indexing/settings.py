@@ -130,6 +130,7 @@ OSCAR_INDEX_MAPPING = {
             "analyzer": "lowercasewhitespace",
             "fielddata": True,
             "copy_to": "_all_text",
+            "fields": {"raw": {"type": "keyword"}},
         },
         "search_title": {
             "type": "text",
