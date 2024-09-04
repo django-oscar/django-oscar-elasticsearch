@@ -14,6 +14,10 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         products = Product.objects.browsable()
 
+        # When there are no products, we should still reindex to clear the index
+        if not products:
+            ProductElasticsearchIndex().reindex(products)
+
         for chunk in chunked(products, settings.INDEXING_CHUNK_SIZE):
             ProductElasticsearchIndex().reindex(chunk)
             self.stdout.write(".", ending="")
