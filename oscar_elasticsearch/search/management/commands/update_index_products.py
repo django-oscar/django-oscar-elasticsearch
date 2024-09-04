@@ -19,7 +19,7 @@ class Command(BaseCommand):
             ProductElasticsearchIndex().reindex(products)
 
         for chunk in chunked(products, settings.INDEXING_CHUNK_SIZE):
-            ProductElasticsearchIndex().reindex(chunk)
+            ProductElasticsearchIndex().update_or_create(chunk)
             self.stdout.write(".", ending="")
 
         self.stdout.write(
