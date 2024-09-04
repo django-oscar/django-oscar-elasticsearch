@@ -41,6 +41,16 @@ class ProductElasticsearchIndex(BaseElasticSearchApi, ESModelIndexer):
         return [{"term": {"is_public": True}}]
 
     def make_documents(self, objects):
+        if not isinstance(objects, QuerySet):
+            try:
+                objects = Product.objects.filter(id__in=[o.id for o in objects])
+            except:
+                # pylint: disable=raise-missing-from
+                raise ValueError(
+                    "Argument 'objects' must be a QuerySet, as product_queryset_to_resources requires a QuerySet, got %s"
+                    % type(objects)
+                )
+
         from oscar_odin.mappings import catalogue
 
         ProductElasticSearchMapping = get_class(
@@ -49,8 +59,7 @@ class ProductElasticsearchIndex(BaseElasticSearchApi, ESModelIndexer):
 
         # the transaction and the select_for_update are candidates for removal!
         with transaction.atomic():
-            if isinstance(objects, QuerySet):
-                objects = objects.select_for_update()
+            objects = objects.select_for_update()
 
             product_resources = catalogue.product_queryset_to_resources(objects)
 

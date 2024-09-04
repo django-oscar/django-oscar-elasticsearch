@@ -2,7 +2,7 @@ import doctest
 
 from time import sleep
 from django.core.management import call_command
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.urls import reverse
 
 from oscar.core.loading import get_class, get_model
@@ -130,3 +130,67 @@ class TestSearchApi(TestCase):
 
         self.assertEqual(results.count(), 1)
         self.assertEqual(total_hits, 1)
+
+
+class ManagementCommandsTestCase(TestCase):
+    fixtures = [
+        "search/auth",
+        "catalogue/catalogue",
+    ]
+
+    def setUp(self):
+        self.product_index = ProductElasticsearchIndex()
+        self.product_index.reindex(Product.objects.none())
+        self.category_index = CategoryElasticsearchIndex()
+        self.category_index.reindex([])
+        super().setUp()
+
+    def test_update_index_products(self):
+        results, total_hits = self.product_index.search()
+        self.assertEqual(results.count(), 0)
+        self.assertEqual(total_hits, 0)
+
+        call_command("update_index_products")
+        sleep(3)
+
+        results, total_hits = self.product_index.search()
+        self.assertEqual(results.count(), 4)
+        self.assertEqual(total_hits, 4)
+
+    @override_settings(OSCAR_ELASTICSEARCH_INDEXING_CHUNK_SIZE=2)
+    def test_update_index_products_multiple_chunks(self):
+        results, total_hits = self.product_index.search()
+        self.assertEqual(results.count(), 0)
+        self.assertEqual(total_hits, 0)
+
+        call_command("update_index_products")
+        sleep(3)
+
+        results, total_hits = self.product_index.search()
+        self.assertEqual(results.count(), 4)
+        self.assertEqual(total_hits, 4)
+
+    def test_update_index_categories(self):
+        results, total_hits = self.category_index.search()
+        self.assertEqual(results.count(), 0)
+        self.assertEqual(total_hits, 0)
+
+        call_command("update_index_categories")
+        sleep(3)
+
+        results, total_hits = self.category_index.search()
+        self.assertEqual(results.count(), 2)
+        self.assertEqual(total_hits, 2)
+
+    @override_settings(OSCAR_ELASTICSEARCH_INDEXING_CHUNK_SIZE=1)
+    def test_update_index_categories_multiple_chunks(self):
+        results, total_hits = self.category_index.search()
+        self.assertEqual(results.count(), 0)
+        self.assertEqual(total_hits, 0)
+
+        call_command("update_index_categories")
+        sleep(3)
+
+        results, total_hits = self.category_index.search()
+        self.assertEqual(results.count(), 2)
+        self.assertEqual(total_hits, 2)
