@@ -1,7 +1,6 @@
 # pylint: disable=wildcard-import,unused-wildcard-import
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
-from django.utils.functional import lazy
 
 # from extendedsearch.settings import *
 from .constants import ES_CTX_AVAILABLE, ES_CTX_PUBLIC
@@ -136,6 +135,4 @@ DEFAULT_ORDERING = getattr(settings, "OSCAR_ELASTICSEARCH_DEFAULT_ORDERING", Non
 
 FACET_BUCKET_SIZE = getattr(settings, "OSCAR_ELASTICSEARCH_FACET_BUCKET_SIZE", 10)
 
-INDEXING_CHUNK_SIZE = lazy(
-    lambda: getattr(settings, "OSCAR_ELASTICSEARCH_INDEXING_CHUNK_SIZE", 100), int
-)()
+INDEXING_CHUNK_SIZE = getattr(settings, "OSCAR_ELASTICSEARCH_INDEXING_CHUNK_SIZE", 100)
