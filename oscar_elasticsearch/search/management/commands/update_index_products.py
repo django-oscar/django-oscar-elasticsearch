@@ -17,7 +17,7 @@ class Command(BaseCommand):
         # Record the start time for the entire indexing process
         overall_start_time = time.time()
 
-        products = Product.objects.browsable().distinct()
+        products = Product.objects.browsable()
         products_total = products.count()
 
         # When there are no products, we should still reindex to clear the index
