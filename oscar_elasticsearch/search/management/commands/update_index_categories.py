@@ -20,6 +20,7 @@ class Command(BaseCommand):
             for chunk in chunked(categories, settings.INDEXING_CHUNK_SIZE):
                 index.reindex_objects(chunk)
                 self.stdout.write(".", ending="")
+                self.stdout.flush()  # Ensure the dots are displayed immediately
 
         self.stdout.write(
             self.style.SUCCESS(

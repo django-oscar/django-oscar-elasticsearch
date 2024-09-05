@@ -1,22 +1,44 @@
 import time
-
 from django.core.management.base import BaseCommand
-
 from oscar.core.loading import get_class, get_model
-
 from oscar_elasticsearch.search import settings
 
 chunked = get_class("search.utils", "chunked")
 ProductElasticsearchIndex = get_class("search.api.product", "ProductElasticsearchIndex")
-
 Product = get_model("catalogue", "Product")
 
 
 class Command(BaseCommand):
-    def handle(self, *args, **options):
-        # Record the start time for the entire indexing process
-        overall_start_time = time.time()
+    def add_arguments(self, parser):
+        parser.add_argument(
+            "--debug",
+            action="store_true",
+            help="Run command in debug mode",
+        )
 
+    def handle(self, *args, **options):
+        if options["debug"]:
+            return self.handle_debug(*args, **options)
+
+        products = Product.objects.browsable()
+        products_total = products.count()
+
+        with ProductElasticsearchIndex().reindex() as index:
+            for chunk in chunked(products, settings.INDEXING_CHUNK_SIZE):
+                index.reindex_objects(chunk)
+                self.stdout.write(".", ending="")
+                self.stdout.flush()  # Ensure the dots are displayed immediately
+
+        self.stdout.write(
+            self.style.SUCCESS("\n%i products successfully indexed" % products_total)
+        )
+
+    def handle_debug(self):
+        """
+        Display more detailed information about the indexing process, such as the time it took to index each chunk.
+        This is useful when debugging the performance of the indexing process.
+        """
+        overall_start_time = time.time()
         products = Product.objects.browsable()
         products_total = products.count()
         total_chunks = products_total / settings.INDEXING_CHUNK_SIZE
@@ -27,6 +49,8 @@ class Command(BaseCommand):
                 chunk_index_time = time.time()
                 index.reindex_objects(chunk)
                 processed_chunks += 1
+                chunk_duration = time.time() - chunk_index_time
+
                 self.stdout.write(
                     self.style.SUCCESS(
                         "Processed chunk %i of %i (%i/%s products indexed) in %.2f seconds"
@@ -38,14 +62,15 @@ class Command(BaseCommand):
                                 products_total,
                             ),
                             products_total,
-                            time.time() - chunk_index_time,
+                            chunk_duration,
                         )
                     )
                 )
 
+        total_duration = time.time() - overall_start_time
         self.stdout.write(
             self.style.SUCCESS(
                 "\n%i products successfully indexed in %.2f seconds"
-                % (products_total, time.time() - overall_start_time)
+                % (products_total, total_duration)
             )
         )
