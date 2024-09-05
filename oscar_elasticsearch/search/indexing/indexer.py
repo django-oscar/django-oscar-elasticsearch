@@ -1,3 +1,5 @@
+from contextlib import contextmanager
+
 from django.utils.crypto import get_random_string
 from django.utils.text import format_lazy
 from django.utils.encoding import force_str
@@ -22,9 +24,7 @@ class Indexer(object):
         self.settings = settings
 
     def execute(self, documents):
-        self.start()
         self.bulk_index(documents, self.alias_name)
-        self.finish()
 
     def start(self):
         # Create alias
@@ -117,7 +117,22 @@ class ESModelIndexer(BaseModelIndex):
         (es_data,) = self.make_documents([obj])
         self.indexer.index(obj.id, es_data["_source"])
 
-    def reindex(self, objects):
+    @contextmanager
+    def reindex(self):
+        """
+        Example usage:
+        with CategoryElasticsearchIndex().reindex() as index:
+            for chunk in chunked(categories, settings.INDEXING_CHUNK_SIZE):
+                index.reindex_objects(chunk)
+        """
+        self.indexer.start()
+
+        try:
+            yield self
+        finally:
+            self.indexer.finish()
+
+    def reindex_objects(self, objects):
         es_data = self.make_documents(objects)
         return self.indexer.execute(es_data)
 

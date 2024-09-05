@@ -10,7 +10,7 @@ from oscar_odin.resources.catalogue import (
 from oscar_odin.mappings._common import OscarBaseMapping
 
 ProductElasticSearchResource = get_class(
-    "search.mappings.products.mappings", "ProductElasticSearchResource"
+    "search.mappings.products.resources", "ProductElasticSearchResource"
 )
 ProductMapping = get_class("search.mappings.products.mappings", "ProductMapping")
 

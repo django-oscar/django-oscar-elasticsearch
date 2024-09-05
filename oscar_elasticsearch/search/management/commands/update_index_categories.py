@@ -16,13 +16,11 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         categories = Category.objects.browsable()
 
-        # When there are no categories, we should still reindex to clear the index
-        if not categories:
-            CategoryElasticsearchIndex().reindex(categories)
-
-        for chunk in chunked(categories, settings.INDEXING_CHUNK_SIZE):
-            CategoryElasticsearchIndex().update_or_create(chunk)
-            self.stdout.write(".", ending="")
+        with CategoryElasticsearchIndex().reindex() as index:
+            for chunk in chunked(categories, settings.INDEXING_CHUNK_SIZE):
+                index.reindex_objects(chunk)
+                self.stdout.write(".", ending="")
+                self.stdout.flush()  # Ensure the dots are displayed immediately
 
         self.stdout.write(
             self.style.SUCCESS(

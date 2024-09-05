@@ -1,7 +1,9 @@
-from django.db.models import Case, When
+import itertools
+
+from django.db.models import Case, When, QuerySet
 
 
-def chunked(qs, size, startindex=0):
+def chunked(iterable, size, startindex=0):
     """
     Divide an interable into chunks of ``size``
 
@@ -10,14 +12,22 @@ def chunked(qs, size, startindex=0):
     >>> list(chunked([1,2,3,4,5,6,7], 3))
     [[1, 2, 3], [4, 5, 6], [7]]
     """
-    while True:
-        chunk = qs[startindex : startindex + size]
-        chunklen = len(chunk)
-        if chunklen:
+    if isinstance(iterable, QuerySet):
+        iterator = iterable.iterator(chunk_size=size)
+        while True:
+            chunk = list(itertools.islice(iterator, size))
+            if not chunk:
+                break
             yield chunk
-        if chunklen < size:
-            break
-        startindex += size
+    else:
+        while True:
+            chunk = iterable[startindex : startindex + size]
+            chunklen = len(chunk)
+            if chunklen:
+                yield chunk
+            if chunklen < size:
+                break
+            startindex += size
 
 
 def search_result_to_queryset(search_results, Model):
