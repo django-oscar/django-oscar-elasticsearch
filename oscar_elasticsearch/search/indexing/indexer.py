@@ -1,3 +1,5 @@
+from contextlib import contextmanager
+
 from django.utils.crypto import get_random_string
 from django.utils.text import format_lazy
 from django.utils.encoding import force_str
@@ -21,14 +23,8 @@ class Indexer(object):
         self.mappings = mappings
         self.settings = settings
 
-    def execute(self, documents, manage_alias_lifecycle=True):
-        if manage_alias_lifecycle:
-            self.start()
-
+    def execute(self, documents):
         self.bulk_index(documents, self.alias_name)
-
-        if manage_alias_lifecycle:
-            self.finish()
 
     def start(self):
         # Create alias
@@ -121,11 +117,18 @@ class ESModelIndexer(BaseModelIndex):
         (es_data,) = self.make_documents([obj])
         self.indexer.index(obj.id, es_data["_source"])
 
-    def reindex(self, objects, manage_alias_lifecycle=True):
+    def bulk_index(self, objects):
         es_data = self.make_documents(objects)
-        return self.indexer.execute(
-            es_data, manage_alias_lifecycle=manage_alias_lifecycle
-        )
+        return self.indexer.bulk_index(es_data)
+
+    @contextmanager
+    def reindex(self):
+        self.indexer.start()
+
+        try:
+            yield self
+        finally:
+            self.indexer.finish()
 
     def delete(self, _id):
         return self.indexer.delete_doc(_id)

@@ -28,33 +28,29 @@ class Command(BaseCommand):
             )
             return
 
-        product_index = ProductElasticsearchIndex()
-        product_index.indexer.start()
-
         total_chunks = products_total / settings.INDEXING_CHUNK_SIZE
         processed_chunks = 0
 
-        for chunk in chunked(products, settings.INDEXING_CHUNK_SIZE):
-            chunk_index_time = time.time()
-            product_index.reindex(chunk, manage_alias_lifecycle=False)
-            processed_chunks += 1
-            self.stdout.write(
-                self.style.SUCCESS(
-                    "Processed chunk %i of %i (%i/%s products indexed) in %.2f seconds"
-                    % (
-                        processed_chunks,
-                        total_chunks,
-                        min(
-                            processed_chunks * settings.INDEXING_CHUNK_SIZE,
+        with ProductElasticsearchIndex().reindex() as index:
+            for chunk in chunked(products, settings.INDEXING_CHUNK_SIZE):
+                chunk_index_time = time.time()
+                index.bulk_index(chunk)
+                processed_chunks += 1
+                self.stdout.write(
+                    self.style.SUCCESS(
+                        "Processed chunk %i of %i (%i/%s products indexed) in %.2f seconds"
+                        % (
+                            processed_chunks,
+                            total_chunks,
+                            min(
+                                processed_chunks * settings.INDEXING_CHUNK_SIZE,
+                                products_total,
+                            ),
                             products_total,
-                        ),
-                        products_total,
-                        time.time() - chunk_index_time,
+                            time.time() - chunk_index_time,
+                        )
                     )
                 )
-            )
-
-        product_index.indexer.finish()
 
         self.stdout.write(
             self.style.SUCCESS(
