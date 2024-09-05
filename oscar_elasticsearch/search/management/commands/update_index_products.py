@@ -18,7 +18,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         if options["debug"]:
-            return self.handle_debug(*args, **options)
+            return self.handle_debug()
 
         products = Product.objects.browsable()
         products_total = products.count()
