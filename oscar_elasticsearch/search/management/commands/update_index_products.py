@@ -17,7 +17,7 @@ class Command(BaseCommand):
         # Record the start time for the entire indexing process
         overall_start_time = time.time()
 
-        products = Product.objects.all()
+        products = Product.objects.browsable()
         products_total = products.count()
         total_chunks = products_total / settings.INDEXING_CHUNK_SIZE
         processed_chunks = 0
