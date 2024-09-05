@@ -34,7 +34,9 @@ class CategoryElasticsearchIndex(BaseElasticSearchApi, ESModelIndexer):
     def make_documents(self, objects):
         from oscar_odin.mappings import catalogue
 
-        CategoryMapping = get_class("search.mappings.categories", "CategoryMapping")
+        CategoryElasticSearchMapping = get_class(
+            "search.mappings.categories", "CategoryElasticSearchMapping"
+        )
 
         # the transaction and the select_for_update are candidates for removal!
         with transaction.atomic():
@@ -42,7 +44,9 @@ class CategoryElasticsearchIndex(BaseElasticSearchApi, ESModelIndexer):
                 objects = objects.select_for_update()
 
             category_resources = catalogue.CategoryToResource.apply(objects)
-            category_document_resources = CategoryMapping.apply(category_resources)
+            category_document_resources = CategoryElasticSearchMapping.apply(
+                category_resources
+            )
 
             return dict_codec.dump(
                 category_document_resources, include_type_field=False

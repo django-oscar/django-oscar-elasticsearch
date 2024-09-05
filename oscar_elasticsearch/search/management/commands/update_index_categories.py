@@ -19,14 +19,18 @@ class Command(BaseCommand):
         # When there are no categories, we should still reindex to clear the index
         if not categories:
             CategoryElasticsearchIndex().reindex(categories)
+            self.stdout.write(
+                self.style.WARNING("no browsable categories, index cleared.")
+            )
+            return
 
-        alias_indexes = []
+        category_index = CategoryElasticsearchIndex()
+        category_index.indexer.start()
+
         for chunk in chunked(categories, settings.INDEXING_CHUNK_SIZE):
-            category_index = CategoryElasticsearchIndex()
-            alias_indexes.append(category_index.indexer.alias_name)
-            category_index.indexer.excluded_cleanup_aliases = alias_indexes
-            category_index.reindex(chunk)
-            self.stdout.write(".", ending="")
+            category_index.reindex(chunk, manage_alias_lifecycle=False)
+
+        category_index.indexer.finish()
 
         self.stdout.write(
             self.style.SUCCESS(

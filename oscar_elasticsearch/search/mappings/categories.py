@@ -20,7 +20,6 @@ Category = get_model("catalogue", "Category")
 class CategoryElasticSearchResource(OscarElasticSearchResourceMixin):
     full_name: str
     full_slug: str
-    _index: str
 
 
 class CategoryMapping(OscarBaseMapping):
@@ -46,10 +45,6 @@ class CategoryMapping(OscarBaseMapping):
             return self.source.code
 
         return "%s-%s" % (self.source.slug, self.source.id)
-
-    @odin.assign_field
-    def _index(self) -> str:
-        return self.context.get("_index")
 
 
 class ElasticSearchResource(OscarResource):

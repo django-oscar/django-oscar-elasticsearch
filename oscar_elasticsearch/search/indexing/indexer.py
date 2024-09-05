@@ -9,6 +9,7 @@ from elasticsearch.exceptions import NotFoundError
 
 from oscar_elasticsearch.search.api.base import BaseModelIndex
 
+chunked = get_class("search.utils", "chunked")
 es = get_class("search.backend", "es")
 
 
@@ -21,15 +22,14 @@ class Indexer(object):
         self.mappings = mappings
         self.settings = settings
 
-        # Sometimes you might process docs in chunks, in this case you don't want to clean up
-        # old aliases on each chunk, as it's possible that alias has not yet been processed.
-        # In this case you can exclude alias from cleanup by adding it to this list.
-        self.excluded_cleanup_aliases = []
+    def execute(self, documents, manage_alias_lifecycle=True):
+        if manage_alias_lifecycle:
+            self.start()
 
-    def execute(self, documents):
-        self.start()
         self.bulk_index(documents, self.alias_name)
-        self.finish()
+
+        if manage_alias_lifecycle:
+            self.finish()
 
     def start(self):
         # Create alias
@@ -76,10 +76,7 @@ class Indexer(object):
 
             # Cleanup old aliased
             for index in aliased_indices:
-                if (
-                    index != self.alias_name
-                    and index not in self.excluded_cleanup_aliases
-                ):
+                if index != self.alias_name:
                     self.delete(index)
         else:
             self.delete(self.name)
@@ -125,9 +122,11 @@ class ESModelIndexer(BaseModelIndex):
         (es_data,) = self.make_documents([obj])
         self.indexer.index(obj.id, es_data["_source"])
 
-    def reindex(self, objects):
+    def reindex(self, objects, manage_alias_lifecycle=True):
         es_data = self.make_documents(objects)
-        return self.indexer.execute(es_data)
+        return self.indexer.execute(
+            es_data, manage_alias_lifecycle=manage_alias_lifecycle
+        )
 
     def delete(self, _id):
         return self.indexer.delete_doc(_id)
