@@ -9,7 +9,6 @@ from elasticsearch.exceptions import NotFoundError
 
 from oscar_elasticsearch.search.api.base import BaseModelIndex
 
-chunked = get_class("search.utils", "chunked")
 es = get_class("search.backend", "es")
 
 

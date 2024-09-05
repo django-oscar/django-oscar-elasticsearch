@@ -29,6 +29,7 @@ class Command(BaseCommand):
 
         for chunk in chunked(categories, settings.INDEXING_CHUNK_SIZE):
             category_index.reindex(chunk, manage_alias_lifecycle=False)
+            self.stdout.write(".", ending="")
 
         category_index.indexer.finish()
 
