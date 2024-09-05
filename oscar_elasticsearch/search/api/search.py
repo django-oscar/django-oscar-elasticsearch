@@ -30,8 +30,8 @@ def get_search_query(
 
 
 def get_search_body(
-    from_,
-    size,
+    from_=None,
+    size=None,
     search_fields=[],
     query_string=None,
     filters=None,
@@ -40,6 +40,7 @@ def get_search_body(
     search_type=None,
     search_operator=None,
     aggs=None,
+    explain=True,
 ):
     body = {
         "query": {
@@ -50,10 +51,16 @@ def get_search_body(
                 "filter": filters,
             }
         },
-        "from": from_,
-        "size": size,
-        "explain": settings.DEBUG,
     }
+
+    if explain:
+        body["explain"] = settings.DEBUG
+
+    if from_:
+        body["from"] = from_
+
+    if size:
+        body["size"] = size
 
     if sort_by:
         body["sort"] = sort_by
@@ -70,6 +77,28 @@ def get_search_body(
         }
 
     return body
+
+
+def do_count(
+    index,
+    query_string=None,
+    search_fields=[],
+    filters=None,
+    search_type=None,
+    search_operator=None,
+):
+    body = get_search_body(
+        query_string=query_string,
+        search_fields=search_fields,
+        filters=filters,
+        search_type=search_type,
+        search_operator=search_operator,
+        explain=False,
+    )
+
+    result = es.count(index=index, body=body)
+
+    return result.get("count", 0)
 
 
 def get_elasticsearch_aggs(aggs_definitions):
@@ -292,6 +321,19 @@ class BaseElasticSearchApi(BaseModelIndex):
         )
 
         total_hits = search_results["hits"]["total"]["value"]
+        total_relation = search_results["hits"]["total"].get("relation", "")
+
+        if total_relation == "gte":
+            # The total hits is higher than max_result_window, we want to do another query to get the correct total
+            total_hits = do_count(
+                self.get_index_name(),
+                query_string=query_string,
+                search_fields=search_fields,
+                filters=filters,
+                search_type=search_type,
+                search_operator=search_operator,
+            )
+
         return self.make_queryset(search_results), total_hits
 
     def facet_search(
@@ -384,6 +426,18 @@ class BaseElasticSearchApi(BaseModelIndex):
         )
 
         total_hits = search_results["hits"]["total"]["value"]
+        total_relation = search_results["hits"]["total"].get("relation", "")
+
+        if total_relation == "gte":
+            # The total hits is higher than max_result_window, we want to do another query to get the correct total
+            total_hits = do_count(
+                self.get_index_name(),
+                query_string=query_string,
+                search_fields=search_fields,
+                filters=filters + facet_filters,
+                search_type=search_type,
+                search_operator=search_operator,
+            )
 
         return (
             paginate_result(instances, total_hits, to),
