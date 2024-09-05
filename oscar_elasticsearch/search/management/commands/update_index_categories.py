@@ -20,8 +20,12 @@ class Command(BaseCommand):
         if not categories:
             CategoryElasticsearchIndex().reindex(categories)
 
+        alias_indexes = []
         for chunk in chunked(categories, settings.INDEXING_CHUNK_SIZE):
-            CategoryElasticsearchIndex().update_or_create(chunk)
+            category_index = CategoryElasticsearchIndex()
+            alias_indexes.append(category_index.indexer.alias_name)
+            category_index.indexer.excluded_cleanup_aliases = alias_indexes
+            category_index.reindex(chunk)
             self.stdout.write(".", ending="")
 
         self.stdout.write(

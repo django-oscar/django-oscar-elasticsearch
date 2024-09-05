@@ -18,8 +18,12 @@ class Command(BaseCommand):
         if not products:
             ProductElasticsearchIndex().reindex(products)
 
+        alias_indexes = []
         for chunk in chunked(products, settings.INDEXING_CHUNK_SIZE):
-            ProductElasticsearchIndex().update_or_create(chunk)
+            product_index = ProductElasticsearchIndex()
+            alias_indexes.append(product_index.indexer.alias_name)
+            product_index.indexer.excluded_cleanup_aliases = alias_indexes
+            product_index.reindex(chunk)
             self.stdout.write(".", ending="")
 
         self.stdout.write(

@@ -21,6 +21,11 @@ class Indexer(object):
         self.mappings = mappings
         self.settings = settings
 
+        # Sometimes you might process docs in chunks, in this case you don't want to clean up
+        # old aliases on each chunk, as it's possible that alias has not yet been processed.
+        # In this case you can exclude alias from cleanup by adding it to this list.
+        self.excluded_cleanup_aliases = []
+
     def execute(self, documents):
         self.start()
         self.bulk_index(documents, self.alias_name)
@@ -71,7 +76,10 @@ class Indexer(object):
 
             # Cleanup old aliased
             for index in aliased_indices:
-                if index != self.alias_name:
+                if (
+                    index != self.alias_name
+                    and index not in self.excluded_cleanup_aliases
+                ):
                     self.delete(index)
         else:
             self.delete(self.name)
