@@ -17,17 +17,8 @@ class Command(BaseCommand):
         # Record the start time for the entire indexing process
         overall_start_time = time.time()
 
-        products = Product.objects.browsable()
+        products = Product.objects.all()
         products_total = products.count()
-
-        # When there are no products, we should still reindex to clear the index
-        if products_total == 0:
-            ProductElasticsearchIndex().reindex_objects([])
-            self.stdout.write(
-                self.style.WARNING("no browsable products, index cleared.")
-            )
-            return
-
         total_chunks = products_total / settings.INDEXING_CHUNK_SIZE
         processed_chunks = 0
 

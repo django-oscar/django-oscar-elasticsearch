@@ -16,14 +16,6 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         categories = Category.objects.browsable()
 
-        # When there are no categories, we should still reindex to clear the index
-        if not categories:
-            CategoryElasticsearchIndex().reindex_objects(categories)
-            self.stdout.write(
-                self.style.WARNING("no browsable categories, index cleared.")
-            )
-            return
-
         with CategoryElasticsearchIndex().reindex() as index:
             for chunk in chunked(categories, settings.INDEXING_CHUNK_SIZE):
                 index.reindex_objects(chunk)
