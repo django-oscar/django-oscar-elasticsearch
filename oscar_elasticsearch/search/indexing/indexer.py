@@ -117,18 +117,24 @@ class ESModelIndexer(BaseModelIndex):
         (es_data,) = self.make_documents([obj])
         self.indexer.index(obj.id, es_data["_source"])
 
-    def bulk_index(self, objects):
-        es_data = self.make_documents(objects)
-        return self.indexer.bulk_index(es_data)
-
     @contextmanager
     def reindex(self):
+        """
+        Example usage:
+        with CategoryElasticsearchIndex().reindex() as index:
+            for chunk in chunked(categories, settings.INDEXING_CHUNK_SIZE):
+                index.reindex_objects(chunk)
+        """
         self.indexer.start()
 
         try:
             yield self
         finally:
             self.indexer.finish()
+
+    def reindex_objects(self, objects):
+        es_data = self.make_documents(objects)
+        return self.indexer.execute(es_data)
 
     def delete(self, _id):
         return self.indexer.delete_doc(_id)

@@ -26,7 +26,7 @@ class Command(BaseCommand):
 
         with CategoryElasticsearchIndex().reindex() as index:
             for chunk in chunked(categories, settings.INDEXING_CHUNK_SIZE):
-                index.bulk_index(chunk)
+                index.reindex_objects(chunk)
                 self.stdout.write(".", ending="")
 
         self.stdout.write(

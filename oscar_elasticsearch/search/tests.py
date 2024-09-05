@@ -140,10 +140,15 @@ class ManagementCommandsTestCase(TestCase):
     ]
 
     def setUp(self):
-        self.product_index = ProductElasticsearchIndex()
-        self.product_index.reindex(Product.objects.none())
-        self.category_index = CategoryElasticsearchIndex()
-        self.category_index.reindex([])
+        # Clear index before each test
+        with ProductElasticsearchIndex().reindex() as index:
+            self.product_index = index
+            index.reindex_objects(Product.objects.none())
+
+        with CategoryElasticsearchIndex().reindex() as index:
+            self.category_index = index
+            index.reindex_objects([])
+
         super().setUp()
 
     def test_update_index_products(self):

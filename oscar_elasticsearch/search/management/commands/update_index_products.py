@@ -34,7 +34,7 @@ class Command(BaseCommand):
         with ProductElasticsearchIndex().reindex() as index:
             for chunk in chunked(products, settings.INDEXING_CHUNK_SIZE):
                 chunk_index_time = time.time()
-                index.bulk_index(chunk)
+                index.reindex_objects(chunk)
                 processed_chunks += 1
                 self.stdout.write(
                     self.style.SUCCESS(
