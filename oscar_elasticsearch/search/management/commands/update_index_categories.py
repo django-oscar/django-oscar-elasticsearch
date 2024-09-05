@@ -18,7 +18,7 @@ class Command(BaseCommand):
 
         # When there are no categories, we should still reindex to clear the index
         if not categories:
-            CategoryElasticsearchIndex().execute(categories)
+            CategoryElasticsearchIndex().reindex_objects(categories)
             self.stdout.write(
                 self.style.WARNING("no browsable categories, index cleared.")
             )

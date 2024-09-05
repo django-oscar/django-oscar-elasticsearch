@@ -22,7 +22,7 @@ class Command(BaseCommand):
 
         # When there are no products, we should still reindex to clear the index
         if products_total == 0:
-            ProductElasticsearchIndex().reindex([])
+            ProductElasticsearchIndex().reindex_objects([])
             self.stdout.write(
                 self.style.WARNING("no browsable products, index cleared.")
             )
