@@ -8,8 +8,6 @@ from oscar_odin.resources.catalogue import Category as CategoryResource
 from oscar_odin.mappings._common import OscarBaseMapping
 from oscar_odin.resources._base import OscarResource
 
-from django.contrib.contenttypes.models import ContentType
-
 OscarElasticSearchResourceMixin = get_class(
     "search.mappings.mixins", "OscarElasticSearchResourceMixin"
 )
@@ -28,8 +26,7 @@ class CategoryMapping(OscarBaseMapping):
 
     @odin.assign_field
     def content_type(self) -> str:
-        content_type = ContentType.objects.get_for_model(Category)
-        return ".".join(content_type.natural_key())
+        return "catalogue.category"
 
     @odin.map_field(from_field="name", to_field=["title", "search_title"])
     def title(self, name) -> str:

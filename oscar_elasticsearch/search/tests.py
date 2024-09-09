@@ -7,6 +7,7 @@ from django.test import TestCase
 from django.urls import reverse
 
 from oscar.core.loading import get_class, get_model
+from oscar.test.factories import ProductFactory
 
 import oscar_elasticsearch.search.format
 import oscar_elasticsearch.search.utils
@@ -200,3 +201,28 @@ class ManagementCommandsTestCase(TestCase):
         results, total_hits = self.category_index.search()
         self.assertEqual(results.count(), 2)
         self.assertEqual(total_hits, 2)
+
+    @patch("oscar_elasticsearch.search.settings.INDEXING_CHUNK_SIZE", 1000)
+    def test_update_index_products_num_queries(self):
+        def create_parent_child_products():
+            for _ in range(10):
+                parent = ProductFactory(
+                    structure="parent",
+                    stockrecords=[],
+                    categories=Category.objects.all(),
+                )
+                for _ in range(5):
+                    ProductFactory(structure="child", parent=parent, categories=[])
+
+        create_parent_child_products()
+        self.assertEqual(Product.objects.count(), 64)  # 4 inside the fixtures
+
+        with self.assertNumQueries(20):
+            call_command("update_index_products")
+
+        # create 10 extra product with each 5 childs
+        create_parent_child_products()
+
+        # The amount of queries should not change.
+        with self.assertNumQueries(20):
+            call_command("update_index_products")
