@@ -1,7 +1,7 @@
 from odin.codecs import dict_codec
 
 from django.db import transaction
-from django.db.models import QuerySet, OuterRef, Count, Subquery
+from django.db.models import QuerySet, Count, Q
 from django.utils import timezone
 
 from dateutil.relativedelta import relativedelta
@@ -63,14 +63,12 @@ class ProductElasticsearchIndex(BaseElasticSearchApi, ESModelIndexer):
 
         # Annotate the queryset with popularity to avoid the need of n+1 queries
         objects = objects.annotate(
-            popularity=Subquery(
-                Line.objects.filter(
-                    product_id=OuterRef("id"),
-                    order__date_placed__gte=timezone.now()
-                    - relativedelta(months=settings.MONTHS_TO_RUN_ANALYTICS),
-                )
-                .annotate(popularity_count=Count("id"))
-                .values("popularity_count")
+            popularity=Count(
+                "line",
+                filter=Q(
+                    line__order__date_placed__gte=timezone.now()
+                    - relativedelta(months=settings.MONTHS_TO_RUN_ANALYTICS)
+                ),
             )
         )
 
