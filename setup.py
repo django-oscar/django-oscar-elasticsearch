@@ -37,7 +37,7 @@ setup(
     extras_require={
         "test": [
             "mock",
-            "coverage>=5.4,<5.5",
+            "coverage>=5.4",
             "sorl-thumbnail>=12.10.0,<13.0.0",
             "vdt.versionplugin.wheel",
         ],
