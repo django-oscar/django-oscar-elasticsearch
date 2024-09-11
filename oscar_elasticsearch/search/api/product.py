@@ -1,6 +1,5 @@
 from odin.codecs import dict_codec
 
-from django.db import transaction
 from django.db.models import QuerySet
 
 from oscar.core.loading import get_class, get_model, get_classes
@@ -57,13 +56,9 @@ class ProductElasticsearchIndex(BaseElasticSearchApi, ESModelIndexer):
             "search.mappings.products", "ProductElasticSearchMapping"
         )
 
-        # the transaction and the select_for_update are candidates for removal!
-        with transaction.atomic():
-            objects = objects.select_for_update()
+        product_resources = catalogue.product_queryset_to_resources(objects)
+        product_document_resources = ProductElasticSearchMapping.apply(
+            product_resources
+        )
 
-            product_resources = catalogue.product_queryset_to_resources(objects)
-            product_document_resources = ProductElasticSearchMapping.apply(
-                product_resources
-            )
-
-            return dict_codec.dump(product_document_resources, include_type_field=False)
+        return dict_codec.dump(product_document_resources, include_type_field=False)
