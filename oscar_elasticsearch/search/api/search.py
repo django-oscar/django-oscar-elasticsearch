@@ -41,8 +41,11 @@ def get_search_body(
     search_operator=None,
     aggs=None,
     explain=True,
-    field_value_factors=[],
+    field_value_factors=None,
 ):
+    if field_value_factors is None:
+        field_value_factors = []
+
     body = {
         "query": {
             "function_score": {
@@ -178,7 +181,7 @@ def search(
     suggestion_field_name=None,
     search_type=es_settings.SEARCH_QUERY_TYPE,
     search_operator=es_settings.SEARCH_QUERY_OPERATOR,
-    field_value_factors=[],
+    field_value_factors=None,
 ):
     body = get_search_body(
         from_,
@@ -208,7 +211,7 @@ def facet_search(
     search_type=es_settings.SEARCH_QUERY_TYPE,
     search_operator=es_settings.SEARCH_QUERY_OPERATOR,
     aggs_definitions=None,
-    field_value_factors=[],
+    field_value_factors=None,
 ):
 
     aggs = get_elasticsearch_aggs(aggs_definitions) if aggs_definitions else {}
@@ -317,7 +320,7 @@ class BaseElasticSearchApi(BaseModelIndex):
         suggestion_field_name=None,
         search_type=es_settings.SEARCH_QUERY_TYPE,
         search_operator=es_settings.SEARCH_QUERY_OPERATOR,
-        field_value_factors=[],
+        field_value_factors=None,
     ):
         search_results = search(
             self.get_index_name(),
@@ -362,7 +365,7 @@ class BaseElasticSearchApi(BaseModelIndex):
         search_type=es_settings.SEARCH_QUERY_TYPE,
         search_operator=es_settings.SEARCH_QUERY_OPERATOR,
         aggs_definitions=None,
-        field_value_factors=[],
+        field_value_factors=None,
     ):
         search_results, unfiltered_result = facet_search(
             self.get_index_name(),
@@ -397,7 +400,7 @@ class BaseElasticSearchApi(BaseModelIndex):
         suggestion_field_name=None,
         search_type=es_settings.SEARCH_QUERY_TYPE,
         search_operator=es_settings.SEARCH_QUERY_OPERATOR,
-        field_value_factors=[],
+        field_value_factors=None,
     ):
         instances, total_hits = self.search(
             query_string=query_string,
@@ -427,7 +430,7 @@ class BaseElasticSearchApi(BaseModelIndex):
         search_type=es_settings.SEARCH_QUERY_TYPE,
         search_operator=es_settings.SEARCH_QUERY_OPERATOR,
         aggs_definitions=None,
-        field_value_factors=[],
+        field_value_factors=None,
     ):
         instances, search_results, unfiltered_result = self.facet_search(
             from_=from_,
