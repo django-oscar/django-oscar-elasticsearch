@@ -7,6 +7,7 @@ from oscar.core.loading import get_class, get_model
 
 from oscar_elasticsearch.search import settings
 from oscar_elasticsearch.search.facets import process_facets
+from oscar_elasticsearch.search.signals import query_hit
 
 OSCAR_PRODUCTS_INDEX_NAME = get_class(
     "search.indexing.settings", "OSCAR_PRODUCTS_INDEX_NAME"
@@ -118,10 +119,14 @@ class BaseSearchView(ListView):
             int(self.request.GET.get("page", 1)) * self.paginate_by
         ) - self.paginate_by
 
+        query_string = self.request.GET.get("q", "")
+        if query_string:
+            query_hit.send(sender=self, querystring=query_string)
+
         paginator, search_results, unfiltered_result = (
             product_search_api.paginated_facet_search(
                 from_=elasticsearch_from,
-                query_string=self.request.GET.get("q", ""),
+                query_string=query_string,
                 filters=self.get_default_filters(),
                 facet_filters=self.get_facet_filters(),
                 sort_by=self.get_sort_by(),
