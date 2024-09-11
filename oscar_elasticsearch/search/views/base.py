@@ -128,10 +128,10 @@ class BaseSearchView(ListView):
                 from_=elasticsearch_from,
                 query_string=query_string,
                 filters=self.get_default_filters(),
-                facet_filters=self.get_facet_filters(),
                 sort_by=self.get_sort_by(),
-                aggs_definitions=self.get_aggs_definitions(),
                 scoring_functions=self.get_scoring_functions(),
+                facet_filters=self.get_facet_filters(),
+                aggs_definitions=self.get_aggs_definitions(),
             )
         )
 
