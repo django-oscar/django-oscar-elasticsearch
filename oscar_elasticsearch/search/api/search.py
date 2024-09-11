@@ -39,9 +39,9 @@ def get_search_body(
     suggestion_field_name=None,
     search_type=None,
     search_operator=None,
+    scoring_functions=None,
     aggs=None,
     explain=True,
-    scoring_functions=None,
 ):
     body = {
         "query": {
