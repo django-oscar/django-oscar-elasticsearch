@@ -1,6 +1,5 @@
 from odin.codecs import dict_codec
 
-from django.db import transaction
 from django.db.models import QuerySet, Count, Q
 from django.utils import timezone
 
@@ -72,13 +71,11 @@ class ProductElasticsearchIndex(BaseElasticSearchApi, ESModelIndexer):
             )
         )
 
-        # the transaction is candidate for removal!
-        with transaction.atomic():
-            product_resources = catalogue.product_queryset_to_resources(
-                objects, include_children=True
-            )
-            product_document_resources = ProductElasticSearchMapping.apply(
-                product_resources
-            )
+        product_resources = catalogue.product_queryset_to_resources(
+            objects, include_children=True
+        )
+        product_document_resources = ProductElasticSearchMapping.apply(
+            product_resources
+        )
 
-            return dict_codec.dump(product_document_resources, include_type_field=False)
+        return dict_codec.dump(product_document_resources, include_type_field=False)
