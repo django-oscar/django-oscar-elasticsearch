@@ -1,8 +1,5 @@
 from odin.codecs import dict_codec
 
-from django.db import transaction
-from django.db.models import QuerySet
-
 from oscar.core.loading import get_class, get_model
 
 # this index name is retrived with get_class because of i18n but it might be removed later
@@ -38,16 +35,9 @@ class CategoryElasticsearchIndex(BaseElasticSearchApi, ESModelIndexer):
             "search.mappings.categories", "CategoryElasticSearchMapping"
         )
 
-        # the transaction and the select_for_update are candidates for removal!
-        with transaction.atomic():
-            if isinstance(objects, QuerySet):
-                objects = objects.select_for_update()
+        category_resources = catalogue.CategoryToResource.apply(objects)
+        category_document_resources = CategoryElasticSearchMapping.apply(
+            category_resources
+        )
 
-            category_resources = catalogue.CategoryToResource.apply(objects)
-            category_document_resources = CategoryElasticSearchMapping.apply(
-                category_resources
-            )
-
-            return dict_codec.dump(
-                category_document_resources, include_type_field=False
-            )
+        return dict_codec.dump(category_document_resources, include_type_field=False)
