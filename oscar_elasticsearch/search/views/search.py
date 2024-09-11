@@ -2,39 +2,33 @@ from django.utils.translation import gettext_lazy as _
 from django.views import View
 from django.http import JsonResponse
 
-from oscar.core.loading import get_model, get_class
+from oscar.core.loading import get_class
 
-from extendedsearch.backends import get_search_backend
+from oscar_elasticsearch.search.indexing.settings import OSCAR_PRODUCTS_INDEX_NAME
+from oscar_elasticsearch.search.settings import (
+    SUGGESTION_STATUS_FILTER,
+)
 
-SearchBackend = get_search_backend()
-
-Category = get_model("catalogue", "Category")
-ProductProxy = get_model("search", "ProductProxy")
-
-unique_everseen = get_class("search.utils", "unique_everseen")
+es = get_class("search.backend", "es")
+autocomplete_suggestions = get_class(
+    "search.api.autocomplete", "autocomplete_suggestions"
+)
 
 
 class CatalogueAutoCompleteView(View):
-    model = ProductProxy
-    search_fields = ["title", "upc", "category_name"]
-
-    def get_queryset(self):
-        return self.model.objects.browsable()
-
-    def _search_suggestions(self):
-        return SearchBackend.search_suggestions(
-            self.request.GET.get("q"), self.get_queryset(), self.search_fields
-        )
-
-    def _get_suggestions(self):
-        results = self._search_suggestions()
-        for _, suggestions in results.items():
-            for suggestion in suggestions:
-                for opt in suggestion["options"]:
-                    yield opt["text"]
+    def get_suggestion_context(self):
+        return {"status": SUGGESTION_STATUS_FILTER}
 
     def get_suggestions(self):
-        return list(unique_everseen(self._get_suggestions()))
+        search_string = self.request.GET.get("q", "")
+
+        return autocomplete_suggestions(
+            OSCAR_PRODUCTS_INDEX_NAME,
+            search_string,
+            "suggest",
+            skip_duplicates=True,
+            contexts=self.get_suggestion_context(),
+        )
 
     # pylint: disable=W0613
     def get(self, request, *args, **kwargs):

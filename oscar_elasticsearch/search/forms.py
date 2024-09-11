@@ -44,19 +44,8 @@ class BaseSearchForm(forms.Form):
         widget=forms.HiddenInput(),
     )
 
-    # Search
-    RELEVANCY = "relevancy"
-    NEWEST = "newest"
-    POPULARITY = "popularity"
-
-    SORT_BY_CHOICES = [
-        (RELEVANCY, _("Relevancy")),
-        (POPULARITY, _("Most popular")),
-        (NEWEST, _("Newest")),
-    ]
-
-    # Map query params to sorting fields.
-    SORT_BY_MAP = {NEWEST: "-date_created", POPULARITY: "-popularity"}
+    SORT_BY_CHOICES = settings.SORT_BY_CHOICES_SEARCH
+    SORT_BY_MAP = settings.SORT_BY_MAP_SEARCH
 
     sort_by = forms.ChoiceField(
         label=_("Sort by"), choices=[], widget=forms.Select(), required=False
@@ -104,6 +93,7 @@ class BaseSearchForm(forms.Form):
             if ":" not in facet_kv:
                 continue
 
+            # maxsplit on 1 to prevent error when there is another : in the value
             field_name, value = facet_kv.split(":", 1)
             selected_multi_facets[field_name].append(value)
 
@@ -130,36 +120,8 @@ class AutoCompleteForm(forms.Form):
 
 
 class CatalogueSearchForm(BaseSearchForm):
-    # Search
-    RELEVANCY = "relevancy"
-    TOP_RATED = "rating"
-    NEWEST = "newest"
-    PRICE_HIGH_TO_LOW = "price-desc"
-    PRICE_LOW_TO_HIGH = "price-asc"
-    TITLE_A_TO_Z = "title-asc"
-    TITLE_Z_TO_A = "title-desc"
-    POPULARITY = "popularity"
-
-    SORT_BY_CHOICES = [
-        (RELEVANCY, _("Relevancy")),
-        (POPULARITY, _("Most popular")),
-        (TOP_RATED, _("Customer rating")),
-        (NEWEST, _("Newest")),
-        (PRICE_HIGH_TO_LOW, _("Price high to low")),
-        (PRICE_LOW_TO_HIGH, _("Price low to high")),
-        (TITLE_A_TO_Z, _("Title A to Z")),
-        (TITLE_Z_TO_A, _("Title Z to A")),
-    ]
-
-    SORT_BY_MAP = {
-        TOP_RATED: "-rating",
-        NEWEST: "-date_created",
-        POPULARITY: "-popularity",
-        PRICE_HIGH_TO_LOW: "-price",
-        PRICE_LOW_TO_HIGH: "price",
-        TITLE_A_TO_Z: "title",
-        TITLE_Z_TO_A: "-title",
-    }
+    SORT_BY_CHOICES = settings.SORT_BY_CHOICES_CATALOGUE
+    SORT_BY_MAP = settings.SORT_BY_MAP_CATALOGUE
 
     category = forms.IntegerField(
         required=False, label=_("Category"), widget=forms.HiddenInput()
@@ -176,7 +138,9 @@ class CatalogueSearchForm(BaseSearchForm):
     def get_sort_choices(self):
         choices = super().get_sort_choices()
         if feature_hidden("reviews"):
-            return [(key, value) for (key, value) in choices if key != self.TOP_RATED]
+            return [
+                (key, value) for (key, value) in choices if key != settings.TOP_RATED
+            ]
         else:
             return choices
 
