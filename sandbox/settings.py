@@ -63,10 +63,10 @@ INSTALLED_APPS = [
     'widget_tweaks',
     'haystack',
     'treebeard',
-    'sorl.thumbnail',
     'django_tables2',
     'oscar_elasticsearch.search.apps.OscarElasticSearchConfig',
-    "oscar_odin"
+    "oscar_odin",
+    'sorl.thumbnail',
 ]
 
 MIDDLEWARE = [

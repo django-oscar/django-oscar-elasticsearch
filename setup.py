@@ -38,7 +38,7 @@ setup(
         "test": [
             "mock",
             "coverage>=5.4,<5.5",
-            "sorl-thumbnail>=12.9,<12.10",
+            "sorl-thumbnail>=12.10.0,<13.0.0",
             "django-oscar @ git+https://github.com/django-oscar/django-oscar.git",
             "vdt.versionplugin.wheel",
         ],
