@@ -42,7 +42,7 @@ class BaseSearchView(ListView):
         return self.aggs_definitions
 
     def get_field_value_factors(self):
-        return self.field_value_factors if self.field_value_factors else []
+        return self.field_value_factors if self.field_value_factors else None
 
     def get_default_filters(self):
         filters = [{"term": {"is_public": True}}]
