@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 
-__version__ = "2.1.4"
+__version__ = "2.0.14"
 
 
 setup(
@@ -25,21 +25,22 @@ setup(
     zip_safe=False,
     # specify dependencies
     install_requires=[
-        "django>=3.2",
+        "django>=1.11",
         "setuptools",
-        "django-oscar>=3.2.5a2",
+        "django-oscar>=1.6",
+        "wagtail>=2,<3",
         "purl",
-        "elasticsearch>=8.0.0",
+        "elasticsearch>=6.0.0,<7.0.0",
         "uwsgidecorators-fallback",
-        "django-oscar-odin>=0.1.0b4",
+        "wagtail-extendedsearch",
     ],
     # mark test target to require extras.
     extras_require={
         "test": [
             "mock",
-            "coverage>=5.4",
-            "sorl-thumbnail>=12.10.0,<13.0.0",
-            "vdt.versionplugin.wheel",
+            "coverage>=5.4,<5.5",
+            "sorl-thumbnail>=12.9,<12.10",
+            "django-oscar @ git+https://github.com/django-oscar/django-oscar.git",
         ],
         "dev": ["pylint>=2.17.4", "pylint-django>=2.5.3", "black>=23.3.0"],
     },

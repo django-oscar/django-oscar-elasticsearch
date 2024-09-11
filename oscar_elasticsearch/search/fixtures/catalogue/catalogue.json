@@ -103,19 +103,6 @@
     }
 },
 {
-    "model": "catalogue.category",
-    "pk": 2,
-    "fields": {
-        "path": "0002",
-        "depth": 1,
-        "numchild": 0,
-        "name": "Hoihoi",
-        "description": "<p>Some ambulant hoi's</p>",
-        "image": "",
-        "slug": "hoi"
-    }
-},
-{
     "model": "catalogue.productcategory",
     "pk": 1,
     "fields": {

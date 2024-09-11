@@ -23,18 +23,17 @@ def strip_pagination(url):
     return url.as_string()
 
 
-def process_facets(request_full_path, form, facets, facet_definitions=None):
+def process_facets(request_full_path, form, facets):
     unfiltered_facets, filtered_facets = facets
     selected_multi_facets = form.selected_multi_facets
-    if not facet_definitions:
-        facet_definitions = []
-    processed_facets = {}
+    processed_facets = []
+    facet_definitions = settings.FACETS
 
     for facet_definition in facet_definitions:
         facet_name = facet_definition["name"]
         selected_facets = selected_multi_facets[facet_name]
-        unfiltered_facet = unfiltered_facets["aggregations"].get(facet_name)
-        filtered_facet = filtered_facets["aggregations"].get(facet_name, {})
+        unfiltered_facet = unfiltered_facets.get(facet_name)
+        filtered_facet = filtered_facets.get(facet_name, {})
         if unfiltered_facet is None:
             continue
 
@@ -48,15 +47,6 @@ def process_facets(request_full_path, form, facets, facet_definitions=None):
             ):
                 continue
 
-            # filter out empty buckets
-            if facet_definition.get("type") == "date_histogram":
-                unfiltered_buckets = filter(
-                    lambda bucket: bucket["doc_count"] > 0, unfiltered_buckets
-                )
-                filtered_buckets = filter(
-                    lambda bucket: bucket["doc_count"] > 0, filtered_buckets
-                )
-
             facet = Facet(
                 facet_definition,
                 unfiltered_buckets,
@@ -64,7 +54,7 @@ def process_facets(request_full_path, form, facets, facet_definitions=None):
                 request_full_path,
                 selected_facets,
             )
-            processed_facets[facet_name] = facet
+            processed_facets.append(facet)
 
     return processed_facets
 

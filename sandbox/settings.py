@@ -26,6 +26,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
     'django.contrib.sites',
     'django.contrib.flatpages',
 
@@ -66,7 +67,6 @@ INSTALLED_APPS = [
     'sorl.thumbnail',
     'django_tables2',
     'oscar_elasticsearch.search.apps.OscarElasticSearchConfig',
-    "oscar_odin"
 ]
 
 MIDDLEWARE = [
@@ -206,9 +206,9 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.0/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
 
-MEDIA_URL = 'media/'
+MEDIA_URL = '/media/'
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'sandbox', 'static')
 
@@ -239,12 +239,8 @@ OSCAR_ELASTICSEARCH_FACETS = [
     {
         "name": "attrs.gewicht",
         "label": "Gewicht",
-        "type": "range",
-        "ranges": [
-            50,
-            100,
-            150
-        ]
+        "type": "term",
+        "ranges": []
     },
     {
         "name": "attrs.googleshopping",
@@ -256,8 +252,7 @@ OSCAR_ELASTICSEARCH_FACETS = [
         "name": "attrs.size",
         "label": "Maat",
         "type": "term",
-        "ranges": [],
-        "order": "asc"
+        "ranges": []
     },
     {
         "name": "attrs.height",
@@ -286,11 +281,6 @@ OSCAR_ELASTICSEARCH_FACETS = [
 ]
 
 OSCAR_DEFAULT_CURRENCY = 'EUR'
-OSCAR_ELASTICSEARCH_PROJECT_NAME = "oscar_elasticsearch"
-
-OSCAR_ELASTICSEARCH_FILTER_AVAILABLE = False
-
-OSCAR_ELASTICSEARCH_SERVER_URLS = [os.environ.get("OSCAR_ELASTICSEARCH_SERVER_URLS", "http://127.0.0.1:9200")]
 
 WAGTAILSEARCH_BACKENDS = {
     "default": {
