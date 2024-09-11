@@ -27,7 +27,7 @@ class BaseSearchView(ListView):
     paginate_by = settings.DEFAULT_ITEMS_PER_PAGE
     form_class = None
     aggs_definitions = settings.FACETS
-    field_value_factors = [
+    scoring_functions = [
         {
             "field_value_factor": {
                 "field": "priority",
@@ -41,8 +41,8 @@ class BaseSearchView(ListView):
     def get_aggs_definitions(self):
         return self.aggs_definitions
 
-    def get_field_value_factors(self):
-        return self.field_value_factors if self.field_value_factors else None
+    def get_scoring_functions(self):
+        return self.scoring_functions if self.scoring_functions else None
 
     def get_default_filters(self):
         filters = [{"term": {"is_public": True}}]
@@ -131,7 +131,7 @@ class BaseSearchView(ListView):
                 facet_filters=self.get_facet_filters(),
                 sort_by=self.get_sort_by(),
                 aggs_definitions=self.get_aggs_definitions(),
-                field_value_factors=self.get_field_value_factors(),
+                scoring_functions=self.get_scoring_functions(),
             )
         )
 
