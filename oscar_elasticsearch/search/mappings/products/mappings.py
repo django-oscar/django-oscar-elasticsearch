@@ -69,6 +69,16 @@ class ProductMapping(OscarBaseMapping):
     def product_class(self, obj):
         return obj.slug
 
+    @odin.map_field(from_field="priority")
+    def priority(self, priority):
+        if (
+            not self.source.is_available_to_buy
+            and settings.PRIORITIZE_AVAILABLE_PRODUCTS
+        ):
+            return -1
+
+        return priority
+
     @odin.assign_field
     def popularity(self):
         months_to_run = settings.MONTHS_TO_RUN_ANALYTICS
