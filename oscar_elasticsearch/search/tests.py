@@ -217,12 +217,12 @@ class ManagementCommandsTestCase(TestCase):
         create_parent_child_products()
         self.assertEqual(Product.objects.count(), 64)  # 4 inside the fixtures
 
-        with self.assertNumQueries(20):
+        with self.assertNumQueries(19):
             call_command("update_index_products")
 
         # create 10 extra product with each 5 childs
         create_parent_child_products()
 
         # The amount of queries should not change.
-        with self.assertNumQueries(20):
+        with self.assertNumQueries(19):
             call_command("update_index_products")
