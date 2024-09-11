@@ -1,6 +1,5 @@
 import odin
 
-from django.contrib.contenttypes.models import ContentType
 from django.utils import timezone
 from django.utils.html import strip_tags
 from django.db.models import QuerySet
@@ -81,6 +80,14 @@ class ProductMapping(OscarBaseMapping):
 
     @odin.assign_field
     def popularity(self):
+        # In our search.api.product make_documents method, we annotate the popularity, this way
+        # we don't have to do N+1 queries to get the popularity of each product.
+        if hasattr(self.source, "model_instance") and hasattr(
+            self.source.model_instance, "popularity"
+        ):
+            return self.source.model_instance.popularity
+
+        # Fallback to n+1 query, though, try to avoid this.
         months_to_run = settings.MONTHS_TO_RUN_ANALYTICS
         orders_above_date = timezone.now() - relativedelta(months=months_to_run)
 
@@ -90,8 +97,7 @@ class ProductMapping(OscarBaseMapping):
 
     @odin.assign_field
     def content_type(self) -> str:
-        content_type = ContentType.objects.get_for_model(Product)
-        return ".".join(content_type.natural_key())
+        return "catalogue.product"
 
     @odin.assign_field(to_list=True)
     def categories(self) -> str:
@@ -141,11 +147,9 @@ class ProductMapping(OscarBaseMapping):
     def string_attrs(self):
         attrs = [str(a) for a in self.source.attributes.values()]
         if self.source.structure == Product.PARENT:
-            for child in Product.objects.filter(parent_id=self.source.id):
+            for child in self.source.children:
                 attrs.append(child.title)
-                attrs.extend(
-                    [str(a.value_as_text) for a in child.get_attribute_values()]
-                )
+                attrs.extend([str(a.value_as_text) for a in child.attributes.values()])
 
         return attrs
 

@@ -1,7 +1,10 @@
 from odin.codecs import dict_codec
 
 from django.db import transaction
-from django.db.models import QuerySet
+from django.db.models import QuerySet, Count, Q
+from django.utils import timezone
+
+from dateutil.relativedelta import relativedelta
 
 from oscar.core.loading import get_class, get_model, get_classes
 from oscar_elasticsearch.search import settings
@@ -24,6 +27,7 @@ from oscar_elasticsearch.search import settings
 BaseElasticSearchApi = get_class("search.api.search", "BaseElasticSearchApi")
 ESModelIndexer = get_class("search.indexing.indexer", "ESModelIndexer")
 Product = get_model("catalogue", "Product")
+Line = get_model("order", "Line")
 
 
 class ProductElasticsearchIndex(BaseElasticSearchApi, ESModelIndexer):
@@ -57,11 +61,22 @@ class ProductElasticsearchIndex(BaseElasticSearchApi, ESModelIndexer):
             "search.mappings.products", "ProductElasticSearchMapping"
         )
 
-        # the transaction and the select_for_update are candidates for removal!
-        with transaction.atomic():
-            objects = objects.select_for_update()
+        # Annotate the queryset with popularity to avoid the need of n+1 queries
+        objects = objects.annotate(
+            popularity=Count(
+                "line",
+                filter=Q(
+                    line__order__date_placed__gte=timezone.now()
+                    - relativedelta(months=settings.MONTHS_TO_RUN_ANALYTICS)
+                ),
+            )
+        )
 
-            product_resources = catalogue.product_queryset_to_resources(objects)
+        # the transaction is candidate for removal!
+        with transaction.atomic():
+            product_resources = catalogue.product_queryset_to_resources(
+                objects, include_children=True
+            )
             product_document_resources = ProductElasticSearchMapping.apply(
                 product_resources
             )
