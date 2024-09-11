@@ -7,8 +7,10 @@ pipeline {
     stages {
         stage('Build') {
             steps {
-                withPythonEnv('System-CPython-3.10') {
-                    pysh "make"
+                withEnv(['PIP_INDEX_URL=https://pypi.uwkm.nl/voxyan/oscar/+simple/']) {
+                    withPythonEnv('System-CPython-3.10') {
+                        pysh "make"
+                    }
                 }
             }
         }
@@ -22,7 +24,7 @@ pipeline {
         stage('Test') {
             steps {
                 withPythonEnv('System-CPython-3.10') {
-                    withEnv(['OSCAR_ELASTICSEARCH_SERVER_URLS=https://eden.highbiza.nl:9200/']) {
+                    withEnv(['OSCAR_ELASTICSEARCH_SERVER_URLS=https://eden.highbiza.nl:9200/', 'PIP_INDEX_URL=https://pypi.uwkm.nl/voxyan/oscar/+simple/']) {
                         pysh "make test"
                     }
                 }
