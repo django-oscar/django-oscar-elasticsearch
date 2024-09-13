@@ -39,7 +39,7 @@ class Command(BaseCommand):
         This is useful when debugging the performance of the indexing process.
         """
         overall_start_time = time.time()
-        products = Product.objects.browsable()
+        products = Product.objects.browsable().distinct()
         products_total = products.count()
         total_chunks = products_total / settings.INDEXING_CHUNK_SIZE
         processed_chunks = 0
