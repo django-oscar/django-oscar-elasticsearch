@@ -12,22 +12,14 @@ def chunked(iterable, size, startindex=0):
     >>> list(chunked([1,2,3,4,5,6,7], 3))
     [[1, 2, 3], [4, 5, 6], [7]]
     """
-    if isinstance(iterable, QuerySet):
-        iterator = iterable.iterator(chunk_size=size)
-        while True:
-            chunk = list(itertools.islice(iterator, size))
-            if not chunk:
-                break
+    while True:
+        chunk = iterable[startindex : startindex + size]
+        chunklen = len(chunk)
+        if chunklen:
             yield chunk
-    else:
-        while True:
-            chunk = iterable[startindex : startindex + size]
-            chunklen = len(chunk)
-            if chunklen:
-                yield chunk
-            if chunklen < size:
-                break
-            startindex += size
+        if chunklen < size:
+            break
+        startindex += size
 
 
 def search_result_to_queryset(search_results, Model):
