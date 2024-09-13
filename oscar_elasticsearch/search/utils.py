@@ -1,6 +1,4 @@
-import itertools
-
-from django.db.models import Case, When, QuerySet
+from django.db.models import Case, When
 
 
 def chunked(iterable, size, startindex=0):
