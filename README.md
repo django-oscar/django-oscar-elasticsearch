@@ -147,12 +147,7 @@ Contributions are welcome! Please submit issues and pull requests to the reposit
 
 ## 📄 License
 
-Oscar is released under the permissive `New BSD license`_ (see summary_).
-
-.. _summary: https://tldrlegal.com/license/bsd-3-clause-license-(revised)
-
-.. _`New BSD license`: https://github.com/django-oscar/django-oscar-elasticsearch/blob/master/LICENSE
-
+Oscar is released under the permissive [New BSD license](https://github.com/django-oscar/django-oscar-elasticsearch/blob/master/LICENSE) ([see summary](https://tldrlegal.com/license/bsd-3-clause-license-(revised))).
 
 ## 📫 Contact
 
