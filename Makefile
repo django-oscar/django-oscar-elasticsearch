@@ -33,3 +33,6 @@ package: clean
 	rm -rf build/
 	python setup.py clean --all
 	python setup.py sdist bdist_wheel
+
+release: package ## Creates release
+	twine upload -s dist/*
