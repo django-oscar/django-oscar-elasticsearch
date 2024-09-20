@@ -25,6 +25,7 @@ jobs:
     - uses: elastic/elastic-github-actions/elasticsearch@master
       with:
         stack-version: 8.15.0
+        security-enabled: false
     - uses: actions/checkout@v3
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v3
