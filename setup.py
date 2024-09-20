@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 
-__version__ = "2.1.4"
+__version__ = "3.0.0"
 
 
 setup(
@@ -27,11 +27,11 @@ setup(
     install_requires=[
         "django>=3.2",
         "setuptools",
-        "django-oscar>=3.2.5a2",
+        "django-oscar>=3.2.5",
         "purl",
         "elasticsearch>=8.0.0",
         "uwsgidecorators-fallback",
-        "django-oscar-odin>=0.1.0b4",
+        "django-oscar-odin>=0.2.0",
     ],
     # mark test target to require extras.
     extras_require={
