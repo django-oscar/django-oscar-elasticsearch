@@ -22,9 +22,11 @@ jobs:
         sudo sysctl -w vm.swappiness=1
         sudo sysctl -w fs.file-max=262144
         sudo sysctl -w vm.max_map_count=262144
-    - uses: elastic/elastic-github-actions/elasticsearch@master
+    - name: Runs Elasticsearch
+      uses: elastic/elastic-github-actions/elasticsearch@master
       with:
         stack-version: 8.15.0
+        security-enabled: false
     - uses: actions/checkout@v3
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v3
