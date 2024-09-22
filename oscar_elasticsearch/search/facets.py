@@ -136,6 +136,10 @@ class FacetBucketItem(object):
     def name(self):
         return self.key
 
+    @property
+    def count(self):
+        return self.doc_count
+
     def __str__(self):
         if self.formatter is not None:
             return f"{self.formatter(self.key)!s}"
