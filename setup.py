@@ -27,7 +27,7 @@ setup(
     install_requires=[
         "django>=3.2",
         "setuptools",
-        "django-oscar>=3.2.5",
+        "django-oscar>=4.0a1",
         "purl",
         "elasticsearch>=8.0.0",
         "uwsgidecorators-fallback",
