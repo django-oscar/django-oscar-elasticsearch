@@ -29,6 +29,7 @@ Follow these steps to set up the project:
     INSTALLED_APPS = [
         ...
         "oscar_elasticsearch.search.apps.OscarElasticSearchConfig",
+        "oscar_odin",
         "widget_tweaks",
     ]
     ```
