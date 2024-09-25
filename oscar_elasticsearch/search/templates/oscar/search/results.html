@@ -38,7 +38,8 @@
         {% endif %}
     </form>
     {% block searchheading %}{% endblock %}
-
+    
+    {% block products %}
     {% if page_obj.object_list %}
         <section>
             <div>
@@ -51,6 +52,7 @@
             </div>
         </section>
     {% endif %}
+    {% endblock %}
 
 {% endblock %}
 
