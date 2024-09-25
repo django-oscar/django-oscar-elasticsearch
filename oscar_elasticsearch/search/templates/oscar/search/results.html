@@ -39,18 +39,20 @@
     </form>
     {% block searchheading %}{% endblock %}
 
-    {% if page_obj.object_list %}
-        <section>
-            <div>
-                <ol class="row">
-                    {% for result in page_obj.object_list %}
-                        <li class="col-xs-6 col-sm-4 col-md-3 col-lg-3">{% render_product result %}</li>
-                    {% endfor %}
-                </ol>
-                {% include "oscar/partials/pagination.html" with page_obj=page_obj %}
-            </div>
-        </section>
-    {% endif %}
+    {% block products %}
+        {% if page_obj.object_list %}
+            <section>
+                <div>
+                    <ol class="row">
+                        {% for result in page_obj.object_list %}
+                            <li class="col-xs-6 col-sm-4 col-md-3 col-lg-3">{% render_product result %}</li>
+                        {% endfor %}
+                    </ol>
+                    {% include "oscar/partials/pagination.html" with page_obj=page_obj %}
+                </div>
+            </section>
+        {% endif %}
+    {% endblock products %}
 
 {% endblock %}
 
