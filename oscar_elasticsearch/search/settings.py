@@ -3,7 +3,7 @@ from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 
 # from extendedsearch.settings import *
-from .constants import ES_CTX_BROWSABLE
+from .constants import ES_CTX_AVAILABLE, ES_CTX_PUBLIC
 
 HANDLE_STOCKRECORD_CHANGES = getattr(
     settings, "OSCAR_ELASTICSEARCH_HANDLE_STOCKRECORD_CHANGES", True
@@ -26,7 +26,7 @@ FACETS = getattr(settings, "OSCAR_ELASTICSEARCH_FACETS", [])
 SUGGESTION_STATUS_FILTER = getattr(
     settings,
     "OSCAR_ELASTICSEARCH_SUGGESTION_STATUS_FILTER",
-    ES_CTX_BROWSABLE,
+    ES_CTX_AVAILABLE if FILTER_AVAILABLE else ES_CTX_PUBLIC,
 )
 SUGGESTION_FIELD_NAME = getattr(
     settings, "OSCAR_ELASTICSEARCH_SUGGESTION_FIELD_NAME", "search_title"
