@@ -45,7 +45,10 @@ class BaseSearchView(ListView):
         return self.scoring_functions if self.scoring_functions else None
 
     def get_default_filters(self):
-        filters = [{"term": {"is_public": True}}]
+        filters = [
+            {"term": {"is_public": True}},
+            {"terms": {"structure": ["parent", "standalone"]}},
+        ]
 
         if settings.FILTER_AVAILABLE:
             filters.append({"term": {"is_available": True}})
