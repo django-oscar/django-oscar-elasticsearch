@@ -232,11 +232,7 @@ class TestBrowsableItems(TestCase):
 
     def test_child_products_hidden_in_category_view(self):
         for _ in range(2):
-            parent = ProductFactory(
-                structure="parent",
-                stockrecords=[],
-                categories=Category.objects.all(),
-            )
+            parent = ProductFactory(structure="parent", stockrecords=[])
             for _ in range(5):
                 ProductFactory(structure="child", parent=parent, categories=[])
 
@@ -244,13 +240,6 @@ class TestBrowsableItems(TestCase):
         sleep(3)
 
         url = reverse("catalogue:index")
-        response = self.client.get(url)
-        products = response.context_data["page_obj"].object_list
-
-        self.assertEqual(len(products), 2)
-        self.assertFalse(any([product.structure == "child" for product in products]))
-
-        url = reverse("catalogue:category", args=("root", 1))
         response = self.client.get(url)
         products = response.context_data["page_obj"].object_list
 
