@@ -241,7 +241,7 @@ class TestBrowsableItems(TestCase):
                 ProductFactory(structure="child", parent=parent, categories=[])
 
         call_command("update_index_products")
-        sleep(2)
+        sleep(3)
 
         url = reverse("catalogue:index")
         response = self.client.get(url)
