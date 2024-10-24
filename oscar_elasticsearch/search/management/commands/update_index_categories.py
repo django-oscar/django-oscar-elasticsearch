@@ -14,7 +14,7 @@ Category = get_model("catalogue", "Category")
 
 class Command(BaseCommand):
     def handle(self, *args, **options):
-        categories = Category.objects.browsable()
+        categories = Category.objects.all()
 
         with CategoryElasticsearchIndex().reindex() as index:
             for chunk in chunked(categories, settings.INDEXING_CHUNK_SIZE):

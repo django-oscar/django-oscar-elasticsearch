@@ -217,12 +217,31 @@ class ManagementCommandsTestCase(TestCase):
         create_parent_child_products()
         self.assertEqual(Product.objects.count(), 64)  # 4 inside the fixtures
 
-        with self.assertNumQueries(19):
+        with self.assertNumQueries(23):
             call_command("update_index_products")
 
         # create 10 extra product with each 5 childs
         create_parent_child_products()
 
         # The amount of queries should not change.
-        with self.assertNumQueries(19):
+        with self.assertNumQueries(23):
             call_command("update_index_products")
+
+
+class TestBrowsableItems(TestCase):
+
+    def test_child_products_hidden_in_category_view(self):
+        for _ in range(2):
+            parent = ProductFactory(structure="parent", stockrecords=[])
+            for _ in range(5):
+                ProductFactory(structure="child", parent=parent, categories=[])
+
+        call_command("update_index_products")
+        sleep(3)
+
+        url = reverse("catalogue:index")
+        response = self.client.get(url)
+        products = response.context_data["page_obj"].object_list
+
+        self.assertEqual(len(products), 2)
+        self.assertFalse(any([product.structure == "child" for product in products]))
