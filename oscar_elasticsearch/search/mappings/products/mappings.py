@@ -164,3 +164,8 @@ class ProductMapping(OscarBaseMapping):
     )
     def title(self, title):
         return title, title, title
+
+    @odin.assign_field
+    def parent_id(self):
+        if self.source.parent:
+            return self.source.parent.id
