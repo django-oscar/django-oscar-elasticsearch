@@ -8,12 +8,6 @@ from dateutil.relativedelta import relativedelta
 
 from oscar.core.loading import get_model, get_class
 
-from oscar_odin.mappings._common import OscarBaseMapping
-from oscar_odin.resources.catalogue import (
-    Product as ProductResource,
-    Category as CategoryResource,
-)
-
 from oscar_elasticsearch.search.constants import (
     ES_CTX_PUBLIC,
     ES_CTX_AVAILABLE,
@@ -23,6 +17,11 @@ from oscar_elasticsearch.search import settings
 
 Product = get_model("catalogue", "Product")
 Line = get_model("order", "Line")
+
+ProductResource = get_class("oscar_odin.resources.catalogue", "ProductResource")
+CategoryResource = get_class("oscar_odin.resources.catalogue", "CategoryResource")
+
+OscarBaseMapping = get_class("oscar_odin.mappings.common", "OscarBaseMapping")
 
 OscarElasticSearchResourceMixin = get_class(
     "search.mappings.mixins", "OscarElasticSearchResourceMixin"

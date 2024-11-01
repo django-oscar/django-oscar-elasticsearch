@@ -1,4 +1,6 @@
-from oscar_odin.resources._base import OscarResource
+from oscar.core.loading import get_class
+
+OscarResource = get_class("oscar_odin.resources.base", "OscarResource")
 
 
 class OscarElasticSearchResourceMixin(OscarResource):

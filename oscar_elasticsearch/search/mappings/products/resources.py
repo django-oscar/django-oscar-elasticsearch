@@ -4,10 +4,13 @@ from typing import Optional, List
 
 from datetime import datetime
 
-from oscar_odin.resources._base import OscarResource
+from oscar.core.loading import get_class
+
 from oscar_odin.fields import DecimalField
 
 from oscar_elasticsearch.search.mappings.mixins import OscarElasticSearchResourceMixin
+
+OscarResource = get_class("oscar_odin.resources.base", "OscarResource")
 
 
 class CategoryElasticSearchRelatedResource(OscarResource):
