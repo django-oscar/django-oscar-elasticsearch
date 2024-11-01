@@ -54,7 +54,9 @@ class ProductElasticsearchIndex(BaseElasticSearchApi, ESModelIndexer):
                     % type(objects)
                 )
 
-        from oscar_odin.mappings import catalogue
+        product_queryset_to_resources = get_class(
+            "oscar_odin.mappings.catalogue", "product_queryset_to_resources"
+        )
 
         ProductElasticSearchMapping = get_class(
             "search.mappings.products", "ProductElasticSearchMapping"
@@ -71,7 +73,7 @@ class ProductElasticsearchIndex(BaseElasticSearchApi, ESModelIndexer):
             )
         )
 
-        product_resources = catalogue.product_queryset_to_resources(
+        product_resources = product_queryset_to_resources(
             objects, include_children=True
         )
         product_document_resources = ProductElasticSearchMapping.apply(

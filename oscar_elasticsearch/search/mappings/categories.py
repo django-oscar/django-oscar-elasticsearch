@@ -4,9 +4,10 @@ from django.utils.html import strip_tags
 
 from oscar.core.loading import get_class, get_model
 
-from oscar_odin.resources.catalogue import Category as CategoryResource
-from oscar_odin.mappings._common import OscarBaseMapping
-from oscar_odin.resources._base import OscarResource
+OscarResource = get_class("oscar_odin.resources.base", "OscarResource")
+CategoryResource = get_class("oscar_odin.resources.catalogue", "CategoryResource")
+
+OscarBaseMapping = get_class("oscar_odin.mappings.common", "OscarBaseMapping")
 
 OscarElasticSearchResourceMixin = get_class(
     "search.mappings.mixins", "OscarElasticSearchResourceMixin"

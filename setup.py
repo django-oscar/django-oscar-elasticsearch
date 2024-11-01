@@ -31,7 +31,7 @@ setup(
         "purl",
         "elasticsearch>=8.0.0",
         "uwsgidecorators-fallback",
-        "django-oscar-odin>0.1.0",
+        "django-oscar-odin>=0.3.0",
     ],
     # mark test target to require extras.
     extras_require={

@@ -29,13 +29,15 @@ class CategoryElasticsearchIndex(BaseElasticSearchApi, ESModelIndexer):
     Model = Category
 
     def make_documents(self, objects):
-        from oscar_odin.mappings import catalogue
+        CategoryToResource = get_class(
+            "oscar_odin.mappings.catalogue", "CategoryToResource"
+        )
 
         CategoryElasticSearchMapping = get_class(
             "search.mappings.categories", "CategoryElasticSearchMapping"
         )
 
-        category_resources = catalogue.CategoryToResource.apply(objects)
+        category_resources = CategoryToResource.apply(objects)
         category_document_resources = CategoryElasticSearchMapping.apply(
             category_resources
         )

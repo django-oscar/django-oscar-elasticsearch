@@ -2,12 +2,11 @@ import odin
 
 from oscar.core.loading import get_class
 
-from oscar_odin.resources._base import OscarResource
-from oscar_odin.resources.catalogue import (
-    Product as ProductResource,
-    Category as CategoryResource,
-)
-from oscar_odin.mappings._common import OscarBaseMapping
+OscarResource = get_class("oscar_odin.resources.base", "OscarResource")
+ProductResource = get_class("oscar_odin.resources.catalogue", "ProductResource")
+CategoryResource = get_class("oscar_odin.resources.catalogue", "CategoryResource")
+
+OscarBaseMapping = get_class("oscar_odin.mappings.common", "OscarBaseMapping")
 
 ProductElasticSearchResource = get_class(
     "search.mappings.products.resources", "ProductElasticSearchResource"
