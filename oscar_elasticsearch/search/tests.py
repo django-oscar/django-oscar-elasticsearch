@@ -7,7 +7,11 @@ from django.test import TestCase
 from django.urls import reverse
 
 from oscar.core.loading import get_class, get_model
-from oscar.test.factories import ProductFactory
+from oscar.test.factories import (
+    ProductFactory,
+    OrderFactory,
+    OrderLineFactory,
+)
 
 import oscar_elasticsearch.search.format
 import oscar_elasticsearch.search.utils
@@ -226,6 +230,47 @@ class ManagementCommandsTestCase(TestCase):
         # The amount of queries should not change.
         with self.assertNumQueries(23):
             call_command("update_index_products")
+
+    def test_popularity_based_on_order_lines(self):
+        products = []
+        for i in range(5):
+            product = ProductFactory(
+                title=f"VERY UNIQUE TITLE - {i + 1}", categories=[]
+            )
+            products.append(product)
+
+        call_command("update_index_products")
+
+        results, total_hits = ProductElasticsearchIndex().search(
+            query_string="VERY UNIQUE TITLE", raw_results=True
+        )
+        self.assertEqual(total_hits, 5)
+        for hit in results["hits"]["hits"]:
+            self.assertEqual(
+                hit["_source"]["popularity"],
+                None,
+                "no orders place yet, so popularity should be None",
+            )
+
+        order = OrderFactory()
+        for i, product in enumerate(products):
+            quantity = int(product.title.split("-")[-1].strip())
+            for _ in range(quantity):
+                OrderLineFactory(order=order, product=product)
+
+        call_command("update_index_products")
+
+        results, total_hits = ProductElasticsearchIndex().search(
+            query_string="VERY UNIQUE TITLE", raw_results=True
+        )
+        self.assertEqual(total_hits, 5)
+        for hit in results["hits"]["hits"]:
+            title = hit["_source"]["title"]
+            quantity = int(title.split("-")[-1].strip())
+            self.assertEqual(
+                hit["_source"]["popularity"],
+                quantity,
+            )
 
 
 class TestBrowsableItems(TestCase):

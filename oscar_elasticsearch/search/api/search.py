@@ -300,6 +300,7 @@ class BaseElasticSearchApi(BaseModelIndex):
         search_type=es_settings.SEARCH_QUERY_TYPE,
         search_operator=es_settings.SEARCH_QUERY_OPERATOR,
         scoring_functions=None,
+        raw_results=False,
     ):
         search_results = search(
             self.get_index_name(),
@@ -317,6 +318,8 @@ class BaseElasticSearchApi(BaseModelIndex):
 
         total_hits = search_results["hits"]["total"]["value"]
 
+        if raw_results:
+            return search_results, total_hits
         return self.make_queryset(search_results), total_hits
 
     def facet_search(
