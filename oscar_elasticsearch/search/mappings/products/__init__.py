@@ -31,7 +31,7 @@ class ProductElasticSearchMapping(OscarBaseMapping):
 
     @odin.assign_field
     def _source(self) -> str:
-        return ProductMapping.apply(self.source)
+        return ProductMapping.apply(self.source, self.context)
 
     @odin.assign_field
     def _index(self) -> str:
