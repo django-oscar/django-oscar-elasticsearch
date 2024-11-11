@@ -36,6 +36,7 @@ class ProductElasticsearchIndex(BaseElasticSearchApi, ESModelIndexer):
     INDEX_SETTINGS = get_oscar_index_settings()
     SEARCH_FIELDS = OSCAR_PRODUCT_SEARCH_FIELDS
     SUGGESTION_FIELD_NAME = settings.SUGGESTION_FIELD_NAME
+    context = {}
 
     def get_filters(self, filters):
         if filters is not None:
@@ -81,7 +82,7 @@ class ProductElasticsearchIndex(BaseElasticSearchApi, ESModelIndexer):
             objects, include_children=True
         )
         product_document_resources = ProductElasticSearchMapping.apply(
-            product_resources
+            product_resources, self.context
         )
 
         return dict_codec.dump(product_document_resources, include_type_field=False)
