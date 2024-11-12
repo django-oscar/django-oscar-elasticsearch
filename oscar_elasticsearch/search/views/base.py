@@ -53,6 +53,15 @@ class BaseSearchView(ListView):
         if settings.FILTER_AVAILABLE:
             filters.append({"term": {"is_available": True}})
 
+        filters.append(
+            {
+                "nested": {
+                    "path": "categories",
+                    "query": {"exists": {"field": "categories"}},
+                }
+            }
+        )
+
         return filters
 
     def get_facet_filters(self):
