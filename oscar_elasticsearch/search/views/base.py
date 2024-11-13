@@ -118,12 +118,10 @@ class BaseSearchView(ListView):
         self.form = self.get_form(self.request)
         self.form.is_valid()
 
-        self.paginate_by = self.form.cleaned_data.get(
-            "items_per_page", settings.DEFAULT_ITEMS_PER_PAGE
-        )
+        items_per_page = self.form.cleaned_data.get("items_per_page", self.paginate_by)
         elasticsearch_from = (
-            int(self.request.GET.get("page", 1)) * self.paginate_by
-        ) - self.paginate_by
+            int(self.request.GET.get("page", 1)) * items_per_page
+        ) - items_per_page
 
         query_string = self.request.GET.get("q", "")
         if query_string:
@@ -132,7 +130,7 @@ class BaseSearchView(ListView):
         paginator, search_results, unfiltered_result = (
             product_search_api.paginated_facet_search(
                 from_=elasticsearch_from,
-                to=self.paginate_by,
+                to=items_per_page,
                 query_string=query_string,
                 filters=self.get_default_filters(),
                 sort_by=self.get_sort_by(),
