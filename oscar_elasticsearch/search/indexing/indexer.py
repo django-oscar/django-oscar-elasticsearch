@@ -129,7 +129,7 @@ class ESModelIndexer(BaseModelIndex):
 
         try:
             yield self
-        except Exception:
+        except Exception:  # pylint: disable=try-except-raise
             raise
         else:
             self.indexer.finish()
