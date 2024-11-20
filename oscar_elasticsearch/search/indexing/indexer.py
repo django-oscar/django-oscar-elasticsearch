@@ -129,7 +129,9 @@ class ESModelIndexer(BaseModelIndex):
 
         try:
             yield self
-        finally:
+        except Exception:
+            raise
+        else:
             self.indexer.finish()
 
     def reindex_objects(self, objects):
