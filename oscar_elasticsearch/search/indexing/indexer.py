@@ -126,11 +126,8 @@ class ESModelIndexer(BaseModelIndex):
                 index.reindex_objects(chunk)
         """
         self.indexer.start()
-
-        try:
-            yield self
-        finally:
-            self.indexer.finish()
+        yield self
+        self.indexer.finish()
 
     def reindex_objects(self, objects):
         es_data = self.make_documents(objects)

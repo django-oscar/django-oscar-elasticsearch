@@ -272,6 +272,25 @@ class ManagementCommandsTestCase(TestCase):
                 quantity,
             )
 
+    def test_exception_does_not_delete_index(self):
+        call_command("update_index_products")
+        sleep(3)
+
+        results, total_hits = self.product_index.search()
+        self.assertEqual(results.count(), 4)
+        self.assertEqual(total_hits, 4)
+
+        with self.assertRaises(Exception):
+            with ProductElasticsearchIndex().reindex() as index:
+                # Trigger an error by not passing products
+                index.reindex_objects(Category.objects.all())
+                sleep(3)
+
+        # It should still have the same amount of products.
+        results, total_hits = self.product_index.search()
+        self.assertEqual(results.count(), 4)
+        self.assertEqual(total_hits, 4)
+
 
 class TestBrowsableItems(TestCase):
 
