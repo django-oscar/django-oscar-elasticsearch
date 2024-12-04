@@ -1,4 +1,4 @@
-from oscar_elasticsearch.utils import get_index_settings
+from oscar_elasticsearch.search.utils import get_index_settings
 from oscar_elasticsearch.search.settings import (
     INDEX_PREFIX,
     FACETS,
