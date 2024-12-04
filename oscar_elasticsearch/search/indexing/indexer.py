@@ -52,7 +52,9 @@ class Indexer(object):
         bulk(es, docs, ignore=[400])
 
     def get_current_alias(self):
-        aliasses = list(es.indices.get_alias(name=self.name).keys())
+        aliasses = list(
+            es.indices.get_alias(name=self.name, ignore_unavailable=True).keys()
+        )
         if aliasses:
             return aliasses[0]
 
@@ -64,7 +66,9 @@ class Indexer(object):
         # Check if alias exists for indice
         if es.indices.exists_alias(name=self.name):
             # Get alisases
-            aliased_indices = es.indices.get_alias(name=self.name).keys()
+            aliased_indices = es.indices.get_alias(
+                name=self.name, ignore_unavailable=True
+            ).keys()
 
             # Link the new alias to the old indice
             es.indices.put_alias(name=self.name, index=self.alias_name)
