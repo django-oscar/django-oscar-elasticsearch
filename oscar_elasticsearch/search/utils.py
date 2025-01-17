@@ -43,7 +43,7 @@ def get_index_settings(MAX_GRAM):
                 "technical_analyzer": {
                     "tokenizer": "whitespace",
                     "filter": [
-                        "shallow_edgengram",
+                        "ngram",
                         "lowercase",
                         "asciifolding",
                         "max_gram_truncate",
