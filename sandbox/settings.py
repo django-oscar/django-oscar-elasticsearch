@@ -66,7 +66,8 @@ INSTALLED_APPS = [
     'sorl.thumbnail',
     'django_tables2',
     'oscar_elasticsearch.search.apps.OscarElasticSearchConfig',
-    "oscar_odin.apps.OscarOdinAppConfig"
+    "oscar_odin.apps.OscarOdinAppConfig",
+    "assortment"
 ]
 
 MIDDLEWARE = [
