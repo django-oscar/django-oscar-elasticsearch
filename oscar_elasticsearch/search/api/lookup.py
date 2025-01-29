@@ -40,7 +40,11 @@ class BaseLookupIndex(BaseElasticSearchApi, ESModelIndexer):
 
     def get_lookup_id(self, field_to_filter, **kwargs):
         raise NotImplementedError(
-            "Please implement 'get_lookup_id' on your lookup index. Return None to not apply this lookup filter, return the actual id to filter on that id, Id's should always be strings (elasticsearch), never integers"
+            """
+            Please implement 'get_lookup_id' on your lookup index. 
+            Return None to not apply this lookup filter, return the actual id to filter on that id, 
+            Id's should always be strings (elasticsearch), never integers
+            """
         )
 
     def get_lookup_query(self, field_to_filter, **kwargs):
