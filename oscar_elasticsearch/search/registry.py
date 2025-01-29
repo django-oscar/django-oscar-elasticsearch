@@ -3,6 +3,7 @@ class ElasticsearchRegistry:
 
     def register(self, cls):
         self._indexes.append(cls)
+        return cls
 
     @property
     def indexes(self):

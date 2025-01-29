@@ -1,9 +1,9 @@
+from oscar_elasticsearch.search.registry import elasticsearch_registry
 from django.core.management.base import BaseCommand
 
 from oscar.core.loading import get_class
 
 from oscar_elasticsearch.search import settings
-from oscar_elasticsearch.search.registry import elasticsearch_registry
 
 chunked = get_class("search.utils", "chunked")
 
