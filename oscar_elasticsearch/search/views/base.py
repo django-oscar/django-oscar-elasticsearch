@@ -8,7 +8,6 @@ from oscar.core.loading import get_class, get_model
 from oscar_elasticsearch.search import settings
 from oscar_elasticsearch.search.facets import process_facets
 from oscar_elasticsearch.search.signals import query_hit
-from oscar_elasticsearch.search.registry import termlookup_registry
 
 OSCAR_PRODUCTS_INDEX_NAME = get_class(
     "search.indexing.settings", "OSCAR_PRODUCTS_INDEX_NAME"
@@ -62,13 +61,6 @@ class BaseSearchView(ListView):
                 }
             }
         )
-
-        for Lookup in termlookup_registry.lookups:
-            lookup_filter = Lookup().get_lookup_query(
-                "id", request=self.request, filter=filters, form=self.form
-            )
-            if lookup_filter:
-                filters.append(lookup_filter)
 
         return filters
 

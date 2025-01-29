@@ -6,4 +6,4 @@ class AssortmentConfig(AppConfig):
     verbose_name = "Assortment"
 
     def ready(self):
-        from . import lookups
+        from . import index

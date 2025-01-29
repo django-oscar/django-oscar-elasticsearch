@@ -15,3 +15,6 @@ class BaseModelIndex:
 
     def get_model(self):
         return self.Model
+
+    def get_queryset(self):
+        return self.Model.objects.all()

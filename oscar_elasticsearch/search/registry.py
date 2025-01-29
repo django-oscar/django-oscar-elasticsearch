@@ -1,12 +1,12 @@
-class TermLookupRegistry:
-    _lookups = []
+class ElasticsearchRegistry:
+    _indexes = []
 
     def register(self, cls):
-        self._lookups.append(cls)
+        self._indexes.append(cls)
 
     @property
-    def lookups(self):
-        return self._lookups
+    def indexes(self):
+        return self._indexes
 
 
-termlookup_registry = TermLookupRegistry()
+elasticsearch_registry = ElasticsearchRegistry()

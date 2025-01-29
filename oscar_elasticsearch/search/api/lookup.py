@@ -31,9 +31,6 @@ class BaseLookupIndex(BaseElasticSearchApi, ESModelIndexer):
     LOOKUP_PATH = None
     INDEX_SETTINGS = {}
 
-    def get_queryset(self):
-        return self.Model.objects.all()
-
     def get_index_mapping(self):
         if self.LOOKUP_PATH is None:
             raise NotImplementedError("Please set LOOKUP_PATH on your lookup index")

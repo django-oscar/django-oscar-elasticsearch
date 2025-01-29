@@ -1,10 +1,17 @@
+from oscar.core.loading import get_class
+
 from oscar_elasticsearch.search.api.lookup import BaseLookupIndex
-from oscar_elasticsearch.search.registry import termlookup_registry
+from oscar_elasticsearch.search.registry import elasticsearch_registry
+
+from django.contrib.auth.models import User
+
+BaseElasticSearchApi = get_class("search.api.search", "BaseElasticSearchApi")
+ESModelIndexer = get_class("search.indexing.indexer", "ESModelIndexer")
 
 from .models import AssortmentUser
 
 
-@termlookup_registry.register
+@elasticsearch_registry.register
 class UserProductAssortmentIndex(BaseLookupIndex):
     INDEX_NAME = "user_product_assortment"
     LOOKUP_PATH = "product_ids"
@@ -29,3 +36,24 @@ class UserProductAssortmentIndex(BaseLookupIndex):
             return str(request.user.id)
 
         return None  # Returning None will result in not logged in users to see the entire catalogue
+
+
+@elasticsearch_registry.register
+class UserIndex(BaseElasticSearchApi, ESModelIndexer):
+    INDEX_NAME = "users"
+    Model = User
+    INDEX_MAPPING = {
+        "properties": {
+            "name": {"type": "text"},
+            "email": {"type": "text"},
+        }
+    }
+    INDEX_SETTINGS = {}
+    
+    def make_documents(self, objects):
+        return [
+            {
+                "name": user.get_full_name(),
+                "email": user.email,
+            } for user in objects
+        ]
