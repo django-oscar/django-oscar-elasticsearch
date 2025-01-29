@@ -28,4 +28,4 @@ class UserProductAssortmentIndex(BaseLookupIndex):
         if request and request.user.is_authenticated:
             return str(request.user.id)
 
-        return "0" # Id 0 will never exists, hence you see nothing when not logged in.
+        return None  # Returning None will result in not logged in users to see the entire catalogue
