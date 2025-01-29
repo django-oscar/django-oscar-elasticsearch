@@ -21,7 +21,7 @@ test:
 	sandbox/manage.py test
 
 black:
-	black --exclude "migrations/*" setup.py oscar_elasticsearch
+	black --exclude "migrations/*" setup.py oscar_elasticsearch/
 
 clean: ## Remove files not in source control
 	find . -type f -name "*.pyc" -delete
