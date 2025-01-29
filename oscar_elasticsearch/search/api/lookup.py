@@ -35,8 +35,10 @@ class BaseLookupIndex(BaseElasticSearchApi, ESModelIndexer):
         return self.Model.objects.all()
 
     def get_index_mapping(self):
-        if self.LOOKUP_PATH is not None:
-            return {"properties": {self.LOOKUP_PATH: {"type": "keyword"}}}
+        if self.LOOKUP_PATH is None:
+            raise NotImplementedError("Please set LOOKUP_PATH on your lookup index")
+
+        return {"properties": {self.LOOKUP_PATH: {"type": "keyword"}}}
 
     def get_lookup_id(self, field_to_filter, **kwargs):
         raise NotImplementedError(
