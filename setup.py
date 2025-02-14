@@ -32,6 +32,7 @@ setup(
         "elasticsearch>=8.0.0",
         "uwsgidecorators-fallback",
         "django-oscar-odin>=0.3.0",
+        "python-dateutil>=2.8.0",
     ],
     # mark test target to require extras.
     extras_require={
