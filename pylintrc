@@ -4,6 +4,7 @@ load-plugins=pylint_django
 score=n
 ignore = migrations
 django-settings-module = sandbox.settings
+init-hook='import sys; sys.path.append("./sandbox/")'
 
 [MESSAGES CONTROL]
 disable=R,C
