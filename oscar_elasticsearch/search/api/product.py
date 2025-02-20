@@ -56,7 +56,7 @@ class ProductElasticsearchIndex(BaseElasticSearchApi, ESModelIndexer):
                 )
 
         product_queryset_to_resources = get_class(
-            "oscar_odin.mappings.catalogue", "product_queryset_to_resources"
+            "oscar_odin.mappings.helpers", "product_queryset_to_resources"
         )
 
         ProductElasticSearchMapping = get_class(
