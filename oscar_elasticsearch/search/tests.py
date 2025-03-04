@@ -61,6 +61,17 @@ class ElasticSearchViewTest(TestCase):
         response = self.client.get("%s?q=prods" % url)
         self.assertEqual(response.context["suggestion"], "produ")
 
+    def test_child_upc_search_suggests_parent(self):
+        url = reverse("search:search")
+        # searching for child upc
+        response = self.client.get("%s?q=kq8000" % url)
+        self.assertEqual(response.context["paginator"].count, 1)
+        self.assertEqual(response.context["paginator"].instances[0].upc, "jk4000")
+        # searching for child title
+        response = self.client.get("%s?q=forty" % url)
+        self.assertEqual(response.context["paginator"].count, 1)
+        self.assertEqual(response.context["paginator"].instances[0].upc, "jk4000")
+
     def test_browse(self):
         url = reverse("catalogue:index")
         response = self.client.get(url)
