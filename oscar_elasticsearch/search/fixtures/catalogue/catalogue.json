@@ -90,6 +90,40 @@
     }
 },
 {
+    "model": "catalogue.product",
+    "pk": 6,
+    "fields": {
+        "structure": "parent",
+        "upc": "jk4000",
+        "parent": null,
+        "title": "sixty eight",
+        "slug": "sixty-eight",
+        "description": "<p style=\"margin: 0px; font-stretch: normal; font-size: 12px; line-height: normal; font-family: Helvetica;\">Nullam sapien eros, facilisis vel, eleifend non, auctor dapibus, pede.</p>",
+        "product_class": 2,
+        "rating": null,
+        "date_created": "2018-11-16T08:28:11.730Z",
+        "date_updated": "2018-11-16T08:37:39.853Z",
+        "is_discountable": true
+    }
+},
+{
+    "model": "catalogue.product",
+    "pk": 7,
+    "fields": {
+        "structure": "child",
+        "upc": "kq8000",
+        "parent": 6,
+        "title": "forty five",
+        "slug": "forty-five",
+        "description": "<p style=\"margin: 0px; font-stretch: normal; font-size: 12px; line-height: normal; font-family: Helvetica;\">Nullam sapien eros, facilisis vel, eleifend non, auctor dapibus, pede.</p>",
+        "product_class": 2,
+        "rating": null,
+        "date_created": "2018-11-16T08:28:11.730Z",
+        "date_updated": "2018-11-16T08:37:39.853Z",
+        "is_discountable": true
+    }
+},
+{
     "model": "catalogue.category",
     "pk": 1,
     "fields": {
@@ -144,6 +178,14 @@
     "pk": 4,
     "fields": {
         "product": 5,
+        "category": 1
+    }
+},
+{
+    "model": "catalogue.productcategory",
+    "pk": 5,
+    "fields": {
+        "product": 6,
         "category": 1
     }
 },
@@ -837,6 +879,22 @@
         "product": 5,
         "partner": 1,
         "partner_sku": "23478",
+        "price_currency": "EUR",
+        "price": "12.00",
+        "num_in_stock": 34,
+        "num_allocated": null,
+        "low_stock_threshold": 8,
+        "date_created": "2018-11-16T08:28:11.797Z",
+        "date_updated": "2018-11-16T08:28:11.797Z"
+    }
+},
+{
+    "model": "partner.stockrecord",
+    "pk": 5,
+    "fields": {
+        "product": 7,
+        "partner": 1,
+        "partner_sku": "jik090",
         "price_currency": "EUR",
         "price": "12.00",
         "num_in_stock": 34,

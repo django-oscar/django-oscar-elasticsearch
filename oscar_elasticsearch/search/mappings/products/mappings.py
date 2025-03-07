@@ -148,6 +148,7 @@ class ProductMapping(OscarBaseMapping):
         if self.source.structure == Product.PARENT:
             for child in self.source.children:
                 attrs.append(child.title)
+                attrs.append(child.upc)
                 attrs.extend([str(a) for a in child.attributes.values()])
 
         return attrs
