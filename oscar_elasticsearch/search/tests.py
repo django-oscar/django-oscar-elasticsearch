@@ -129,8 +129,8 @@ class TestSearchApi(TestCase):
     def test_product_search(self):
         results, total_hits = self.product_search_api.search()
 
-        self.assertEqual(results.count(), 4)
-        self.assertEqual(total_hits, 4)
+        self.assertEqual(results.count(), 6)
+        self.assertEqual(total_hits, 6)
 
         results, total_hits = self.product_search_api.search(query_string="bikini")
 
@@ -176,8 +176,8 @@ class ManagementCommandsTestCase(TestCase):
         sleep(3)
 
         results, total_hits = self.product_index.search()
-        self.assertEqual(results.count(), 4)
-        self.assertEqual(total_hits, 4)
+        self.assertEqual(results.count(), 6)
+        self.assertEqual(total_hits, 6)
 
     @patch("oscar_elasticsearch.search.settings.INDEXING_CHUNK_SIZE", 2)
     def test_update_index_products_multiple_chunks(self):
@@ -189,8 +189,8 @@ class ManagementCommandsTestCase(TestCase):
         sleep(3)
 
         results, total_hits = self.product_index.search()
-        self.assertEqual(results.count(), 4)
-        self.assertEqual(total_hits, 4)
+        self.assertEqual(results.count(), 6)
+        self.assertEqual(total_hits, 6)
 
     def test_update_index_categories(self):
         results, total_hits = self.category_index.search()
@@ -230,7 +230,7 @@ class ManagementCommandsTestCase(TestCase):
                     ProductFactory(structure="child", parent=parent, categories=[])
 
         create_parent_child_products()
-        self.assertEqual(Product.objects.count(), 64)  # 4 inside the fixtures
+        self.assertEqual(Product.objects.count(), 66)  # 6 inside the fixtures
 
         with self.assertNumQueries(23):
             call_command("update_index_products")
@@ -288,8 +288,8 @@ class ManagementCommandsTestCase(TestCase):
         sleep(3)
 
         results, total_hits = self.product_index.search()
-        self.assertEqual(results.count(), 4)
-        self.assertEqual(total_hits, 4)
+        self.assertEqual(results.count(), 6)
+        self.assertEqual(total_hits, 6)
 
         with self.assertRaises(Exception):
             with ProductElasticsearchIndex().reindex() as index:
@@ -299,8 +299,8 @@ class ManagementCommandsTestCase(TestCase):
 
         # It should still have the same amount of products.
         results, total_hits = self.product_index.search()
-        self.assertEqual(results.count(), 4)
-        self.assertEqual(total_hits, 4)
+        self.assertEqual(results.count(), 6)
+        self.assertEqual(total_hits, 6)
 
 
 class TestBrowsableItems(TestCase):
