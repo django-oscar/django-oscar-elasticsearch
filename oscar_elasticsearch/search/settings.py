@@ -99,7 +99,12 @@ SORT_BY_CHOICES_SEARCH = getattr(
 SORT_BY_MAP_SEARCH = getattr(
     settings,
     "OSCAR_ELASTICSEARCH_SORT_BY_MAP_SEARCH",
-    {NEWEST: "-date_created", POPULARITY: "-popularity"},
+    {
+        NEWEST: "-date_created",
+        POPULARITY: "-popularity",
+        TITLE_A_TO_Z: "title.raw",
+        TITLE_Z_TO_A: "-title.raw",
+    },
 )
 
 SORT_BY_CHOICES_CATALOGUE = getattr(
@@ -126,8 +131,8 @@ SORT_BY_MAP_CATALOGUE = getattr(
         POPULARITY: "-popularity",
         PRICE_HIGH_TO_LOW: "-price",
         PRICE_LOW_TO_HIGH: "price",
-        TITLE_A_TO_Z: "title",
-        TITLE_Z_TO_A: "-title",
+        TITLE_A_TO_Z: "title.raw",
+        TITLE_Z_TO_A: "-title.raw",
     },
 )
 
