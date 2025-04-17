@@ -44,8 +44,6 @@ class CategoryRelatedMapping(OscarBaseMapping):
     from_resource = CategoryResource
     to_resource = CategoryElasticSearchRelatedResource
 
-    mappings = [odin.define(from_field="name", to_field="full_name")]
-
     @odin.assign_field
     def description(self) -> str:
         return strip_tags(self.source.description)
