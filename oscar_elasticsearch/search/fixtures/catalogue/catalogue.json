@@ -140,13 +140,13 @@
     "model": "catalogue.category",
     "pk": 2,
     "fields": {
-        "path": "0002",
-        "depth": 1,
+        "path": "00010001",
+        "depth": 2,
         "numchild": 0,
-        "name": "Hoihoi",
-        "description": "<p>Some ambulant hoi's</p>",
+        "name": "bridge",
+        "description": "<p>Some bridge's</p>",
         "image": "",
-        "slug": "hoi"
+        "slug": "bridge"
     }
 },
 {
@@ -170,7 +170,7 @@
     "pk": 3,
     "fields": {
         "product": 4,
-        "category": 1
+        "category": 2
     }
 },
 {
@@ -178,7 +178,7 @@
     "pk": 4,
     "fields": {
         "product": 5,
-        "category": 1
+        "category": 2
     }
 },
 {
@@ -186,7 +186,7 @@
     "pk": 5,
     "fields": {
         "product": 6,
-        "category": 1
+        "category": 2
     }
 },
 {
