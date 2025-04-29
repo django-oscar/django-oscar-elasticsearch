@@ -18,6 +18,7 @@ OSCAR_INDEX_SETTINGS = get_oscar_index_settings()
 
 BaseElasticSearchApi = get_class("search.api.search", "BaseElasticSearchApi")
 ESModelIndexer = get_class("search.indexing.indexer", "ESModelIndexer")
+get_category_ancestors = get_class("oscar_odin.utils", "get_category_ancestors")
 
 Category = get_model("catalogue", "Category")
 
@@ -37,7 +38,13 @@ class CategoryElasticsearchIndex(BaseElasticSearchApi, ESModelIndexer):
             "search.mappings.categories", "CategoryElasticSearchMapping"
         )
 
-        category_resources = CategoryToResource.apply(objects)
+        category_resources = CategoryToResource.apply(
+            objects,
+            context={
+                "category_ancestors": get_category_ancestors(),
+                "category_titles": dict(Category.objects.values_list("id", "name")),
+            },
+        )
         category_document_resources = CategoryElasticSearchMapping.apply(
             category_resources
         )
