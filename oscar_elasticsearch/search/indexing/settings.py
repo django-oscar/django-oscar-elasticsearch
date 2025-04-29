@@ -97,9 +97,13 @@ def get_products_index_mapping():
                         "type": "text",
                         "copy_to": "_all_text",
                     },
-                    "full_name": {
-                        "copy_to": "_all_text",
+                    "name": {
                         "type": "text",
+                        "copy_to": "_all_text",
+                    },
+                    "ancestor_names": {
+                        "type": "text",
+                        "copy_to": "_all_text",
                     },
                 },
             },
