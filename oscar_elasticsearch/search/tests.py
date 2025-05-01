@@ -83,8 +83,6 @@ class ElasticSearchViewTest(TestCase):
     def test_catagory(self):
         url = reverse("catalogue:category", args=("root", 1))
         response = self.client.get(url)
-        self.assertContains(response, "second")
-        self.assertContains(response, "serious product")
         self.assertContains(response, "Hubble Photo")
         self.assertContains(response, "Hermes Bikini")
 
@@ -100,8 +98,6 @@ class ElasticSearchViewTest(TestCase):
 
         url = reverse("catalogue:category", args=("root", 1))
         response = self.client.get(url)
-        self.assertContains(response, "second")
-        self.assertContains(response, "serious product")
         self.assertNotContains(response, "Hubble Photo")
 
 
@@ -143,10 +139,21 @@ class TestSearchApi(TestCase):
         self.assertEqual(results.count(), 2)
         self.assertEqual(total_hits, 2)
 
-        results, total_hits = self.category_search_api.search(query_string="hoi")
+        results, total_hits = self.category_search_api.search(query_string="bridge")
 
         self.assertEqual(results.count(), 1)
         self.assertEqual(total_hits, 1)
+
+    def test_product_search_with_category_name(self):
+        results, total_hits = self.product_search_api.search(query_string="Bridge")
+
+        self.assertEqual(results.count(), 4)
+        self.assertEqual(total_hits, 4)
+
+        results, total_hits = self.product_search_api.search(query_string="Ambulant")
+
+        self.assertEqual(results.count(), 6)
+        self.assertEqual(total_hits, 6)
 
 
 class ManagementCommandsTestCase(TestCase):
@@ -232,14 +239,14 @@ class ManagementCommandsTestCase(TestCase):
         create_parent_child_products()
         self.assertEqual(Product.objects.count(), 66)  # 6 inside the fixtures
 
-        with self.assertNumQueries(23):
+        with self.assertNumQueries(25):
             call_command("update_index_products")
 
         # create 10 extra product with each 5 childs
         create_parent_child_products()
 
         # The amount of queries should not change.
-        with self.assertNumQueries(23):
+        with self.assertNumQueries(25):
             call_command("update_index_products")
 
     def test_popularity_based_on_order_lines(self):

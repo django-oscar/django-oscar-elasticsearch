@@ -16,7 +16,8 @@ OscarResource = get_class("oscar_odin.resources.base", "OscarResource")
 class CategoryElasticSearchRelatedResource(OscarResource):
     id: int
     description: str
-    full_name: str
+    name: str
+    ancestor_names: str
 
 
 class ProductElasticSearchResource(OscarElasticSearchResourceMixin):
