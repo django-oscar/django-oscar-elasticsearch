@@ -41,19 +41,6 @@ class ProductElasticsearchIndex(BaseElasticSearchApi, ESModelIndexer):
     SUGGESTION_FIELD_NAME = settings.SUGGESTION_FIELD_NAME
     context = {}
 
-    def __init__(self, context=None):
-        super().__init__()
-        if context is None:
-            context = {}
-
-        if "category_titles" not in context:
-            context["category_titles"] = dict(
-                Category.objects.values_list("id", "name")
-            )
-        if "category_ancestors" not in context:
-            context["category_ancestors"] = get_category_ancestors()
-        self.context = context
-
     def get_filters(self, filters):
         if filters is not None:
             return filters
@@ -61,6 +48,13 @@ class ProductElasticsearchIndex(BaseElasticSearchApi, ESModelIndexer):
         return [{"term": {"is_public": True}}]
 
     def make_documents(self, objects):
+        if "category_titles" not in self.context:
+            self.context["category_titles"] = dict(
+                Category.objects.values_list("id", "name")
+            )
+        if "category_ancestors" not in self.context:
+            self.context["category_ancestors"] = get_category_ancestors()
+
         if not isinstance(objects, QuerySet):
             try:
                 objects = Product.objects.filter(id__in=[o.id for o in objects])
