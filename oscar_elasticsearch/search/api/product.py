@@ -8,6 +8,8 @@ from dateutil.relativedelta import relativedelta
 from oscar.core.loading import get_class, get_model, get_classes
 from oscar_elasticsearch.search import settings
 
+from oscar_elasticsearch.search.utils import get_category_ancestors
+
 # this index name is retrived with get_class because of i18n but it might be removed later
 (
     OSCAR_PRODUCTS_INDEX_NAME,
@@ -26,6 +28,7 @@ from oscar_elasticsearch.search import settings
 BaseElasticSearchApi = get_class("search.api.search", "BaseElasticSearchApi")
 ESModelIndexer = get_class("search.indexing.indexer", "ESModelIndexer")
 Product = get_model("catalogue", "Product")
+Category = get_model("catalogue", "Category")
 Line = get_model("order", "Line")
 
 
@@ -45,6 +48,13 @@ class ProductElasticsearchIndex(BaseElasticSearchApi, ESModelIndexer):
         return [{"term": {"is_public": True}}]
 
     def make_documents(self, objects):
+        if "category_titles" not in self.context:
+            self.context["category_titles"] = dict(
+                Category.objects.values_list("id", "name")
+            )
+        if "category_ancestors" not in self.context:
+            self.context["category_ancestors"] = get_category_ancestors()
+
         if not isinstance(objects, QuerySet):
             try:
                 objects = Product.objects.filter(id__in=[o.id for o in objects])
