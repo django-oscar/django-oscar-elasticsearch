@@ -48,6 +48,17 @@ class CategoryRelatedMapping(OscarBaseMapping):
     def description(self) -> str:
         return strip_tags(self.source.description)
 
+    @odin.assign_field
+    def ancestor_names(self) -> str:
+        """Map names of all of the category ancestors."""
+        names = []
+        if self.source.id in self.context["category_ancestors"]:
+            names = [
+                self.context["category_titles"][ancestor_id]
+                for ancestor_id in self.context["category_ancestors"][self.source.id]
+            ]
+        return " | ".join(names)
+
 
 class ProductMapping(OscarBaseMapping):
     from_resource = ProductResource
@@ -98,7 +109,7 @@ class ProductMapping(OscarBaseMapping):
 
     @odin.assign_field(to_list=True)
     def categories(self) -> str:
-        return CategoryRelatedMapping.apply(self.source.categories)
+        return CategoryRelatedMapping.apply(self.source.categories, self.context)
 
     @odin.map_field(from_field="attributes")
     def attrs(self, attributes):

@@ -8,6 +8,8 @@ from dateutil.relativedelta import relativedelta
 from oscar.core.loading import get_class, get_model, get_classes
 from oscar_elasticsearch.search import settings
 
+from oscar_elasticsearch.search.utils import get_category_ancestors
+
 # this index name is retrived with get_class because of i18n but it might be removed later
 (
     OSCAR_PRODUCTS_INDEX_NAME,
@@ -26,6 +28,7 @@ from oscar_elasticsearch.search import settings
 BaseElasticSearchApi = get_class("search.api.search", "BaseElasticSearchApi")
 ESModelIndexer = get_class("search.indexing.indexer", "ESModelIndexer")
 Product = get_model("catalogue", "Product")
+Category = get_model("catalogue", "Category")
 Line = get_model("order", "Line")
 
 
@@ -37,6 +40,19 @@ class ProductElasticsearchIndex(BaseElasticSearchApi, ESModelIndexer):
     SEARCH_FIELDS = OSCAR_PRODUCT_SEARCH_FIELDS
     SUGGESTION_FIELD_NAME = settings.SUGGESTION_FIELD_NAME
     context = {}
+
+    def __init__(self, context=None):
+        super().__init__()
+        if context is None:
+            context = {}
+
+        if "category_titles" not in context:
+            context["category_titles"] = dict(
+                Category.objects.values_list("id", "name")
+            )
+        if "category_ancestors" not in context:
+            context["category_ancestors"] = get_category_ancestors()
+        self.context = context
 
     def get_filters(self, filters):
         if filters is not None:
