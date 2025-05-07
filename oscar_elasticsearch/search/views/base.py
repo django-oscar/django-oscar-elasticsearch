@@ -169,6 +169,7 @@ class BaseSearchView(ListView):
         context["page"] = page_obj
         context[self.context_object_name] = page_obj
         context["facet_data"] = processed_facets
+        context["selected_facets"] = self.request.GET.getlist("selected_facets", [])
         context["has_facets"] = bool(processed_facets)
         context["query"] = self.request.GET.get("q") or gettext("Blank")
         context["form"] = self.form
