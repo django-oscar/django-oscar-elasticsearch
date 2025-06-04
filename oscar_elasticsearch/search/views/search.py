@@ -6,7 +6,7 @@ from oscar.core.loading import get_class
 
 from oscar_elasticsearch.search.indexing.settings import OSCAR_PRODUCTS_INDEX_NAME
 from oscar_elasticsearch.search.settings import (
-    SUGGESTION_STATUS_FILTER,
+    AUTOCOMPLETE_STATUS_FILTER,
 )
 
 es = get_class("search.backend", "es")
@@ -17,7 +17,7 @@ autocomplete_suggestions = get_class(
 
 class CatalogueAutoCompleteView(View):
     def get_suggestion_context(self):
-        return {"status": SUGGESTION_STATUS_FILTER}
+        return {"status": AUTOCOMPLETE_STATUS_FILTER}
 
     def get_suggestions(self):
         search_string = self.request.GET.get("q", "")
