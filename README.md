@@ -44,8 +44,8 @@ Follow these steps to set up the project:
 - **`OSCAR_ELASTICSEARCH_ITEMS_PER_PAGE_CHOICES`**: Options for items per page settings. Default is `[DEFAULT_ITEMS_PER_PAGE]`.
 - **`OSCAR_ELASTICSEARCH_MONTHS_TO_RUN_ANALYTICS`**: Defines months to run analytics queries. Default is `3`.
 - **`OSCAR_ELASTICSEARCH_FACETS`**: Customizable search facets for filtering.
-- **`OSCAR_ELASTICSEARCH_SUGGESTION_STATUS_FILTER`**: Status filter for search suggestions, default depends on availability settings.
 - **`OSCAR_ELASTICSEARCH_SUGGESTION_FIELD_NAME`**: Field name used for suggestions. Default is `"search_title"`.
+- **`OSCAR_ELASTICSEARCH_AUTOCOMPLETE_STATUS_FILTER`**: Status filter for search autocomplete, default depends on availability settings.
 - **`OSCAR_ELASTICSEARCH_AUTOCOMPLETE_CONTEXTS`**: Contexts for autocomplete suggestions.
 - **`OSCAR_ELASTICSEARCH_AUTOCOMPLETE_SEARCH_FIELDS`**: Fields used in autocomplete search. Default is `["title", "upc"]`.
 - **`OSCAR_ELASTICSEARCH_SEARCH_FIELDS`**: Specifies fields used for general search queries.
