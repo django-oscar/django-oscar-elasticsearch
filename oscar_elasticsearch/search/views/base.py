@@ -67,6 +67,9 @@ class BaseSearchView(ListView):
     def get_facet_filters(self):
         filters = []
 
+        if self.form.selected_multi_facets is None:
+            return filters
+
         for name, value in self.form.selected_multi_facets.items():
             # pylint: disable=W0640
             definition = list(
@@ -97,7 +100,9 @@ class BaseSearchView(ListView):
 
     def get_sort_by(self):
         sort_by = []
-        ordering = self.form.get_sort_params(self.form.cleaned_data)
+        ordering = None
+        if hasattr(self.form, "get_sort_params"):
+            ordering = self.form.get_sort_params(self.form.cleaned_data)
 
         if not ordering and not self.request.GET.get("q"):
             ordering = settings.DEFAULT_ORDERING

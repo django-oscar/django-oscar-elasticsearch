@@ -26,7 +26,7 @@ def strip_pagination(url):
 def process_facets(request_full_path, form, facets, facet_definitions=None):
     unfiltered_facets, filtered_facets = facets
     selected_multi_facets = form.selected_multi_facets
-    if not facet_definitions:
+    if not facet_definitions or selected_multi_facets is None:
         facet_definitions = []
     processed_facets = {}
 
