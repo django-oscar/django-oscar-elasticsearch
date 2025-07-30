@@ -309,6 +309,56 @@ class ManagementCommandsTestCase(TestCase):
         self.assertEqual(results.count(), 6)
         self.assertEqual(total_hits, 6)
 
+    def test_parent_child_attributes_merging(self):
+        parent = Product.objects.get(pk=6)
+        child = Product.objects.get(pk=7)
+
+        child_henkie = child.attribute_values.filter(attribute__code="henkie").first()
+        child_subtitle = child.attribute_values.filter(
+            attribute__code="subtitle"
+        ).first()
+        parent_henkie = parent.attribute_values.filter(attribute__code="henkie").first()
+
+        self.assertEqual(child_henkie.value, "child henkie value")
+        self.assertEqual(child_subtitle.value, "child subtitle value")
+        self.assertEqual(parent_henkie.value, "parent henkie value")
+
+        call_command("update_index_products")
+        sleep(3)
+
+        results, total_hits = ProductElasticsearchIndex().search(
+            query_string=parent.upc, raw_results=True
+        )
+        self.assertEqual(total_hits, 1)
+
+        hit = results["hits"]["hits"][0]
+        attrs = hit["_source"]["attrs"]
+        string_attrs = hit["_source"]["string_attrs"]
+
+        self.assertEqual(
+            attrs["henkie"],
+            ["parent henkie value", "child henkie value"],
+            "Parent and child henkie values should be merged into list",
+        )
+        self.assertEqual(
+            attrs["subtitle"],
+            "child subtitle value",
+            "Child subtitle should be included even when parent has no subtitle",
+        )
+
+        self.assertIn(
+            "forty five", string_attrs, "Child title should be in string_attrs"
+        )
+        self.assertIn("kq8000", string_attrs, "Child UPC should be in string_attrs")
+        self.assertIn(
+            "child henkie value", string_attrs, "Child henkie should be in string_attrs"
+        )
+        self.assertIn(
+            "child subtitle value",
+            string_attrs,
+            "Child subtitle should be in string_attrs",
+        )
+
 
 class TestBrowsableItems(TestCase):
 
