@@ -114,14 +114,28 @@ class ProductMapping(OscarBaseMapping):
     @odin.map_field(from_field="attributes")
     def attrs(self, attributes):
         attrs = {}
-        for code in ATTRIBUTES_TO_INDEX:
-            if code in attributes:
-                attribute = attributes[code]
 
-                if isinstance(attribute, QuerySet):
-                    attrs[code] = [str(o) for o in attribute]
-                else:
-                    attrs[code] = str(attribute)
+        def get_attribute_values(attr_dict, code):
+            if code not in attr_dict:
+                return []
+            attribute = attr_dict[code]
+            if isinstance(attribute, QuerySet):
+                return [str(o) for o in attribute]
+            else:
+                return [str(attribute)]
+
+        for code in ATTRIBUTES_TO_INDEX:
+            values = []
+
+            if code in attributes:
+                values = get_attribute_values(attributes, code)
+
+            if self.source.structure == Product.PARENT:
+                for child in self.source.children:
+                    values.extend(get_attribute_values(child.attributes, code))
+
+            if values:
+                attrs[code] = values[0] if len(values) == 1 else values
 
         return attrs
 
@@ -140,10 +154,7 @@ class ProductMapping(OscarBaseMapping):
 
         # depending on FILTER_AVAILABLE things are browsable only if
         # they are available
-        is_browsable = (
-            self.source.structure == Product.STANDALONE
-            or self.source.structure == Product.PARENT
-        )
+        is_browsable = self.source.structure in [Product.STANDALONE, Product.PARENT]
         if not settings.FILTER_AVAILABLE and is_browsable:
             ctx.append(ES_CTX_BROWSABLE)
         elif self.source.is_available_to_buy and is_browsable:

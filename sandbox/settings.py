@@ -283,6 +283,18 @@ OSCAR_ELASTICSEARCH_FACETS = [
         "label": "Bijzonderheden",
         "type": "term",
         "ranges": []
+    },
+    {
+        "name": "attrs.henkie",
+        "label": "Henk",
+        "type": "term",
+        "ranges": []
+    },
+    {
+        "name": "attrs.subtitle",
+        "label": "Subtitle",
+        "type": "term",
+        "ranges": []
     }
 ]
 

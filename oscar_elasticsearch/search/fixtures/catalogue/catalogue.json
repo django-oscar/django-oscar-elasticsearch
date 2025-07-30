@@ -770,6 +770,69 @@
     }
 },
 {
+    "model": "catalogue.productattributevalue",
+    "pk": 23,
+    "fields": {
+        "attribute": 11,
+        "product": 6,
+        "value_text": "parent henkie value",
+        "value_integer": null,
+        "value_boolean": null,
+        "value_float": null,
+        "value_richtext": null,
+        "value_date": null,
+        "value_datetime": null,
+        "value_option": null,
+        "value_file": "",
+        "value_image": "",
+        "entity_content_type": null,
+        "entity_object_id": null,
+        "value_multi_option": []
+    }
+},
+{
+    "model": "catalogue.productattributevalue",
+    "pk": 24,
+    "fields": {
+        "attribute": 11,
+        "product": 7,
+        "value_text": "child henkie value",
+        "value_integer": null,
+        "value_boolean": null,
+        "value_float": null,
+        "value_richtext": null,
+        "value_date": null,
+        "value_datetime": null,
+        "value_option": null,
+        "value_file": "",
+        "value_image": "",
+        "entity_content_type": null,
+        "entity_object_id": null,
+        "value_multi_option": []
+    }
+},
+{
+    "model": "catalogue.productattributevalue",
+    "pk": 25,
+    "fields": {
+        "attribute": 2,
+        "product": 7,
+        "value_text": "child subtitle value",
+        "value_integer": null,
+        "value_boolean": null,
+        "value_float": null,
+        "value_richtext": null,
+        "value_date": null,
+        "value_datetime": null,
+        "value_option": null,
+        "value_file": "",
+        "value_image": "",
+        "entity_content_type": null,
+        "entity_object_id": null,
+        "value_multi_option": []
+    }
+},
+{
     "model": "catalogue.attributeoptiongroup",
     "pk": 1,
     "fields": {
