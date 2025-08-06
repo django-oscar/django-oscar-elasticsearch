@@ -38,8 +38,13 @@ def process_facets(request_full_path, form, facets, facet_definitions=None):
         if unfiltered_facet is None:
             continue
 
-        unfiltered_buckets = unfiltered_facet.get("buckets", [])
-        filtered_buckets = filtered_facet.get("buckets", [])
+        if "nested" in facet_definition:
+            unfiltered_buckets = unfiltered_facet[facet_name].get("buckets", [])
+            filtered_buckets = filtered_facet[facet_name].get("buckets", [])
+        else:
+            unfiltered_buckets = unfiltered_facet.get("buckets", [])
+            filtered_buckets = filtered_facet.get("buckets", [])
+
         if len(unfiltered_buckets) >= settings.MIN_NUM_BUCKETS:
             # range facet buckets are always filled so we need to check if the
             # doc_counts are non-zero to know if they are useful.
