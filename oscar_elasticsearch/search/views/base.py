@@ -75,6 +75,7 @@ class BaseSearchView(ListView):
             definition = list(
                 filter(lambda x: x["name"] == name, self.get_aggs_definitions())
             )[0]
+            nested = definition.get("nested", None)
             if definition["type"] == "range":
                 ranges = []
                 for val in value:
@@ -92,29 +93,12 @@ class BaseSearchView(ListView):
                             {"range": {name: {"from": D(from_), "to": D(to)}}}
                         )
 
-                if definition.get("nested", None):
-                    filters.append(
-                        {
-                            "nested": {
-                                "path": definition["nested"]["path"],
-                                "query": {"bool": {"should": ranges}},
-                            }
-                        }
-                    )
-                else:
                     filters.append({"bool": {"should": ranges}})
             else:
-                if definition.get("nested", None):
-                    filters.append(
-                        {
-                            "nested": {
-                                "path": definition["nested"]["path"],
-                                "query": {"terms": {name: value}},
-                            }
-                        }
-                    )
-                else:
-                    filters.append({"terms": {name: value}})
+                filters.append({"terms": {name: value}})
+
+            if nested:
+                filters[-1] = {"nested": {"path": nested["path"], "query": filters[-1]}}
 
         return filters
 
