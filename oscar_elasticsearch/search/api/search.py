@@ -102,15 +102,7 @@ def get_elasticsearch_aggs(aggs_definitions):
             if "order" in facet_definition:
                 terms["terms"]["order"] = {"_key": facet_definition.get("order", "asc")}
 
-            if nested:
-                aggs[name] = {
-                    "nested": {"path": nested["path"]},
-                    "aggs": {
-                        name: terms,
-                    },
-                }
-            else:
-                aggs[name] = terms
+            aggs[name] = terms
         elif facet_type == "range":
             ranges_definition = facet_definition["ranges"]
             if ranges_definition:
@@ -154,6 +146,12 @@ def get_elasticsearch_aggs(aggs_definitions):
                 )
 
             aggs[name] = date_histogram
+
+        if name in aggs and nested:
+            aggs[name] = {
+                "nested": {"path": nested["path"]},
+                "aggs": {name: {**aggs[name]}},
+            }
 
     return aggs
 
