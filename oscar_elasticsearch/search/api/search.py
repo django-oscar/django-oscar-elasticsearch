@@ -146,6 +146,11 @@ def get_elasticsearch_aggs(aggs_definitions):
 
             aggs[name] = date_histogram
 
+        if aggs[name] and "nested_field" in facet_definition:
+            aggs[name] = {"nested": {"path": name}, "aggs": {name: {**aggs[name]}}}
+            for agg in aggs[name]["aggs"][name].values():
+                agg["field"] = f"{name}.{facet_definition['nested_field']}"
+
     return aggs
 
 

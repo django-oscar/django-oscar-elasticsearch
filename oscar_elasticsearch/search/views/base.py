@@ -75,6 +75,9 @@ class BaseSearchView(ListView):
             definition = list(
                 filter(lambda x: x["name"] == name, self.get_aggs_definitions())
             )[0]
+            if "nested_field" in definition:
+                facet_name = name
+                name = f"{name}.{definition['nested_field']}"
             if definition["type"] == "range":
                 ranges = []
                 for val in value:
@@ -95,6 +98,9 @@ class BaseSearchView(ListView):
                 filters.append({"bool": {"should": ranges}})
             else:
                 filters.append({"terms": {name: value}})
+
+            if "nested_field" in definition:
+                filters[-1] = {"nested": {"path": facet_name, "query": filters[-1]}}
 
         return filters
 
