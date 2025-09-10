@@ -36,6 +36,9 @@ def process_facets(request_full_path, form, facets, facet_definitions=None):
         selected_facets = selected_multi_facets[facet_name]
         unfiltered_facet = unfiltered_facets["aggregations"].get(facet_name)
         filtered_facet = filtered_facets["aggregations"].get(facet_name, {})
+        if "nested_field" in facet_definition:
+            unfiltered_facet = unfiltered_facet.get(facet_name)
+            filtered_facet = filtered_facet.get(facet_name, {})
         if unfiltered_facet is None:
             continue
 
