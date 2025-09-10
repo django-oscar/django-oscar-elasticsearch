@@ -32,13 +32,14 @@ def process_facets(request_full_path, form, facets, facet_definitions=None):
 
     for facet_definition in facet_definitions:
         facet_name = facet_definition["name"]
+        nested = facet_definition.get("nested", None)
         selected_facets = selected_multi_facets[facet_name]
         unfiltered_facet = unfiltered_facets["aggregations"].get(facet_name)
         filtered_facet = filtered_facets["aggregations"].get(facet_name, {})
         if unfiltered_facet is None:
             continue
 
-        if "nested" in facet_definition:
+        if nested:
             unfiltered_buckets = unfiltered_facet[facet_name].get("buckets", [])
             filtered_buckets = filtered_facet[facet_name].get("buckets", [])
         else:

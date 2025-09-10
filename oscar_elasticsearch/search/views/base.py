@@ -92,29 +92,13 @@ class BaseSearchView(ListView):
                             {"range": {name: {"from": D(from_), "to": D(to)}}}
                         )
 
-                if definition.get("nested", None):
-                    filters.append(
-                        {
-                            "nested": {
-                                "path": definition["nested"]["path"],
-                                "query": {"bool": {"should": ranges}},
-                            }
-                        }
-                    )
-                else:
-                    filters.append({"bool": {"should": ranges}})
+                filters.append({"bool": {"should": ranges}})
             else:
-                if definition.get("nested", None):
-                    filters.append(
-                        {
-                            "nested": {
-                                "path": definition["nested"]["path"],
-                                "query": {"terms": {name: value}},
-                            }
-                        }
-                    )
-                else:
-                    filters.append({"terms": {name: value}})
+                filters.append({"terms": {name: value}})
+
+            nested = definition.get("nested", None)
+            if nested:
+                filters[-1] = {"nested": {"path": nested["path"], "query": filters[-1]}}
 
         return filters
 
