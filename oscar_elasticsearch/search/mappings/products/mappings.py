@@ -121,6 +121,8 @@ class ProductMapping(OscarBaseMapping):
             attribute = attr_dict[code]
             if isinstance(attribute, QuerySet):
                 return [str(o) for o in attribute]
+            if isinstance(attribute, list):
+                return [str(item) for item in attribute]
             else:
                 return [str(attribute)]
 
