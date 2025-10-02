@@ -81,7 +81,7 @@ class ProductMapping(OscarBaseMapping):
         if (
             not self.source.is_available_to_buy
             and settings.PRIORITIZE_AVAILABLE_PRODUCTS
-        ):
+        ) or (not self.source.images and settings.PRIORITIZE_PRODUCTS_WITH_IMAGES):
             return -1
 
         return priority
