@@ -129,22 +129,9 @@ class BaseSearchView(ListView):
             selected_facets=request.GET.getlist("selected_facets", []),
         )
 
-    def get_context_data(self, *args, **kwargs):
-        context = super().get_context_data(*args, **kwargs)
-
-        # pylint: disable=W0201
-        self.form = self.get_form(self.request)
-        self.form.is_valid()
-
-        items_per_page = self.form.cleaned_data.get("items_per_page", self.paginate_by)
-        elasticsearch_from = (
-            int(self.request.GET.get("page", 1)) * items_per_page
-        ) - items_per_page
-
-        query_string = self.request.GET.get("q", "")
-        if query_string:
-            query_hit.send(sender=self, querystring=query_string)
-
+    def get_elasticsearch_result(
+        self, elasticsearch_from, items_per_page, query_string
+    ):
         paginator, search_results, unfiltered_result = (
             product_search_api.paginated_facet_search(
                 from_=elasticsearch_from,
@@ -168,12 +155,34 @@ class BaseSearchView(ListView):
         else:
             processed_facets = None
 
+        return paginator, processed_facets, search_results.get("suggest", [])
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(*args, **kwargs)
+
+        # pylint: disable=W0201
+        self.form = self.get_form(self.request)
+        self.form.is_valid()
+
+        items_per_page = self.form.cleaned_data.get("items_per_page", self.paginate_by)
+        elasticsearch_from = (
+            int(self.request.GET.get("page", 1)) * items_per_page
+        ) - items_per_page
+
+        query_string = self.request.GET.get("q", "")
+        if query_string:
+            query_hit.send(sender=self, querystring=query_string)
+
+        paginator, processed_facets, suggest = self.get_elasticsearch_result(
+            elasticsearch_from, items_per_page, query_string
+        )
+
         context["paginator"] = paginator
         page_obj = paginator.get_page(self.request.GET.get("page", 1))
         context["page_obj"] = page_obj
         context["suggestion"] = select_suggestion(
             product_search_api.get_suggestion_field_name(None),
-            search_results.get("suggest", []),
+            suggest,
         )
         context["page"] = page_obj
         context[self.context_object_name] = page_obj

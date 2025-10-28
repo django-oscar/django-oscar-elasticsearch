@@ -41,6 +41,7 @@ def get_search_body(
     search_operator=None,
     scoring_functions=None,
     aggs=None,
+    highlight=None,
     explain=True,
 ):
     body = {
@@ -62,6 +63,9 @@ def get_search_body(
             }
         },
     }
+
+    if highlight:
+        body["highlight"] = highlight
 
     if explain:
         body["explain"] = settings.DEBUG
@@ -168,6 +172,7 @@ def search(
     search_type=es_settings.SEARCH_QUERY_TYPE,
     search_operator=es_settings.SEARCH_QUERY_OPERATOR,
     scoring_functions=None,
+    highlight=None,
 ):
     body = get_search_body(
         from_,
@@ -180,6 +185,7 @@ def search(
         search_type=search_type,
         search_operator=search_operator,
         scoring_functions=scoring_functions,
+        highlight=highlight,
     )
     return es.search(index=index, body=body)
 
@@ -198,6 +204,7 @@ def facet_search(
     scoring_functions=None,
     facet_filters=None,
     aggs_definitions=None,
+    highlight=None,
 ):
 
     aggs = get_elasticsearch_aggs(aggs_definitions) if aggs_definitions else {}
@@ -215,6 +222,7 @@ def facet_search(
         search_operator=search_operator,
         scoring_functions=scoring_functions,
         aggs=aggs,
+        highlight=highlight,
     )
 
     unfiltered_body = get_search_body(
@@ -308,6 +316,7 @@ class BaseElasticSearchApi(BaseModelIndex):
         search_operator=es_settings.SEARCH_QUERY_OPERATOR,
         scoring_functions=None,
         raw_results=False,
+        highlight=None,
     ):
         search_results = search(
             self.get_index_name(),
@@ -321,6 +330,7 @@ class BaseElasticSearchApi(BaseModelIndex):
             search_type=search_type,
             search_operator=search_operator,
             scoring_functions=scoring_functions,
+            highlight=highlight,
         )
 
         total_hits = search_results["hits"]["total"]["value"]
@@ -343,6 +353,7 @@ class BaseElasticSearchApi(BaseModelIndex):
         scoring_functions=None,
         facet_filters=None,
         aggs_definitions=None,
+        highlight=None,
     ):
         search_results, unfiltered_result = facet_search(
             self.get_index_name(),
@@ -358,6 +369,7 @@ class BaseElasticSearchApi(BaseModelIndex):
             scoring_functions=scoring_functions,
             default_filters=self.get_filters(filters),
             aggs_definitions=aggs_definitions,
+            highlight=highlight,
         )
 
         return (
@@ -378,6 +390,7 @@ class BaseElasticSearchApi(BaseModelIndex):
         search_type=es_settings.SEARCH_QUERY_TYPE,
         search_operator=es_settings.SEARCH_QUERY_OPERATOR,
         scoring_functions=None,
+        highlight=None,
     ):
         instances, total_hits = self.search(
             from_=from_,
@@ -390,6 +403,7 @@ class BaseElasticSearchApi(BaseModelIndex):
             search_type=search_type,
             search_operator=search_operator,
             scoring_functions=scoring_functions,
+            highlight=highlight,
         )
 
         return paginate_result(instances, total_hits, to)
@@ -408,6 +422,7 @@ class BaseElasticSearchApi(BaseModelIndex):
         scoring_functions=None,
         facet_filters=None,
         aggs_definitions=None,
+        highlight=None,
     ):
         instances, search_results, unfiltered_result = self.facet_search(
             from_=from_,
@@ -422,6 +437,7 @@ class BaseElasticSearchApi(BaseModelIndex):
             scoring_functions=scoring_functions,
             facet_filters=facet_filters,
             aggs_definitions=aggs_definitions,
+            highlight=highlight,
         )
 
         total_hits = search_results["hits"]["total"]["value"]
