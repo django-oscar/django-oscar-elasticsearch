@@ -70,6 +70,7 @@ class ProductMapping(OscarBaseMapping):
         odin.define(from_field="upc", to_field="code_auto_complete"),
         odin.define(from_field="upc", to_field="code"),
         odin.define(from_field="is_available_to_buy", to_field="is_available"),
+        odin.define(from_field="availability", to_field="num_available"),
     )
 
     @odin.map_field(from_field="product_class")
