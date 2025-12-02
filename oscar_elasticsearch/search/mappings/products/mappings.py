@@ -192,3 +192,7 @@ class ProductMapping(OscarBaseMapping):
     def parent_id(self):
         if self.source.parent:
             return self.source.parent.id
+
+    @odin.assign_field(to_field="has_image")
+    def has_image(self):
+        return bool(self.source.images)

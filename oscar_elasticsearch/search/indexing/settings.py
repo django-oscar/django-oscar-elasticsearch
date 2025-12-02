@@ -88,6 +88,7 @@ def get_products_index_mapping():
             "date_updated": {"type": "date"},
             "string_attrs": {"type": "text", "copy_to": "_all_text"},
             "popularity": {"type": "integer"},
+            "has_image": {"type": "boolean"},
             "status": {"type": "text"},
             "categories": {
                 "type": "nested",

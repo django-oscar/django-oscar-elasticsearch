@@ -62,6 +62,8 @@ Follow these steps to set up the project:
 - **`OSCAR_ELASTICSEARCH_FACET_BUCKET_SIZE`**: Sets the size of facet buckets. Default is `10`.
 - **`OSCAR_ELASTICSEARCH_INDEXING_CHUNK_SIZE`**: Defines chunk size for batch indexing operations. Default is `400`.
 - **`OSCAR_ELASTICSEARCH_PRIORITIZE_AVAILABLE_PRODUCTS`**: Prioritizes available products in search results. Default is `True`.
+- **`OSCAR_ELASTICSEARCH_PRODUCTS_WITH_IMAGES_FIRST`**: Always show products with images first, takes precedence over the ordering entered by the user. Default is `False`.
+- **`OSCAR_ELASTICSEARCH_ONLY_PRODUCTS_WITH_IMAGES`**: Only show products with images. Default is `False`.
 
 
 ## 📜 Usage
