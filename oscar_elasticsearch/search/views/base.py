@@ -53,7 +53,7 @@ class BaseSearchView(ListView):
         if settings.FILTER_AVAILABLE:
             filters.append({"term": {"is_available": True}})
 
-        if settings.ONLY_PRODUCTS_WITH_IMAGES:
+        if settings.HIDE_IMAGELESS_PRODUCTS:
             filters.append({"term": {"has_image": True}})
 
         filters.append(
