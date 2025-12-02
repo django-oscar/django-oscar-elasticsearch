@@ -53,6 +53,9 @@ class BaseSearchView(ListView):
         if settings.FILTER_AVAILABLE:
             filters.append({"term": {"is_available": True}})
 
+        if settings.HIDE_IMAGELESS_PRODUCTS:
+            filters.append({"term": {"has_image": True}})
+
         filters.append(
             {
                 "nested": {
@@ -119,6 +122,9 @@ class BaseSearchView(ListView):
 
         else:
             sort_by.append("_score")
+
+        if settings.PRODUCTS_WITH_IMAGES_FIRST:
+            sort_by.insert(0, {"has_image": "desc"})
 
         return sort_by
 

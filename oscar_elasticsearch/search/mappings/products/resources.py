@@ -41,3 +41,4 @@ class ProductElasticSearchResource(OscarElasticSearchResourceMixin):
     popularity: int
     status: List[str]
     suggest: List[str]
+    has_image: bool
