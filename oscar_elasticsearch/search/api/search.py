@@ -151,6 +151,9 @@ def get_elasticsearch_aggs(aggs_definitions):
 
             aggs[name] = date_histogram
 
+        elif facet_type == "raw":
+            aggs[name] = facet_definition.get("definition", {})
+
         if name in aggs and nested:
             aggs[name] = {
                 "nested": {"path": nested["path"]},
