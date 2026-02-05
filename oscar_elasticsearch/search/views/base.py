@@ -67,6 +67,10 @@ class BaseSearchView(ListView):
 
         return filters
 
+    def get_facet_definition(self, name):
+        # pylint: disable=W0640
+        return list(filter(lambda x: x["name"] == name, self.get_aggs_definitions()))[0]
+
     def get_facet_filters(self):
         filters = []
 
@@ -74,10 +78,7 @@ class BaseSearchView(ListView):
             return filters
 
         for name, value in self.form.selected_multi_facets.items():
-            # pylint: disable=W0640
-            definition = list(
-                filter(lambda x: x["name"] == name, self.get_aggs_definitions())
-            )[0]
+            definition = self.get_facet_definition(name)
             if definition["type"] == "range":
                 ranges = []
                 for val in value:

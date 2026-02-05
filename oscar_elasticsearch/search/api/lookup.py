@@ -38,13 +38,11 @@ class BaseLookupIndex(BaseElasticSearchApi, ESModelIndexer):
         return {"properties": {self.LOOKUP_PATH: {"type": "keyword"}}}
 
     def get_lookup_id(self, field_to_filter, **kwargs):
-        raise NotImplementedError(
-            """
+        raise NotImplementedError("""
             Please implement 'get_lookup_id' on your lookup index. 
             Return None to not apply this lookup filter, return the actual id to filter on that id, 
             Id's should always be strings (elasticsearch), never integers
-            """
-        )
+            """)
 
     def get_lookup_query(self, field_to_filter, **kwargs):
         lookup_id = self.get_lookup_id(field_to_filter, **kwargs)

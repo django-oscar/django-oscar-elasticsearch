@@ -58,6 +58,8 @@ def get_attributes_to_index():
             facet_type = "keyword"
             if facet["type"] == "range":
                 facet_type = "double"
+            if facet["type"] == "raw":
+                facet_type = facet.get("field_type", "keyword")
 
             attrs_properties[name] = {"type": facet_type, "copy_to": "_all_text"}
 
