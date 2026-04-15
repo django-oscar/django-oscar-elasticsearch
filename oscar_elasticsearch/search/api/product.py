@@ -74,19 +74,7 @@ class ProductElasticsearchIndex(BaseElasticSearchApi, ESModelIndexer):
         )
 
         # Annotate the queryset with popularity to avoid the need of n+1 queries
-        objects = objects.annotate(
-            popularity=Subquery(
-                Line.objects.filter(
-                    product=OuterRef("pk"),
-                    order__date_placed__gte=timezone.now()
-                    - relativedelta(months=settings.MONTHS_TO_RUN_ANALYTICS),
-                )
-                .values("product")
-                .annotate(count=Count("id"))
-                .values("count"),
-                output_field=IntegerField(),
-            )
-        )
+        objects = objects.annotate(popularity=self.get_popularity_subquery())
 
         product_resources = product_queryset_to_resources(
             objects, include_children=True
@@ -96,3 +84,16 @@ class ProductElasticsearchIndex(BaseElasticSearchApi, ESModelIndexer):
         )
 
         return dict_codec.dump(product_document_resources, include_type_field=False)
+
+    def get_popularity_subquery(self):
+        return Subquery(
+            Line.objects.filter(
+                product=OuterRef("pk"),
+                order__date_placed__gte=timezone.now()
+                - relativedelta(months=settings.MONTHS_TO_RUN_ANALYTICS),
+            )
+            .values("product")
+            .annotate(count=Count("id"))
+            .values("count"),
+            output_field=IntegerField(),
+        )
