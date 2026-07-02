@@ -172,9 +172,11 @@ class BaseSearchView(ListView):
         self.form.is_valid()
 
         items_per_page = self.form.cleaned_data.get("items_per_page", self.paginate_by)
-        elasticsearch_from = (
-            int(self.request.GET.get("page", 1)) * items_per_page
-        ) - items_per_page
+        try:
+            page_number = int(self.request.GET.get("page", 1))
+        except (ValueError, TypeError):
+            page_number = 1
+        elasticsearch_from = (page_number * items_per_page) - items_per_page
 
         query_string = self.request.GET.get("q", "")
         if query_string:
