@@ -106,14 +106,19 @@ class BaseSearchView(ListView):
 
         return filters
 
+    def get_default_sort_by(self):
+        if self.request.GET.get("q"):
+            return settings.DEFAULT_SEARCH_ORDERING
+        return settings.DEFAULT_ORDERING
+
     def get_sort_by(self):
         sort_by = []
         ordering = None
         if hasattr(self.form, "get_sort_params"):
             ordering = self.form.get_sort_params(self.form.cleaned_data)
 
-        if not ordering and not self.request.GET.get("q"):
-            ordering = settings.DEFAULT_ORDERING
+        if not ordering:
+            ordering = self.get_default_sort_by()
 
         if ordering:
             if ordering.startswith("-"):
