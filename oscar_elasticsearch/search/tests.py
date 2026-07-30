@@ -3,7 +3,9 @@ from unittest.mock import patch
 
 from time import sleep
 from django.core.management import call_command
+from django.db import connection
 from django.test import TestCase
+from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
 
 from oscar.core.loading import get_class, get_model
@@ -192,12 +194,20 @@ class ManagementCommandsTestCase(TestCase):
         self.assertEqual(results.count(), 0)
         self.assertEqual(total_hits, 0)
 
-        call_command("update_index_products")
+        with CaptureQueriesContext(connection) as queries:
+            call_command("update_index_products")
         sleep(3)
 
+        # Nothing should be missed across chunk boundaries...
         results, total_hits = self.product_index.search()
         self.assertEqual(results.count(), 6)
         self.assertEqual(total_hits, 6)
+
+        # ...and pagination between chunks should not rely on OFFSET, which
+        # forces the database to scan and discard every preceding row and
+        # gets slower with every chunk on large tables.
+        for query in queries.captured_queries:
+            self.assertNotIn("OFFSET", query["sql"].upper())
 
     def test_update_index_categories(self):
         results, total_hits = self.category_index.search()
@@ -217,12 +227,20 @@ class ManagementCommandsTestCase(TestCase):
         self.assertEqual(results.count(), 0)
         self.assertEqual(total_hits, 0)
 
-        call_command("update_index_categories")
+        with CaptureQueriesContext(connection) as queries:
+            call_command("update_index_categories")
         sleep(3)
 
+        # Nothing should be missed across chunk boundaries...
         results, total_hits = self.category_index.search()
         self.assertEqual(results.count(), 2)
         self.assertEqual(total_hits, 2)
+
+        # ...and pagination between chunks should not rely on OFFSET, which
+        # forces the database to scan and discard every preceding row and
+        # gets slower with every chunk on large tables.
+        for query in queries.captured_queries:
+            self.assertNotIn("OFFSET", query["sql"].upper())
 
     @patch("oscar_elasticsearch.search.settings.INDEXING_CHUNK_SIZE", 1000)
     def test_update_index_products_num_queries(self):
