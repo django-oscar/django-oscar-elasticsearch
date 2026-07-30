@@ -1,7 +1,8 @@
 from collections import defaultdict
 
 from django.db import connection
-from django.db.models import Case, When
+from django.db.models import Case, QuerySet, When
+from django.db.models.query import ModelIterable
 
 
 def chunked(iterable, size, startindex=0):
@@ -13,6 +14,32 @@ def chunked(iterable, size, startindex=0):
     >>> list(chunked([1,2,3,4,5,6,7], 3))
     [[1, 2, 3], [4, 5, 6], [7]]
     """
+    # Querysets of model instances are paginated by primary key rather than sliced by
+    # OFFSET/LIMIT: OFFSET forces the database to walk through and discard
+    # every row before it, so slicing with a growing startindex gets slower
+    # with every chunk and becomes painfully slow deep into a large table.
+    # Filtering on ``pk > last_pk`` instead lets the database seek directly
+    # via the primary key index, so every chunk costs about the same
+    # regardless of how deep into the table it is.
+    if (
+        startindex == 0
+        and isinstance(iterable, QuerySet)
+        # pylint: disable=protected-access
+        and issubclass(iterable._iterable_class, ModelIterable)
+    ):
+        queryset = iterable.order_by("pk")
+        last_pk = None
+        while True:
+            page = queryset if last_pk is None else queryset.filter(pk__gt=last_pk)
+            page = page[:size]
+            ids = list(page.values_list("pk", flat=True))
+            if ids:
+                last_pk = ids[-1]
+                yield page
+            if len(ids) < size:
+                break
+        return
+
     while True:
         chunk = iterable[startindex : startindex + size]
         chunklen = len(chunk)
