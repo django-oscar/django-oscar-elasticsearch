@@ -395,3 +395,37 @@ class TestBrowsableItems(TestCase):
 
         self.assertEqual(len(products), 2)
         self.assertFalse(any([product.structure == "child" for product in products]))
+
+
+class TestUnknownFacets(TestCase):
+    fixtures = [
+        "search/auth",
+        "catalogue/catalogue",
+    ]
+
+    @classmethod
+    def setUpClass(cls):
+        call_command("update_oscar_index")
+        super().setUpClass()
+
+    def setUp(self):
+        super().setUp()
+        update_index_products(Product.objects.values_list("id", flat=True))
+        sleep(3)
+
+    def test_unknown_selected_facet_is_ignored(self):
+        # selected_facets comes straight from the url, so it can name a facet
+        # that is not configured at all.
+        url = reverse("search:search")
+        response = self.client.get(
+            "%s?q=bikini&selected_facets=attrs.nonexisting:henk" % url
+        )
+        self.assertContains(response, "Hermes Bikini")
+
+    def test_unknown_selected_facet_does_not_affect_results(self):
+        url = reverse("catalogue:index")
+        response = self.client.get(url)
+        expected = response.context_data["paginator"].count
+
+        response = self.client.get("%s?selected_facets=bogus:1" % url)
+        self.assertEqual(response.context_data["paginator"].count, expected)

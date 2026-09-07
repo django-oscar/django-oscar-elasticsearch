@@ -68,8 +68,19 @@ class BaseSearchView(ListView):
         return filters
 
     def get_facet_definition(self, name):
-        # pylint: disable=W0640
-        return list(filter(lambda x: x["name"] == name, self.get_aggs_definitions()))[0]
+        """
+        Return the facet definition for ``name``, or None when there is no such
+        facet. The name originates from the ``selected_facets`` query
+        parameter, so it can be anything a visitor puts in the url.
+        """
+        return next(
+            (
+                definition
+                for definition in self.get_aggs_definitions()
+                if definition["name"] == name
+            ),
+            None,
+        )
 
     def get_facet_filters(self):
         filters = []
@@ -79,6 +90,9 @@ class BaseSearchView(ListView):
 
         for name, value in self.form.selected_multi_facets.items():
             definition = self.get_facet_definition(name)
+            if definition is None:
+                continue
+
             if definition["type"] == "range":
                 ranges = []
                 for val in value:
