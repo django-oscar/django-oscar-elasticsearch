@@ -83,6 +83,20 @@ class Indexer(object):
             # No indices yet, make alias from original name to alias name
             es.indices.put_alias(name=self.name, index=self.alias_name)
 
+        # Get all indices associated with the alias
+        aliased_indices = list(
+            es.indices.get_alias(name=self.name, ignore_unavailable=True).keys()
+        )
+
+        # Find all indices matching the pattern but without an alias
+        all_indices = list(
+            es.indices.get(index=f"{self.name}_*", ignore_unavailable=True).keys()
+        )
+        unaliased_indices = set(all_indices) - set(aliased_indices)
+
+        for index in unaliased_indices:
+            self.delete(index)
+
     def create(self, name):
         return es.indices.create(
             index=name, body={"settings": self.settings, "mappings": self.mappings}
