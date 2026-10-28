@@ -17,6 +17,7 @@ from oscar.test.factories import (
 
 import oscar_elasticsearch.search.format
 import oscar_elasticsearch.search.utils
+from oscar_elasticsearch.search.views.base import log_ignored_facets
 
 Product = get_model("catalogue", "Product")
 Category = get_model("catalogue", "Category")
@@ -429,3 +430,53 @@ class TestUnknownFacets(TestCase):
 
         response = self.client.get("%s?selected_facets=bogus:1" % url)
         self.assertEqual(response.context_data["paginator"].count, expected)
+
+
+class TestFacetMissingFromIndex(TestCase):
+    """
+    A facet that was added to the settings after products with that attribute
+    were indexed must not break the page.
+    """
+
+    fixtures = [
+        "search/auth",
+        "catalogue/catalogue",
+    ]
+
+    @classmethod
+    def setUpClass(cls):
+        call_command("update_oscar_index")
+        super().setUpClass()
+
+    def test_facet_on_dynamically_mapped_attribute_does_not_break_page(self):
+        # The field was indexed before it was a facet, so elasticsearch mapped
+        # it dynamically as text, which cannot be aggregated on.
+        es = get_class("search.backend", "es")
+        index = ProductElasticsearchIndex().get_index_name()
+        es.index(
+            index=index,
+            id="dynamic-brand",
+            body={"title": "dynamic", "attrs": {"brand": "acme"}},
+            refresh=True,
+        )
+        mapping = es.indices.get_mapping(index=index)
+        properties = list(mapping.values())[0]["mappings"]["properties"]
+        self.assertEqual(properties["attrs"]["properties"]["brand"]["type"], "text")
+
+        facets = [{"name": "attrs.brand", "label": "Brand", "type": "term"}]
+        url = reverse("catalogue:index")
+        log_ignored_facets.cache_clear()
+        with patch(
+            "oscar_elasticsearch.search.views.base.BaseSearchView.aggs_definitions",
+            facets,
+        ):
+            with self.assertLogs("oscar_elasticsearch.search.views.base") as logs:
+                response = self.client.get(url)
+            self.assertEqual(response.status_code, 200)
+            self.assertIn("update_oscar_index", logs.output[0])
+            self.assertIn("attrs.brand", logs.output[0])
+
+            # logged only once, but selecting the facet must keep working
+            with self.assertNoLogs("oscar_elasticsearch.search.views.base"):
+                response = self.client.get(url + "?selected_facets=attrs.brand:acme")
+            self.assertEqual(response.status_code, 200)
