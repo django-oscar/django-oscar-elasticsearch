@@ -56,26 +56,26 @@ class BaseSearchView(ListView):
     def get_aggs_definitions(self):
         return getattr(self, "_aggs_definitions", self.aggs_definitions)
 
-    def ignore_unaggregatable_facets(self):
+    def get_unaggregatable_facets(self):
         """
-        Stop using the facets that elasticsearch cannot aggregate on, which is
-        the case for a facet added to the settings while the index still maps
-        its field as text. Returns whether there were any.
+        Names of the facets elasticsearch cannot aggregate on, which is the case
+        for a facet added to the settings while the index still maps its field
+        as text.
         """
         names = [d["name"] for d in self.aggs_definitions if d["type"] != "raw"]
         capabilities = es.field_caps(index=OSCAR_PRODUCTS_INDEX_NAME, fields=names)
-        ignored = [
+        return [
             name
             for name, types in capabilities["fields"].items()
             if not all(caps["aggregatable"] for caps in types.values())
         ]
-        if ignored:
-            log_ignored_facets(tuple(ignored))
-            # pylint: disable=W0201
-            self._aggs_definitions = [
-                d for d in self.aggs_definitions if d["name"] not in ignored
-            ]
-        return bool(ignored)
+
+    def skip_facets(self, names):
+        log_ignored_facets(tuple(names))
+        # pylint: disable=W0201
+        self._aggs_definitions = [
+            d for d in self.aggs_definitions if d["name"] not in names
+        ]
 
     def get_scoring_functions(self):
         return self.scoring_functions if self.scoring_functions else None
@@ -210,8 +210,10 @@ class BaseSearchView(ListView):
         try:
             paginator, search_results, unfiltered_result = self.facet_search(*args)
         except ElasticSearchQueryException:
-            if not self.ignore_unaggregatable_facets():
+            unaggregatable_facets = self.get_unaggregatable_facets()
+            if not unaggregatable_facets:
                 raise
+            self.skip_facets(unaggregatable_facets)
             paginator, search_results, unfiltered_result = self.facet_search(*args)
 
         if "aggregations" in unfiltered_result:
