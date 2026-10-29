@@ -1,3 +1,5 @@
+import logging
+from functools import cache
 from decimal import Decimal as D
 
 from django.views.generic.list import ListView
@@ -5,6 +7,7 @@ from django.utils.translation import gettext
 
 from oscar.core.loading import get_class, get_model
 
+from oscar_elasticsearch.exceptions import ElasticSearchQueryException
 from oscar_elasticsearch.search import settings
 from oscar_elasticsearch.search.facets import process_facets
 from oscar_elasticsearch.search.signals import query_hit
@@ -20,6 +23,18 @@ Product = get_model("catalogue", "Product")
 
 
 product_search_api = ProductElasticsearchIndex()
+
+logger = logging.getLogger(__name__)
+
+
+@cache
+def log_ignored_facets(names):
+    """Logs once per process for each combination of ignored facets."""
+    logger.error(
+        "Ignoring facets %s, their fields are not aggregatable in the products "
+        "index. Run `update_oscar_index` to fix this.",
+        ", ".join(names),
+    )
 
 
 class BaseSearchView(ListView):
@@ -39,7 +54,28 @@ class BaseSearchView(ListView):
     ]
 
     def get_aggs_definitions(self):
-        return self.aggs_definitions
+        return getattr(self, "_aggs_definitions", self.aggs_definitions)
+
+    def get_unaggregatable_facets(self):
+        """
+        Names of the facets elasticsearch cannot aggregate on, which is the case
+        for a facet added to the settings while the index still maps its field
+        as text.
+        """
+        names = [d["name"] for d in self.aggs_definitions if d["type"] != "raw"]
+        capabilities = es.field_caps(index=OSCAR_PRODUCTS_INDEX_NAME, fields=names)
+        return [
+            name
+            for name, types in capabilities["fields"].items()
+            if not all(caps["aggregatable"] for caps in types.values())
+        ]
+
+    def skip_facets(self, names):
+        log_ignored_facets(tuple(names))
+        # pylint: disable=W0201
+        self._aggs_definitions = [
+            d for d in self.aggs_definitions if d["name"] not in names
+        ]
 
     def get_scoring_functions(self):
         return self.scoring_functions if self.scoring_functions else None
@@ -155,21 +191,30 @@ class BaseSearchView(ListView):
             selected_facets=request.GET.getlist("selected_facets", []),
         )
 
+    def facet_search(self, elasticsearch_from, items_per_page, query_string):
+        return product_search_api.paginated_facet_search(
+            from_=elasticsearch_from,
+            to=items_per_page,
+            query_string=query_string,
+            filters=self.get_default_filters(),
+            sort_by=self.get_sort_by(),
+            scoring_functions=self.get_scoring_functions(),
+            facet_filters=self.get_facet_filters(),
+            aggs_definitions=self.get_aggs_definitions(),
+        )
+
     def get_elasticsearch_result(
         self, elasticsearch_from, items_per_page, query_string
     ):
-        paginator, search_results, unfiltered_result = (
-            product_search_api.paginated_facet_search(
-                from_=elasticsearch_from,
-                to=items_per_page,
-                query_string=query_string,
-                filters=self.get_default_filters(),
-                sort_by=self.get_sort_by(),
-                scoring_functions=self.get_scoring_functions(),
-                facet_filters=self.get_facet_filters(),
-                aggs_definitions=self.get_aggs_definitions(),
-            )
-        )
+        args = (elasticsearch_from, items_per_page, query_string)
+        try:
+            paginator, search_results, unfiltered_result = self.facet_search(*args)
+        except ElasticSearchQueryException:
+            unaggregatable_facets = self.get_unaggregatable_facets()
+            if not unaggregatable_facets:
+                raise
+            self.skip_facets(unaggregatable_facets)
+            paginator, search_results, unfiltered_result = self.facet_search(*args)
 
         if "aggregations" in unfiltered_result:
             processed_facets = process_facets(
